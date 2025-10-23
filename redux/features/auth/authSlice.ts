@@ -23,10 +23,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setAccessToken: (state, action: PayloadAction<string>) => {
-      state.isAuthenticated = true;
       state.token = action.payload;
     },
-    logout: () => initialState,
+    logout: () => {
+      console.log("Auth state after logout:", initialState);
+      return initialState;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -36,16 +38,17 @@ const authSlice = createSlice({
       })
       .addCase(loginAsync.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log("Auth state:", state);
         state.isAuthenticated = true;
         state.token = action.payload.accessToken;
         state.user = action.payload.user;
       })
       .addCase(loginAsync.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload ?? "Đăng nhập thất bại1";
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { setAccessToken } = authSlice.actions;
+export const { setAccessToken, logout } = authSlice.actions;
 export default authSlice.reducer;

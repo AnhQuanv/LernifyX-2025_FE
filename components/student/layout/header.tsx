@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitials } from "@/lib/utils";
+import type { RootState } from "@/redux/store";
 import {
   Heart,
   ShoppingCart,
@@ -30,9 +31,43 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/redux/features/auth/authSlice";
+import { useEffect, useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { WishlistPopover } from "@/components/ui/wishlist-popover";
+import { CartPopover } from "@/components/ui/cart-popover";
 
-const Header = ({ isAuthenticated = false }) => {
+const Header = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("Auth state:", { isAuthenticated, user });
+  }, [isAuthenticated, user]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/auth/login");
+  };
+
+  const navItems = [
+    { label: "Home", href: "/homepage" },
+    { label: "Course", href: "/courses" },
+    { label: "Teacher", href: "/teachers" },
+    { label: "About", href: "/about" },
+  ];
+
   return (
     <>
       <header className="bg-gradient-to-r from-violet-700 to-purple-600 text-white sticky top-0 left-0 w-full z-[1000] py-3">
@@ -52,22 +87,18 @@ const Header = ({ isAuthenticated = false }) => {
 
           {/* Navigation - Desktop */}
           <nav className="hidden sm:flex gap-5 md:gap-8">
-            <button className="text-white text-lg font-semibold relative cursor-pointer">
-              Home
-              <span className="absolute -bottom-1 left-0 h-0.5 bg-white w-full" />
-            </button>
-            <button className="text-white text-lg hover:text-violet-100 relative group cursor-pointer">
-              Course
-              <span className="absolute -bottom-1 left-0 h-0.5 bg-white w-0 group-hover:w-full transition-all duration-300" />
-            </button>
-            <button className="text-white text-lg hover:text-violet-100 relative group cursor-pointer">
-              Teacher
-              <span className="absolute -bottom-1 left-0 h-0.5 bg-white w-0 group-hover:w-full transition-all duration-300" />
-            </button>
-            <button className="text-white text-lg hover:text-violet-100 relative group cursor-pointer">
-              About
-              <span className="absolute -bottom-1 left-0 h-0.5 bg-white w-0 group-hover:w-full transition-all duration-300" />
-            </button>
+            {navItems.map((item) => (
+              <button
+                key={item.href}
+                onClick={() => router.push(item.href)}
+                className={`text-white text-lg hover:text-violet-100 relative group cursor-pointer transition-colors ${
+                  item.label === "Home" ? "font-semibold" : ""
+                }`}
+              >
+                {item.label}
+                <span className="absolute -bottom-1 left-0 h-0.5 bg-white w-0 group-hover:w-full transition-all duration-300" />
+              </button>
+            ))}
           </nav>
 
           {/* Right actions */}
@@ -90,33 +121,43 @@ const Header = ({ isAuthenticated = false }) => {
                 </span>
               </div>
 
-              {/* Wishlist Button */}
-              <div className="relative group">
-                <button
-                  className="text-white flex items-center justify-center w-10 h-10 rounded-full bg-white/10 relative"
-                  aria-label="View wish list"
-                >
-                  <Heart className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500">
-                    3
-                  </Badge>
-                </button>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform duration-300" />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="text-white flex items-center justify-center w-10 h-10 rounded-full bg-white/10 relative hover:bg-white/20 transition-colors"
+                    aria-label="View wish list"
+                  >
+                    <Heart className="w-5 h-5" />
+                    {wishlistItems.length > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500">
+                        {wishlistItems.length}
+                      </Badge>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 border-0 shadow-lg" align="end">
+                  <WishlistPopover items={wishlistItems} />
+                </PopoverContent>
+              </Popover>
 
-              {/* Cart Button */}
-              <div className="relative group">
-                <button
-                  className="text-white flex items-center justify-center w-10 h-10 rounded-full bg-white/10 relative"
-                  aria-label="View shopping cart"
-                >
-                  <ShoppingCart className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500">
-                    2
-                  </Badge>
-                </button>
-                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white scale-0 group-hover:scale-100 transition-transform duration-300" />
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    className="text-white flex items-center justify-center w-10 h-10 rounded-full bg-white/10 relative hover:bg-white/20 transition-colors"
+                    aria-label="View shopping cart"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartItems.length > 0 && (
+                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500">
+                        {cartItems.length}
+                      </Badge>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 border-0 shadow-lg" align="end">
+                  <CartPopover items={cartItems} />
+                </PopoverContent>
+              </Popover>
 
               {/* User Dropdown */}
               {isAuthenticated ? (
@@ -130,7 +171,7 @@ const Header = ({ isAuthenticated = false }) => {
                         <Avatar className="h-9 w-9 rounded-xl ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-200">
                           <AvatarImage src={"/placeholder.svg"} alt={""} />
                           <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-sm rounded-xl">
-                            {getInitials("Anh Quan")}
+                            {getInitials(user?.fullName || "C C")}
                           </AvatarFallback>
                         </Avatar>
                         <ChevronDown className="w-4 h-4 text-white/80" />
@@ -146,17 +187,17 @@ const Header = ({ isAuthenticated = false }) => {
                         <Avatar className="h-9 w-9 rounded-xl ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-200">
                           <AvatarImage src={"/placeholder.svg"} alt={""} />
                           <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-semibold text-sm rounded-xl">
-                            {getInitials("Anh Quan")}
+                            {getInitials(user?.fullName || "C C")}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 text-left min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className="truncate font-medium text-sm">
-                              Võ Annh Quân
+                              {user?.fullName || "C C"}
                             </span>
                           </div>
                           <span className="truncate text-xs text-muted-foreground">
-                            anhquan@gmail.com
+                            {user?.email || "unknown@gmail.com"}
                           </span>
                         </div>
                       </div>
@@ -171,14 +212,19 @@ const Header = ({ isAuthenticated = false }) => {
                       <ShoppingCart className="w-4 h-4 text-violet-600 mr-2" />
                       <div className="flex items-center justify-between w-full">
                         <span>My cart</span>
-                        <span className="bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                          1
+                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {cartItems.length}
                         </span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-violet-800 hover:bg-violet-50 rounded-lg">
-                      <Heart className="w-4 h-4 text-pink-500 mr-2" />
-                      Wishlist
+                      <Heart className="w-4 h-4 text-violet-600 mr-2" />
+                      <div className="flex items-center justify-between w-full">
+                        <span>Wishlist</span>
+                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          {wishlistItems.length}
+                        </span>
+                      </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-violet-800 hover:bg-violet-50 rounded-lg">
                       <Clipboard className="w-4 h-4 text-violet-600 mr-2" />
@@ -253,9 +299,12 @@ const Header = ({ isAuthenticated = false }) => {
                       <HelpCircle className="w-4 h-4 text-violet-600 mr-2" />
                       Help and Support
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-500 hover:bg-red-50 rounded-lg mt-1">
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-500 hover:bg-red-50 rounded-lg mt-1 cursor-pointer"
+                    >
                       <LogOut className="w-4 h-4 text-red-500 mr-2" />
-                      Log out
+                      <span>Logout</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

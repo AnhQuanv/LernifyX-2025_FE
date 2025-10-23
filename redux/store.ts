@@ -1,5 +1,9 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/redux/features/auth/authSlice";
+import categoryReducer from "@/redux/features/category/categorySlice";
+import wishlistReducer from "@/redux/features/wishlist/wishListSlice";
+import courseReducer from "@/redux/features/course/courseSlice";
+import cartReducer from "@/redux/features/cart/cartSlice";
 import storage from "redux-persist/lib/storage";
 import {
   persistReducer,
@@ -14,12 +18,16 @@ import {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  category: categoryReducer,
+  wishlist: wishlistReducer,
+  cart: cartReducer,
+  course: courseReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
+  whitelist: ["auth", "wishlist", "cart"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
