@@ -27,6 +27,7 @@ export function LoginForm() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [showVerify, setShowVerify] = useState(false);
 
   const validateForm = () => {
     const newErrors = {
@@ -64,13 +65,26 @@ export function LoginForm() {
     try {
       await dispatch(loginAsync({ email, password })).unwrap();
       router.push("/homepage");
-    } catch (err: unknown) {
-      if (typeof err === "string") {
-        setErrors((prev) => ({ ...prev, general: err }));
+    } catch (err: any) {
+      const errorCode = err?.errorCode;
+      const message = err?.message;
+      console.log("Login error code:", errorCode);
+      if (errorCode === "INVALID_CREDENTIALS") {
+        setErrors((prev) => ({
+          ...prev,
+          general: "Email hoặc mật khẩu không đúng.",
+        }));
+      } else if (errorCode === "ACCOUNT_NOT_VERIFIED") {
+        // ✅ Nếu tài khoản chưa kích hoạt
+        setErrors((prev) => ({
+          ...prev,
+          general: "Tài khoản chưa được kích hoạt. Vui lòng xác minh email.",
+        }));
+        setShowVerify(true);
       } else {
         setErrors((prev) => ({
           ...prev,
-          general: "Đã có lỗi xảy ra. Vui lòng thử lại.",
+          general: err?.message || "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
         }));
       }
     } finally {
@@ -222,10 +236,13 @@ export function LoginForm() {
       />
 
       <EmailVerificationModal
-        isOpen={showForgotPasswordModal}
-        onClose={() => setShowForgotPasswordModal(false)}
-        email="banh@gmail.com"
-        onSuccess={() => {}}
+        isOpen={showVerify}
+        onClose={() => setShowVerify(false)}
+        email={email}
+        onSuccess={() => {
+          setShowVerify(false);
+          router.push("/auth/login");
+        }}
       />
     </>
   );

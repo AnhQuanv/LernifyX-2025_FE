@@ -73,53 +73,6 @@ export function EmailVerificationModal({
     return true;
   };
 
-  // const handleVerifyCode = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setErrors({ general: "", code: "" });
-
-  //   if (!validateCode()) {
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-
-  //   try {
-  //     // Simulate API call
-  //     // await new Promise((resolve) => setTimeout(resolve, 2000));
-  //     await verifyEmail(email, code);
-
-  //     const random = Math.random();
-  //     if (random < 0.25) {
-  //       setErrors((prev) => ({
-  //         ...prev,
-  //         general: "Mã xác thực không chính xác",
-  //       }));
-  //     } else if (random < 0.35) {
-  //       setErrors((prev) => ({
-  //         ...prev,
-  //         general: "Mã xác thực đã hết hạn",
-  //       }));
-  //     } else {
-  //       setStep("success");
-  //       // Delay before calling onSuccess to show success state
-  //       setTimeout(() => {
-  //         onSuccess();
-  //         handleClose();
-  //       }, 2000);
-  //     }
-  //   } catch (err: any) {
-  //     const code = err?.code;
-  //     const message = err?.response?.data?.message || err?.message;
-  //     if(code === 400 )
-  //     setErrors((prev) => ({
-  //       ...prev,
-  //       general: "Đã có lỗi xảy ra. Vui lòng thử lại.",
-  //     }));
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({ general: "", code: "" });
