@@ -22,4 +22,5 @@ export interface filterCourseParams {
   sortBy?: "a-z" | "z-a" | "price_asc" | "price_desc";
   page?: number;
   limit?: number;
+  search?: string;
 }

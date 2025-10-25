@@ -8,6 +8,7 @@ import {
 } from "@/redux/features/wishlist/wishListSlice";
 import { addToCart, removeFromCart } from "@/redux/features/cart/cartSlice";
 import type { Course } from "@/types/course/course";
+import { useEffect, useState } from "react";
 
 export const useWishlistCart = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,4 +45,14 @@ export const useWishlistCart = () => {
     handleWishlistToggle,
     handleCartToggle,
   };
+};
+
+export const useDebounce = (value: string, delay: number) => {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debounced;
 };

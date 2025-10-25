@@ -1,59 +1,22 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
-  Star,
-  Users,
-  Clock,
-  PlayCircle,
-  Heart,
   Search,
-  TrendingDown,
-  ShoppingCart,
   ChevronLeft,
   ChevronRight,
   Filter,
-  X,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
-
-const CountdownTimer = ({ expiresAt }: { expiresAt: string }) => {
-  const [timeLeft, setTimeLeft] = useState("");
-
-  useEffect(() => {
-    const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const expiryTime = new Date(expiresAt).getTime();
-      const difference = expiryTime - now;
-
-      if (difference <= 0) {
-        setTimeLeft("Expired");
-        return;
-      }
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      const formatNumber = (num: number) => (num < 10 ? `0${num}` : num);
-
-      setTimeLeft(
-        `${formatNumber(days)}d : ${formatNumber(hours)}h : ${formatNumber(
-          minutes
-        )}m : ${formatNumber(seconds)}s`
-      );
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
-  }, [expiresAt]);
-
-  return <span className="text-xs font-semibold text-white">{timeLeft}</span>;
-};
+import CourseCard from "@/components/ui/courseCard";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
+import { useDebounce, useWishlistCart } from "@/lib/commonHooks";
+import { getAllCategories } from "@/redux/thunk/categoryThunk";
+import { getFilterCourses } from "@/redux/thunk/courseThunk";
+import type { Course, filterCourseParams } from "@/types/course/course";
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -62,311 +25,97 @@ const CoursesPage = () => {
   const [sortBy, setSortBy] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [wishlist, setWishlist] = useState(new Set());
-  const [cart, setCart] = useState(new Set());
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
-  const itemsPerPage = 6;
+  const dispatch = useDispatch<AppDispatch>();
+  const { categories, status: categoryStatus } = useSelector(
+    (state: RootState) => state.category
+  );
+  const {
+    filteredCourses,
+    pagination,
+    status: courseStatus,
+  } = useSelector((state: RootState) => state.course);
+  const { isInWishlist, isInCart, handleWishlistToggle, handleCartToggle } =
+    useWishlistCart();
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const allCourses = [
-    {
-      id: 1,
-      title: "Complete React Development Course",
-      instructor: "John Smith",
-      rating: 4.8,
-      students: 12500,
-      price: 89.99,
-      originalPrice: 199.99,
-      discount: 55,
-      level: "Intermediate",
-      duration: "40 hours",
-      category: "Programming",
-      discountExpiresAt: new Date(
-        Date.now() + 5 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Masterclass",
-      instructor: "Sarah Johnson",
-      rating: 4.9,
-      students: 8900,
-      price: 149.99,
-      originalPrice: null,
-      discount: null,
-      level: "Beginner",
-      duration: "25 hours",
-      category: "Marketing",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 3,
-      title: "UI/UX Design Fundamentals",
-      instructor: "Mike Chen",
-      rating: 4.7,
-      students: 15200,
-      price: 69.99,
-      originalPrice: 129.99,
-      discount: 46,
-      level: "Beginner",
-      duration: "30 hours",
-      category: "Design",
-      discountExpiresAt: new Date(
-        Date.now() + 7 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 4,
-      title: "Python for Data Science",
-      instructor: "Lisa Wang",
-      rating: 4.9,
-      students: 20100,
-      price: 179.99,
-      originalPrice: null,
-      discount: null,
-      level: "Advanced",
-      duration: "50 hours",
-      category: "Data Science",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 5,
-      title: "Machine Learning Bootcamp",
-      instructor: "David Brown",
-      rating: 4.8,
-      students: 18400,
-      price: 109.99,
-      originalPrice: 249.99,
-      discount: 56,
-      level: "Advanced",
-      duration: "60 hours",
-      category: "Data Science",
-      discountExpiresAt: new Date(
-        Date.now() + 1 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 6,
-      title: "WordPress Development",
-      instructor: "Emma Wilson",
-      rating: 4.6,
-      students: 9200,
-      price: 119.99,
-      originalPrice: null,
-      discount: null,
-      level: "Beginner",
-      duration: "20 hours",
-      category: "Web Development",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 7,
-      title: "Photoshop Mastery Course",
-      instructor: "Alex Turner",
-      rating: 4.9,
-      students: 13800,
-      price: 74.99,
-      originalPrice: 159.99,
-      discount: 53,
-      level: "Intermediate",
-      duration: "35 hours",
-      category: "Design",
-      discountExpiresAt: new Date(
-        Date.now() + 6 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 8,
-      title: "JavaScript Advanced Concepts",
-      instructor: "Maria Garcia",
-      rating: 4.8,
-      students: 16700,
-      price: 179.99,
-      originalPrice: null,
-      discount: null,
-      level: "Advanced",
-      duration: "45 hours",
-      category: "Programming",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 9,
-      title: "SEO Optimization Masterclass",
-      instructor: "Tom Wilson",
-      rating: 4.7,
-      students: 7600,
-      price: 64.99,
-      originalPrice: 129.99,
-      discount: 50,
-      level: "Intermediate",
-      duration: "28 hours",
-      category: "Marketing",
-      discountExpiresAt: new Date(
-        Date.now() + 8 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 10,
-      title: "Web Design with Figma",
-      instructor: "Lisa Park",
-      rating: 4.8,
-      students: 11200,
-      price: 149.99,
-      originalPrice: null,
-      discount: null,
-      level: "Beginner",
-      duration: "32 hours",
-      category: "Design",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 11,
-      title: "Node.js Backend Development",
-      instructor: "James Lee",
-      rating: 4.9,
-      students: 14500,
-      price: 99.99,
-      originalPrice: 199.99,
-      discount: 50,
-      level: "Intermediate",
-      duration: "48 hours",
-      category: "Programming",
-      discountExpiresAt: new Date(
-        Date.now() + 5 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-    {
-      id: 12,
-      title: "Content Marketing Strategy",
-      instructor: "Rachel Green",
-      rating: 4.6,
-      students: 6800,
-      price: 139.99,
-      originalPrice: null,
-      discount: null,
-      level: "Beginner",
-      duration: "22 hours",
-      category: "Marketing",
-      discountExpiresAt: null,
-      image:
-        "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg",
-    },
-  ];
-
-  const categories = [
+  const displayCategories = [
     "All",
-    "Programming",
-    "Design",
-    "Marketing",
-    "Data Science",
-    "Web Development",
+    ...categories.map((cat) => cat.categoryName),
   ];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
-  const ratings = ["All", "4.5+", "4.7+", "4.9"];
+  // const ratings = ["All", "4.5+", "4.7+", "4.9"];
+  const ratings = [
+    { label: "All", value: "All" },
+    { label: "4.5+", value: "4.5" },
+    { label: "4.0+", value: "4.0" },
+    { label: "3.5+", value: "3.5" },
+    { label: "3.0+", value: "3.0" },
+  ];
   const sortOptions = [
-    { value: "default", label: "Mặc định" },
+    { value: "default", label: "Default" },
     { value: "a-z", label: "A - Z" },
     { value: "z-a", label: "Z - A" },
-    { value: "price_asc", label: "Giá: Thấp đến Cao" },
-    { value: "price_desc", label: "Giá: Cao đến Thấp" },
+    { value: "price_asc", label: "Price: Low to High" },
+    { value: "price_desc", label: "Price: High to Low" },
   ];
 
-  let filteredCourses = allCourses.filter((course) => {
-    const matchesCategory =
-      selectedCategory === "All" || course.category === selectedCategory;
-    const matchesLevel =
-      selectedLevel === "All" || course.level === selectedLevel;
-    const matchesSearch = course.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    let matchesRating = true;
-    if (selectedRating !== "All") {
-      const ratingThreshold = Number.parseFloat(selectedRating);
-      matchesRating = course.rating >= ratingThreshold;
-    }
-
-    return matchesCategory && matchesLevel && matchesSearch && matchesRating;
-  });
-
-  if (sortBy === "a-z") {
-    filteredCourses = [...filteredCourses].sort((a, b) =>
-      a.title.localeCompare(b.title)
-    );
-  } else if (sortBy === "z-a") {
-    filteredCourses = [...filteredCourses].sort((a, b) =>
-      b.title.localeCompare(a.title)
-    );
-  } else if (sortBy === "price_asc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => a.price - b.price);
-  } else if (sortBy === "price_desc") {
-    filteredCourses = [...filteredCourses].sort((a, b) => b.price - a.price);
-  }
-
-  const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCourses = filteredCourses.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const categoriesToShow = showAllCategories
+    ? displayCategories
+    : displayCategories.slice(0, 4);
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, selectedLevel, selectedRating, sortBy, searchQuery]);
+    if (categoryStatus === "idle" || categories.length === 0) {
+      dispatch(getAllCategories());
+    }
+  }, [dispatch, categoryStatus, categories.length]);
+
+  useEffect(() => {
+    if (courseStatus === "loading") {
+      setIsFilterLoading(true);
+    } else if (courseStatus === "succeeded") {
+      // Add small delay for smooth transition
+      const timer = setTimeout(() => setIsFilterLoading(false), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [courseStatus]);
+
+  useEffect(() => {
+    const params: filterCourseParams = {
+      category: selectedCategory !== "All" ? selectedCategory : undefined,
+      level: selectedLevel !== "All" ? selectedLevel : undefined,
+      rating: selectedRating !== "All" ? selectedRating : undefined,
+      sortBy: sortBy !== "default" ? (sortBy as any) : undefined,
+      search: debouncedSearch ? debouncedSearch : undefined,
+      page: currentPage,
+      limit: 9,
+    };
+
+    dispatch(getFilterCourses({ params }));
+  }, [
+    dispatch,
+    selectedCategory,
+    selectedLevel,
+    selectedRating,
+    sortBy,
+    currentPage,
+    debouncedSearch,
+  ]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [dispatch]);
 
-  if (isLoading) {
+  if (isLoading || categoryStatus === "loading" || categoryStatus === "idle") {
     return <LoadingSkeleton />;
   }
-
-  const toggleWishlist = (courseId: number) => {
-    const newWishlist = new Set(wishlist);
-    if (newWishlist.has(courseId)) {
-      newWishlist.delete(courseId);
-    } else {
-      newWishlist.add(courseId);
-    }
-    setWishlist(newWishlist);
-  };
-
-  const toggleCart = (courseId: number) => {
-    const newCart = new Set(cart);
-    if (newCart.has(courseId)) {
-      newCart.delete(courseId);
-    } else {
-      newCart.add(courseId);
-    }
-    setCart(newCart);
-  };
 
   const FilterSection = () => (
     <div className="space-y-6">
@@ -374,10 +123,10 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Danh mục
+          Category
         </h3>
         <div className="space-y-2">
-          {categories.map((category) => (
+          {categoriesToShow.map((category) => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
@@ -391,13 +140,31 @@ const CoursesPage = () => {
             </button>
           ))}
         </div>
+        {displayCategories.length > 3 && (
+          <button
+            onClick={() => setShowAllCategories(!showAllCategories)}
+            className="w-full mt-3 px-4 py-2 text-violet-600 hover:text-violet-700 font-medium text-sm transition-colors flex items-center justify-center gap-1"
+          >
+            {showAllCategories ? (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                Thu gọn
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                Show all ({displayCategories.length - 3} more categories)
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Level Filter */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Cấp độ
+          Level
         </h3>
         <div className="space-y-2">
           {levels.map((level) => (
@@ -420,21 +187,20 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Đánh giá
+          Rating
         </h3>
         <div className="space-y-2">
           {ratings.map((rating) => (
             <button
-              key={rating}
-              onClick={() => setSelectedRating(rating)}
+              key={rating.value}
+              onClick={() => setSelectedRating(rating.value)}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
-                selectedRating === rating
+                selectedRating === rating.value
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
-              <Star className="w-4 h-4" />
-              {rating}
+              {rating.label}
             </button>
           ))}
         </div>
@@ -444,7 +210,7 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Sắp xếp
+          Sort By
         </h3>
         <div className="space-y-2">
           {sortOptions.map((option) => (
@@ -474,12 +240,14 @@ const CoursesPage = () => {
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl leading-tight">
-              Khám phá khóa học
-              <span className="block text-violet-200 mt-2">của bạn</span>
+              Discover{" "}
+              <span className="block text-violet-200 mt-2">
+                Your Learning Journey
+              </span>
             </h1>
             <p className="text-xl md:text-2xl text-violet-50 max-w-2xl drop-shadow-lg leading-relaxed">
-              Hàng nghìn khóa học chất lượng cao từ các chuyên gia hàng đầu. Học
-              tập linh hoạt, nâng cao kỹ năng mọi lúc mọi nơi.
+              Thousands of high-quality courses from leading experts. Learn
+              flexibly and upgrade your skills anytime, anywhere.
             </p>
           </div>
         </div>
@@ -510,24 +278,6 @@ const CoursesPage = () => {
         </div>
       </section>
 
-      {/* Mobile Filters Overlay */}
-      {showMobileFilters && (
-        <div className="fixed inset-0 bg-black/50 z-50 lg:hidden">
-          <div className="bg-white w-80 h-full overflow-y-auto p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Bộ lọc</h2>
-              <button
-                onClick={() => setShowMobileFilters(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <FilterSection />
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <section className="py-12">
         <div className="container mx-auto px-4 md:px-6">
@@ -542,177 +292,54 @@ const CoursesPage = () => {
             <div className="flex-1 min-w-0">
               <div className="mb-8 flex justify-between items-center">
                 <p className="text-gray-600 text-lg">
-                  Showing {paginatedCourses.length} of {filteredCourses.length}{" "}
-                  courses
+                  Showing {filteredCourses.length} courses
                 </p>
                 <p className="text-gray-600 text-sm">
-                  Page {currentPage} of {totalPages}
+                  Page {pagination.page} of {pagination.totalPages}
                 </p>
               </div>
 
-              {paginatedCourses.length > 0 ? (
+              {filteredCourses.length > 0 ? (
                 <>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedCourses.map((course: any) => (
+                  <div
+                    className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ${
+                      isFilterLoading
+                        ? "blur-sm opacity-50 pointer-events-none"
+                        : "blur-0 opacity-100"
+                    }`}
+                  >
+                    {filteredCourses.map((course: Course, index: number) => (
                       <div
                         key={course.id}
-                        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group border border-gray-100 hover:border-violet-200 transform hover:-translate-y-2"
+                        className={`transition-all duration-500 ${
+                          isFilterLoading
+                            ? "opacity-0 translate-y-4"
+                            : "opacity-100 translate-y-0"
+                        }`}
+                        style={{
+                          transitionDelay: isFilterLoading
+                            ? "0ms"
+                            : `${index * 50}ms`,
+                        }}
                       >
-                        <Link href={`/courses/${course.id}`} className="block">
-                          <div className="relative h-52 overflow-hidden bg-gray-200 cursor-pointer">
-                            <img
-                              src={course.image || "/placeholder.svg"}
-                              alt={course.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
-                            <PlayCircle className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 text-white opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 z-10" />
-
-                            {/* Level Badge */}
-                            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm text-violet-600 px-3 py-1 rounded-full text-sm font-semibold">
-                              {course.level}
-                            </div>
-
-                            {/* Discount Badge */}
-                            <div className="absolute top-4 right-4 flex flex-col gap-2">
-                              {/* Wishlist Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  toggleWishlist(course.id);
-                                }}
-                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg ${
-                                  wishlist.has(course.id)
-                                    ? "bg-red-500 text-white"
-                                    : "bg-white/95 backdrop-blur-sm text-gray-600 hover:bg-white"
-                                }`}
-                              >
-                                <Heart
-                                  className={`w-5 h-5 ${
-                                    wishlist.has(course.id)
-                                      ? "fill-current"
-                                      : ""
-                                  }`}
-                                />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
-                                {course.category}
-                              </span>
-                              <div className="flex items-center space-x-1">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-sm font-semibold text-gray-700">
-                                  {course.rating}
-                                </span>
-                              </div>
-                            </div>
-
-                            <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2">
-                              {course.title}
-                            </h3>
-
-                            <p className="text-gray-600 font-medium">
-                              by {course.instructor}
-                            </p>
-
-                            <div className="flex items-center justify-between text-sm text-gray-500">
-                              <div className="flex items-center space-x-1">
-                                <Users className="w-4 h-4" />
-                                <span>{course.students.toLocaleString()}</span>
-                              </div>
-                              <div className="flex items-center space-x-1">
-                                <Clock className="w-4 h-4" />
-                                <span>{course.duration}</span>
-                              </div>
-                            </div>
-
-                            {/* Discount & Countdown Row */}
-                            <div className="h-[60px]">
-                              {course.discount && (
-                                <div className="flex items-center gap-3">
-                                  {/* Discount Badge */}
-                                  <div className="relative flex-shrink-0">
-                                    <div className="bg-gradient-to-r from-red-500 via-red-600 to-red-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-xl hover:shadow-2xl transition-all duration-300 border-2 border-red-400/50 backdrop-blur-sm animate-pulse">
-                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-xl animate-shimmer"></div>
-                                      <TrendingDown className="w-5 h-5 flex-shrink-0 drop-shadow-lg" />
-                                      <span className="text-base tracking-wide drop-shadow-lg whitespace-nowrap">
-                                        -{course.discount}%
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  {/* Countdown Timer */}
-                                  <div className="relative group flex-1">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                                    <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white px-3 py-2 rounded-lg font-bold shadow-xl border border-orange-500/30">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <div className="flex items-center gap-1.5">
-                                          <Clock className="w-4 h-4 text-orange-400 animate-pulse flex-shrink-0" />
-                                          <span className="text-orange-300 text-xs font-semibold whitespace-nowrap">
-                                            Kết thúc:
-                                          </span>
-                                        </div>
-                                        <div className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-red-300 to-pink-300">
-                                          <CountdownTimer
-                                            expiresAt={course.discountExpiresAt}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                              <div className="space-y-1">
-                                <div className="flex items-center space-x-2">
-                                  <span className="text-2xl font-bold text-violet-600">
-                                    ${course.price}
-                                  </span>
-                                  <span className="text-gray-400 line-through">
-                                    ${course.originalPrice}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-
-                        <div className="px-6 pb-6 flex gap-2">
-                          <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
-                            Enroll Now
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleCart(course.id);
-                            }}
-                            className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 ${
-                              cart.has(course.id)
-                                ? "bg-green-500 text-white hover:bg-green-600"
-                                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                            }`}
-                          >
-                            <ShoppingCart className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <CourseCard
+                          course={course}
+                          isInWishlist={isInWishlist(course.id)}
+                          isInCart={isInCart(course.id)}
+                          onWishlistToggle={handleWishlistToggle}
+                          onCartToggle={handleCartToggle}
+                        />
                       </div>
                     ))}
                   </div>
 
-                  {totalPages > 1 && (
+                  {pagination.totalPages > 1 && (
                     <div className="flex justify-center items-center gap-2 mt-12">
                       <button
                         onClick={() =>
-                          setCurrentPage(Math.max(1, currentPage - 1))
+                          setCurrentPage(Math.max(1, pagination.page - 1))
                         }
-                        disabled={currentPage === 1}
+                        disabled={pagination.page === 1}
                         className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronLeft className="w-5 h-5" />
@@ -720,7 +347,7 @@ const CoursesPage = () => {
 
                       <div className="flex gap-1">
                         {Array.from(
-                          { length: totalPages },
+                          { length: pagination.totalPages },
                           (_, i) => i + 1
                         ).map((page) => (
                           <button
@@ -739,9 +366,11 @@ const CoursesPage = () => {
 
                       <button
                         onClick={() =>
-                          setCurrentPage(Math.min(totalPages, currentPage + 1))
+                          setCurrentPage(
+                            Math.min(pagination.totalPages, pagination.page + 1)
+                          )
                         }
-                        disabled={currentPage === totalPages}
+                        disabled={currentPage === pagination.totalPages}
                         className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronRight className="w-5 h-5" />
