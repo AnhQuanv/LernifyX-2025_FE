@@ -4,7 +4,6 @@ import categoryReducer from "@/redux/features/category/categorySlice";
 import wishlistReducer from "@/redux/features/wishlist/wishListSlice";
 import courseReducer from "@/redux/features/course/courseSlice";
 import cartReducer from "@/redux/features/cart/cartSlice";
-import storage from "redux-persist/lib/storage";
 import {
   persistReducer,
   persistStore,
@@ -15,7 +14,21 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
+import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
+// ✅ Fix lỗi SSR (no localStorage khi render server)
+const createNoopStorage = () => ({
+  getItem: () => Promise.resolve(null),
+  setItem: (_key: string, value: string) => Promise.resolve(value),
+  removeItem: () => Promise.resolve(),
+});
+
+const storage =
+  typeof window !== "undefined"
+    ? createWebStorage("local")
+    : createNoopStorage();
+
+// --- Reducers ---
 const rootReducer = combineReducers({
   auth: authReducer,
   category: categoryReducer,
@@ -30,8 +43,10 @@ const persistConfig = {
   whitelist: ["auth", "wishlist", "cart"],
 };
 
+// --- Persisted reducer ---
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// --- Store ---
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -42,11 +57,13 @@ export const store = configureStore({
     }),
 });
 
+// --- Persistor ---
 export const persistor = persistStore(store);
 
 persistor.subscribe(() => {
   console.log("Persistor state:", persistor.getState());
 });
 
+// --- Types ---
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

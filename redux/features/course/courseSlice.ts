@@ -1,4 +1,4 @@
-import { getAllCourses } from "@/redux/thunk/courseThunk";
+import { getFilterCourses, getHomeCourses } from "@/redux/thunk/courseThunk";
 import { Course, filterCourseParams } from "@/types/course/course";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -10,7 +10,8 @@ interface Pagination {
 }
 
 interface CourseState {
-  listCourse: Course[];
+  homeCourse: Course[];
+  filteredCourses: Course[];
   selectedCourse: Course | null;
   filterParams: filterCourseParams;
   pagination: Pagination;
@@ -19,7 +20,8 @@ interface CourseState {
 }
 
 const initialState: CourseState = {
-  listCourse: [],
+  homeCourse: [],
+  filteredCourses: [],
   selectedCourse: null,
   filterParams: {
     category: "all",
@@ -54,12 +56,12 @@ const courseSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAllCourses.pending, (state) => {
+      .addCase(getFilterCourses.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
       .addCase(
-        getAllCourses.fulfilled,
+        getFilterCourses.fulfilled,
         (
           state,
           action: PayloadAction<{
@@ -68,12 +70,29 @@ const courseSlice = createSlice({
           }>
         ) => {
           state.status = "succeeded";
-          state.listCourse = action.payload.data || [];
-          state.pagination =
-            action.payload.pagination || initialState.pagination;
+          state.filteredCourses = action.payload.data || [];
+          state.pagination = action.payload.pagination;
+          console.log(
+            "Filter courses fetched in slice:",
+            state.filteredCourses
+          );
         }
       )
-      .addCase(getAllCourses.rejected, (state, action) => {
+      .addCase(getFilterCourses.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+
+      .addCase(getHomeCourses.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getHomeCourses.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.homeCourse = action.payload || [];
+        console.log("Home courses fetched in slice:", state.homeCourse);
+      })
+      .addCase(getHomeCourses.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });

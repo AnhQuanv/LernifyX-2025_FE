@@ -21,16 +21,16 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { getAllCategories } from "@/redux/thunk/categoryThunk";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import CourseCard from "@/components/ui/courseCard";
-import { getAllCourses } from "@/redux/thunk/courseThunk";
 import Image from "next/image";
 import { useWishlistCart } from "@/lib/commonHooks";
+import { getHomeCourses } from "@/redux/thunk/courseThunk";
 
 const Homepage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, status: categoryStatus } = useSelector(
     (state: RootState) => state.category
   );
-  const { listCourse: allCourses, status: courseStatus } = useSelector(
+  const { homeCourse: allCourses, status: courseStatus } = useSelector(
     (state: RootState) => state.course
   );
   const { isInWishlist, isInCart, handleWishlistToggle, handleCartToggle } =
@@ -181,7 +181,7 @@ const Homepage = () => {
 
   useEffect(() => {
     dispatch(getAllCategories());
-    dispatch(getAllCourses({ params: { limit: 12 } }));
+    dispatch(getHomeCourses());
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
