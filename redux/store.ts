@@ -4,6 +4,7 @@ import categoryReducer from "@/redux/features/category/categorySlice";
 import wishlistReducer from "@/redux/features/wishlist/wishListSlice";
 import courseReducer from "@/redux/features/course/courseSlice";
 import cartReducer from "@/redux/features/cart/cartSlice";
+import commentReducer from "@/redux/features/comment/commentSlice";
 import {
   persistReducer,
   persistStore,
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   wishlist: wishlistReducer,
   cart: cartReducer,
   course: courseReducer,
+  comment: commentReducer,
 });
 
 const persistConfig = {

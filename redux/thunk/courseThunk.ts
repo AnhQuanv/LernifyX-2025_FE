@@ -1,4 +1,5 @@
 import {
+  handleGetDetailCourse,
   handleGetFilteredCourses,
   handleGetHomeCourses,
 } from "@/services/courseService";
@@ -37,6 +38,23 @@ export const getHomeCourses = createAsyncThunk(
       const error = err as AxiosError<ApiError>;
       return rejectWithValue({
         message: error.response?.data?.message || "Lấy danh mục thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);
+
+export const getDetailCourse = createAsyncThunk(
+  "courses/getDetailCourse",
+  async (courseId: string, { rejectWithValue }) => {
+    try {
+      const res = await handleGetDetailCourse(courseId);
+      return res;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message:
+          error.response?.data?.message || "Lấy chi tiết khóa học thất bại",
         errorCode: error.response?.data?.errorCode,
       });
     }

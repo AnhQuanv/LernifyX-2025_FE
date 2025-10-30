@@ -13,10 +13,10 @@ import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import CourseCard from "@/components/ui/courseCard";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { useDebounce, useWishlistCart } from "@/lib/commonHooks";
 import { getAllCategories } from "@/redux/thunk/categoryThunk";
 import { getFilterCourses } from "@/redux/thunk/courseThunk";
 import type { Course, filterCourseParams } from "@/types/course/course";
+import { useDebounce, useWishlistCart } from "@/hooks/commonHooks";
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -78,7 +78,6 @@ const CoursesPage = () => {
     if (courseStatus === "loading") {
       setIsFilterLoading(true);
     } else if (courseStatus === "succeeded") {
-      // Add small delay for smooth transition
       const timer = setTimeout(() => setIsFilterLoading(false), 100);
       return () => clearTimeout(timer);
     }
@@ -340,7 +339,10 @@ const CoursesPage = () => {
                           setCurrentPage(Math.max(1, pagination.page - 1))
                         }
                         disabled={pagination.page === 1}
-                        className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                                  hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                                  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                                  transition-all"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
@@ -353,17 +355,17 @@ const CoursesPage = () => {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                              currentPage === page
-                                ? "bg-violet-600 text-white shadow-lg"
-                                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
-                            }`}
+                            className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                               ${
+                                 currentPage === page
+                                   ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
+                                   : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
+                               }`}
                           >
                             {page}
                           </button>
                         ))}
                       </div>
-
                       <button
                         onClick={() =>
                           setCurrentPage(
@@ -371,7 +373,10 @@ const CoursesPage = () => {
                           )
                         }
                         disabled={currentPage === pagination.totalPages}
-                        className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                                  hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                                  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                                  transition-all"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>

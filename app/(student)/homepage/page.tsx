@@ -22,8 +22,8 @@ import { getAllCategories } from "@/redux/thunk/categoryThunk";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import CourseCard from "@/components/ui/courseCard";
 import Image from "next/image";
-import { useWishlistCart } from "@/lib/commonHooks";
 import { getHomeCourses } from "@/redux/thunk/courseThunk";
+import { useWishlistCart } from "@/hooks/commonHooks";
 
 const Homepage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -331,7 +331,9 @@ const Homepage = () => {
                             {/* Course Image */}
                             <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
                               <Image
-                                src={course.image || "/placeholder.svg"}
+                                src={
+                                  "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                                }
                                 alt={course.title}
                                 width={100}
                                 height={100}

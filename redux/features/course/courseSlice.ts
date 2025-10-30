@@ -1,18 +1,20 @@
-import { getFilterCourses, getHomeCourses } from "@/redux/thunk/courseThunk";
-import { Course, filterCourseParams } from "@/types/course/course";
+import {
+  getDetailCourse,
+  getFilterCourses,
+  getHomeCourses,
+} from "@/redux/thunk/courseThunk";
+import {
+  Course,
+  CourseDetail,
+  filterCourseParams,
+  Pagination,
+} from "@/types/course/course";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface Pagination {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
 
 interface CourseState {
   homeCourse: Course[];
   filteredCourses: Course[];
-  selectedCourse: Course | null;
+  selectedCourse: CourseDetail | null;
   filterParams: filterCourseParams;
   pagination: Pagination;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -72,10 +74,6 @@ const courseSlice = createSlice({
           state.status = "succeeded";
           state.filteredCourses = action.payload.data || [];
           state.pagination = action.payload.pagination;
-          console.log(
-            "Filter courses fetched in slice:",
-            state.filteredCourses
-          );
         }
       )
       .addCase(getFilterCourses.rejected, (state, action) => {
@@ -90,11 +88,20 @@ const courseSlice = createSlice({
       .addCase(getHomeCourses.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.homeCourse = action.payload || [];
-        console.log("Home courses fetched in slice:", state.homeCourse);
       })
       .addCase(getHomeCourses.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+
+      .addCase(getDetailCourse.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getDetailCourse.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.selectedCourse = action.payload || null;
+        console.log("Detail course fetched in slice:", state.selectedCourse);
       });
   },
 });

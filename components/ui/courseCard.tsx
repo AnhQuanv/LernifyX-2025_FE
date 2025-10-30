@@ -35,7 +35,9 @@ const CourseCard: React.FC<CourseCardProps> = ({
         {/* Image & Badge */}
         <div className="relative h-52 overflow-hidden bg-gray-200 cursor-pointer">
           <Image
-            src={course.image || "/placeholder.svg"}
+            src={
+              "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+            }
             alt={course.title}
             width={400}
             height={250}
@@ -84,7 +86,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             </div>
           </div>
 
-          <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2">
+          <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2 h-[52px]">
             {course.title}
           </h3>
 
