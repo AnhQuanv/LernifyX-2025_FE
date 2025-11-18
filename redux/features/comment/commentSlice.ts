@@ -50,7 +50,6 @@ const commentSlice = createSlice({
           state.status = "succeeded";
           state.pagination = action.payload.pagination;
           state.comments = action.payload.data;
-          console.log("Comments fetched successfully:", action.payload.data);
         }
       )
       .addCase(getCommentsByCourse.rejected, (state, action) => {

@@ -25,11 +25,6 @@ import { getCommentsByCourse } from "@/redux/thunk/commentThunk";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import DiscountCountdown from "@/components/ui/discountCountDown";
-import { addToCart, removeFromCart } from "@/redux/features/cart/cartSlice";
-import {
-  addToWishlist,
-  removeFromWishlist,
-} from "@/redux/features/wishlist/wishListSlice";
 
 export default function CourseDetailPageWrapper({
   params,
@@ -66,23 +61,9 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
     );
   };
 
-  const handleToggleWishlist = () => {
-    if (!course) return;
-    if (isWishlisted) {
-      dispatch(removeFromWishlist(course.id));
-    } else {
-      dispatch(addToWishlist(course));
-    }
-  };
+  const handleToggleWishlist = () => {};
 
-  const handleToggleCart = () => {
-    if (!course) return;
-    if (isInCart) {
-      dispatch(removeFromCart(course.id));
-    } else {
-      dispatch(addToCart(course));
-    }
-  };
+  const handleToggleCart = () => {};
   useEffect(() => {
     if (params.id) {
       dispatch(getDetailCourse(params.id));

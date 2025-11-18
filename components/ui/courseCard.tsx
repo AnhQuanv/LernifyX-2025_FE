@@ -16,16 +16,12 @@ import type { Course } from "@/types/course/course";
 
 interface CourseCardProps {
   course: Course;
-  isInWishlist: boolean;
-  isInCart: boolean;
   onWishlistToggle: (course: Course) => void;
   onCartToggle: (course: Course) => void;
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({
   course,
-  isInWishlist,
-  isInCart,
   onWishlistToggle,
   onCartToggle,
 }) => {
@@ -59,14 +55,16 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 e.stopPropagation();
                 onWishlistToggle(course);
               }}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg cursor-pointer ${
-                isInWishlist
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer ${
+                course.isInWishlist
                   ? "bg-red-500 text-white"
                   : "bg-white/95 backdrop-blur-sm text-gray-600 hover:bg-white"
               }`}
             >
               <Heart
-                className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`}
+                className={`w-5 h-5 ${
+                  course.isInWishlist ? "fill-current" : ""
+                }`}
               />
             </button>
           </div>
@@ -132,7 +130,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
       </Link>
 
       <div className="px-6 pb-6 flex gap-2">
-        <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105">
+        <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
           Enroll Now
         </button>
         <button
@@ -140,8 +138,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
             e.stopPropagation();
             onCartToggle(course);
           }}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 ${
-            isInCart
+          className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 cursor-pointer ${
+            course.isInCart
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}

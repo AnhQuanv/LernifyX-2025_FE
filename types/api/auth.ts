@@ -7,6 +7,8 @@ export interface IUser {
   roleName: string;
   phone: string;
   dateOfBirth: string;
+  address: string;
+  avatar?: string;
 }
 
 export interface AuthLoginData {
@@ -22,6 +24,28 @@ export interface RegisterData {
   phone: string;
   dateOfBirth: string;
   roleName: string;
+}
+
+export interface UpdateProfileDto {
+  userId?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  address?: string;
+  avatar?: string;
+}
+
+export interface UpdatePasswordDto {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  codeId: number;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export type AuthLoginResponse = ApiResponse<AuthLoginData>;

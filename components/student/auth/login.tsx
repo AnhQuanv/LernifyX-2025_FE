@@ -1,101 +1,86 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/app/schemas/login-schema";
+import * as z from "zod";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormControl,
+} from "@/components/ui/form";
+
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
-import { ForgotPasswordModal } from "./forgot-password-modal";
-import { useRouter } from "next/navigation";
+
 import { useDispatch } from "react-redux";
-import { loginAsync } from "@/redux/thunk/authThunk";
 import { AppDispatch } from "@/redux/store";
+import { loginAsync } from "@/redux/thunk/authThunk";
+
+import { ForgotPasswordModal } from "./forgot-password-modal";
 import { EmailVerificationModal } from "./verify";
+import { useRouter } from "next/navigation";
+import { setTokenGetter } from "@/lib/axios";
+import { handleSendVerifyMail } from "@/services/authService";
 
 export function LoginForm() {
-  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-
+  const router = useRouter();
+  const [verifyEmail, setVerifyEmail] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({
-    general: "",
-    email: "",
-    password: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showVerify, setShowVerify] = useState(false);
 
-  const validateForm = () => {
-    const newErrors = {
-      general: "",
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
       email: "",
       password: "",
-    };
+    },
+  });
 
-    // Validate email
-    if (!email) {
-      newErrors.email = "Email không được để trống";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Email không hợp lệ";
-    }
+  const { handleSubmit, setError, formState } = form;
 
-    // Validate password
-    if (!password) {
-      newErrors.password = "Mật khẩu không được để trống";
-    } else if (password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
-    }
-
-    setErrors(newErrors);
-    return !newErrors.email && !newErrors.password;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({ general: "", email: "", password: "" });
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      await dispatch(loginAsync({ email, password })).unwrap();
+      const res = await dispatch(loginAsync(values)).unwrap();
+
+      // Lấy token → gán cho axios
+      const token = res.accessToken;
+      setTokenGetter(() => token);
+
       router.push("/homepage");
     } catch (err: any) {
-      const errorCode = err?.errorCode;
-      const message = err?.message;
-      console.log("Login error code:", errorCode);
-      if (errorCode === "INVALID_CREDENTIALS") {
-        setErrors((prev) => ({
-          ...prev,
-          general: "Email hoặc mật khẩu không đúng.",
-        }));
-      } else if (errorCode === "ACCOUNT_NOT_VERIFIED") {
-        // ✅ Nếu tài khoản chưa kích hoạt
-        setErrors((prev) => ({
-          ...prev,
-          general: "Tài khoản chưa được kích hoạt. Vui lòng xác minh email.",
-        }));
+      const msg = err?.message;
+      const code = err?.errorCode;
+
+      if (code === "INVALID_CREDENTIALS") {
+        setError("root", { message: "Email hoặc mật khẩu không đúng." });
+      } else if (code === "ACCOUNT_NOT_VERIFIED") {
+        setError("root", {
+          message: "Tài khoản chưa được kích hoạt. Vui lòng xác minh email.",
+        });
+        setVerifyEmail(values.email);
+        await handleSendVerifyMail(values.email);
         setShowVerify(true);
+        setTimeout(() => {
+          form.reset();
+          form.clearErrors();
+        }, 3000);
+      } else if (msg?.toLowerCase().includes("email")) {
+        setError("email", { message: "Email không tồn tại" });
       } else {
-        setErrors((prev) => ({
-          ...prev,
-          general: err?.message || "Đã có lỗi xảy ra. Vui lòng thử lại sau.",
-        }));
+        setError("root", {
+          message: msg || "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        });
       }
-    } finally {
-      setIsLoading(false);
     }
-  };
-  const clearError = (field: string) => {
-    setErrors((prev) => ({
-      ...prev,
-      [field]: "",
-    }));
   };
 
   return (
@@ -106,130 +91,106 @@ export function LoginForm() {
             Welcome
           </h1>
           <p className="text-center text-gray-500 mb-8">
-            Login to continue learning with LeanifyX
+            Login to continue learning with LearnifyX
           </p>
 
-          {/* General Error Alert */}
-          {errors.general && (
-            <Alert className="mb-6 border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700">
-                {errors.general}
-              </AlertDescription>
-            </Alert>
+          {/* Root error */}
+          {formState.errors.root && (
+            <div className="flex items-center gap-2 text-red-600 mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <p>{formState.errors.root.message}</p>
+            </div>
           )}
 
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (errors.email) clearError("email");
-                }}
-                required
-                autoComplete="email"
-                className={`bg-gray-100 text-base ${
-                  errors.email ? "border-red-500 focus:border-red-500" : ""
-                }`}
+          <Form {...form}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* EMAIL */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        className="bg-gray-100"
+                        autoComplete="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {errors.email && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.email}
-                </p>
-              )}
-            </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (errors.password) clearError("password");
-                  }}
-                  required
-                  autoComplete="current-password"
-                  className={`bg-gray-100 text-base pr-10 ${
-                    errors.password ? "border-red-500 focus:border-red-500" : ""
-                  }`}
-                />
-                <button
+              {/* PASSWORD */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={showPassword ? "text" : "password"}
+                          className="bg-gray-100 pr-10"
+                          autoComplete="current-password"
+                        />
+                      </FormControl>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((p) => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Forgot password */}
+              <div className="flex justify-end">
+                <Button
                   type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 focus:outline-none"
+                  variant="link"
+                  className="p-0 text-indigo-500"
+                  onClick={() => setShowForgotPasswordModal(true)}
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-400" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-gray-400" />
-                  )}
-                </button>
+                  Forgot password?
+                </Button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.password}
-                </p>
-              )}
-            </div>
 
-            <div className="flex justify-end">
+              {/* Submit */}
               <Button
-                variant="link"
-                className="text-indigo-500 hover:text-indigo-600 p-0 h-auto text-sm cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowForgotPasswordModal(true);
-                }}
+                type="submit"
+                className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white"
+                disabled={formState.isSubmitting}
               >
-                Forgot password?
+                {formState.isSubmitting ? "Đang đăng nhập..." : "Login"}
               </Button>
-            </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              onClick={handleSubmit}
-              className="w-full text-base h-12 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Đang đăng nhập...
-                </div>
-              ) : (
-                "Login"
-              )}
-            </Button>
-
-            <div className="text-center text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <Button
-                variant="link"
-                className="text-indigo-600 hover:text-indigo-700 p-0 h-auto text-sm cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  router.push("/auth/register");
-                }}
-              >
-                Sign up
-              </Button>
-            </div>
-          </div>
+              {/* Register link */}
+              <p className="text-center text-sm text-gray-500 mt-4">
+                Don’t have an account?{" "}
+                <Button
+                  variant="link"
+                  className="text-indigo-600 p-0"
+                  onClick={() => router.push("/auth/register")}
+                >
+                  Sign up
+                </Button>
+              </p>
+            </form>
+          </Form>
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
       <ForgotPasswordModal
         isOpen={showForgotPasswordModal}
         onClose={() => setShowForgotPasswordModal(false)}
@@ -238,7 +199,7 @@ export function LoginForm() {
       <EmailVerificationModal
         isOpen={showVerify}
         onClose={() => setShowVerify(false)}
-        email={email}
+        email={verifyEmail}
         onSuccess={() => {
           setShowVerify(false);
           router.push("/auth/login");

@@ -1,10 +1,15 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import authReducer from "@/redux/features/auth/authSlice";
+import authReducer, {
+  logout,
+  setAccessToken,
+} from "@/redux/features/auth/authSlice";
 import categoryReducer from "@/redux/features/category/categorySlice";
 import wishlistReducer from "@/redux/features/wishlist/wishListSlice";
 import courseReducer from "@/redux/features/course/courseSlice";
 import cartReducer from "@/redux/features/cart/cartSlice";
 import commentReducer from "@/redux/features/comment/commentSlice";
+import paymentReducer from "@/redux/features/payment/paymentSlice";
+
 import {
   persistReducer,
   persistStore,
@@ -16,8 +21,12 @@ import {
   REGISTER,
 } from "redux-persist";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
+import {
+  setLogoutCallback,
+  setTokenGetter,
+  setUpdateTokenCallback,
+} from "@/lib/axios";
 
-// ✅ Fix lỗi SSR (no localStorage khi render server)
 const createNoopStorage = () => ({
   getItem: () => Promise.resolve(null),
   setItem: (_key: string, value: string) => Promise.resolve(value),
@@ -30,14 +39,23 @@ const storage =
     : createNoopStorage();
 
 // --- Reducers ---
-const rootReducer = combineReducers({
+const appReducer = combineReducers({
   auth: authReducer,
   category: categoryReducer,
   wishlist: wishlistReducer,
   cart: cartReducer,
   course: courseReducer,
   comment: commentReducer,
+  payment: paymentReducer,
 });
+
+const rootReducer = (state: any, action: any) => {
+  if (action.type === logout.type) {
+    // ✅ Reset toàn bộ state
+    state = undefined;
+  }
+  return appReducer(state, action);
+};
 
 const persistConfig = {
   key: "root",
@@ -64,6 +82,17 @@ export const persistor = persistStore(store);
 
 persistor.subscribe(() => {
   console.log("Persistor state:", persistor.getState());
+});
+
+setTokenGetter(() => store.getState().auth.token);
+
+setUpdateTokenCallback((token) => store.dispatch(setAccessToken(token)));
+
+setLogoutCallback(() => {
+  store.dispatch(logout());
+  if (typeof window !== "undefined") {
+    window.location.href = "/auth/login";
+  }
 });
 
 // --- Types ---

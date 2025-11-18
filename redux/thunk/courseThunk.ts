@@ -15,7 +15,6 @@ export const getFilterCourses = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log("Thunk fetching filtered courses with params:", params);
       const res = await handleGetFilteredCourses({ params });
       return res;
     } catch (err: unknown) {

@@ -1,6 +1,10 @@
-import { login } from "@/services/authService";
+import {
+  handleUpdateAvatar,
+  handleUpdateProfile,
+  login,
+} from "@/services/authService";
 import { ApiError } from "@/types/api/apiResponse";
-import { AuthLoginData } from "@/types/api/auth";
+import { AuthLoginData, IUser, UpdateProfileDto } from "@/types/api/auth";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
 
@@ -11,7 +15,6 @@ export const loginAsync = createAsyncThunk<
 >("auth/login", async ({ email, password }, { rejectWithValue }) => {
   try {
     const res = await login(email, password);
-    console.log("res thunk", res);
     return res.data as AuthLoginData;
   } catch (err: unknown) {
     const error = err as AxiosError<ApiError>;
@@ -21,3 +24,36 @@ export const loginAsync = createAsyncThunk<
     });
   }
 });
+
+export const updateProfile = createAsyncThunk<IUser, UpdateProfileDto>(
+  "auth/updateProfile",
+  async (dto, { rejectWithValue }) => {
+    try {
+      const response = await handleUpdateProfile(dto);
+      return response as IUser;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message: error.response?.data?.message || "Cập nhật profile thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);
+
+export const updateAvatar = createAsyncThunk<IUser, File>(
+  "auth/updateAvatar",
+  async (file, { rejectWithValue }) => {
+    try {
+      const avatarUrl = await handleUpdateAvatar(file);
+
+      return avatarUrl as IUser;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message: error.response?.data?.message || "Cập nhật avatar thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);

@@ -24,8 +24,10 @@ import CourseCard from "@/components/ui/courseCard";
 import Image from "next/image";
 import { getHomeCourses } from "@/redux/thunk/courseThunk";
 import { useWishlistCart } from "@/hooks/commonHooks";
+import { useRouter } from "next/navigation";
 
 const Homepage = () => {
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { categories, status: categoryStatus } = useSelector(
     (state: RootState) => state.category
@@ -33,8 +35,7 @@ const Homepage = () => {
   const { homeCourse: allCourses, status: courseStatus } = useSelector(
     (state: RootState) => state.course
   );
-  const { isInWishlist, isInCart, handleWishlistToggle, handleCartToggle } =
-    useWishlistCart();
+  const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -180,13 +181,17 @@ const Homepage = () => {
   const hasMoreCategories = categoriesToDisplay.length > 6;
 
   useEffect(() => {
-    dispatch(getAllCategories());
-    dispatch(getHomeCourses());
+    if (categoryStatus === "idle") {
+      dispatch(getAllCategories());
+    }
+    if (courseStatus === "idle") {
+      dispatch(getHomeCourses());
+    }
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
     return () => clearTimeout(timer);
-  }, [dispatch]);
+  }, [dispatch, categoryStatus, courseStatus]);
 
   if (categoryStatus === "loading" || isLoading || courseStatus === "loading") {
     return <LoadingSkeleton />;
@@ -294,7 +299,7 @@ const Homepage = () => {
                       </button>
                     )}
                   </div>
-                  <button className="relative bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white px-10 py-5 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group/btn overflow-hidden">
+                  <button className="relative bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white px-10 py-5 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group/btn overflow-hidden cursor-pointer">
                     <span className="relative z-10 flex items-center gap-2">
                       Search
                       <svg
@@ -376,8 +381,8 @@ const Homepage = () => {
 
                       {/* View All Results Link */}
                       {filteredCourses.length > 8 && (
-                        <div className="border-t border-gray-200 mt-3 pt-3">
-                          <button className="w-full text-center text-violet-600 hover:text-violet-700 font-semibold text-sm py-2 transition-colors">
+                        <div className="border-t border-gray-200 mt-3 pt-3 ">
+                          <button className="w-full text-center text-violet-600 hover:text-violet-700 font-semibold text-sm py-2 transition-colors cursor-pointer ">
                             View all {filteredCourses.length} results →
                           </button>
                         </div>
@@ -407,29 +412,32 @@ const Homepage = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-12 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={index} className="group">
-                  <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1">
-                    {/* Icon */}
-                    <div className="w-14 h-14 bg-gradient-to-br from-cyan-400/20 to-purple-400/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/20">
-                      <stat.icon className="w-7 h-7 text-cyan-300" />
-                    </div>
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={index} className="group">
+                    <div className="relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 hover:-translate-y-1">
+                      {/* Icon */}
+                      <div className="w-14 h-14 bg-gradient-to-br from-cyan-400/20 to-purple-400/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 border border-white/20">
+                        <Icon className="w-7 h-7 text-cyan-300" />
+                      </div>
 
-                    {/* Number with animation */}
-                    <div className="text-4xl font-extrabold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent mb-2">
-                      {stat.number}
-                    </div>
+                      {/* Number */}
+                      <div className="text-4xl font-extrabold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent mb-2">
+                        {stat.number}
+                      </div>
 
-                    {/* Label */}
-                    <div className="text-blue-200/80 text-sm font-medium">
-                      {stat.label}
-                    </div>
+                      {/* Label */}
+                      <div className="text-blue-200/80 text-sm font-medium">
+                        {stat.label}
+                      </div>
 
-                    {/* Hover Glow */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-cyan-500/10 group-hover:via-purple-500/10 group-hover:to-blue-500/10 transition-all duration-500"></div>
+                      {/* Hover Glow */}
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-purple-500/0 to-blue-500/0 group-hover:from-cyan-500/10 group-hover:via-purple-500/10 group-hover:to-blue-500/10 transition-all duration-500"></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Trust Indicators */}
@@ -525,7 +533,7 @@ const Homepage = () => {
             <div className="text-center mt-12">
               <button
                 onClick={() => setShowAllCategories(!showAllCategories)}
-                className="group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center mx-auto space-x-2"
+                className="group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center mx-auto space-x-2 cursor-pointer"
               >
                 <span>
                   {showAllCategories
@@ -597,7 +605,10 @@ const Homepage = () => {
               </p>
             </div>
             <div className="hidden lg:flex items-center space-x-4">
-              <button className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg">
+              <button
+                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
+                onClick={() => router.push("/courses")}
+              >
                 <span className="font-semibold">View All Courses</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -639,8 +650,6 @@ const Homepage = () => {
                           <CourseCard
                             key={course.id}
                             course={course}
-                            isInWishlist={isInWishlist(course.id)}
-                            isInCart={isInCart(course.id)}
                             onWishlistToggle={handleWishlistToggle}
                             onCartToggle={handleCartToggle}
                           />

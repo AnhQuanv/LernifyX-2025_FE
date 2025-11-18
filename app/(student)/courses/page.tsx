@@ -16,7 +16,8 @@ import type { AppDispatch, RootState } from "@/redux/store";
 import { getAllCategories } from "@/redux/thunk/categoryThunk";
 import { getFilterCourses } from "@/redux/thunk/courseThunk";
 import type { Course, filterCourseParams } from "@/types/course/course";
-import { useDebounce, useWishlistCart } from "@/hooks/commonHooks";
+import { useWishlistCart } from "@/hooks/commonHooks";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -39,8 +40,7 @@ const CoursesPage = () => {
     pagination,
     status: courseStatus,
   } = useSelector((state: RootState) => state.course);
-  const { isInWishlist, isInCart, handleWishlistToggle, handleCartToggle } =
-    useWishlistCart();
+  const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   const displayCategories = [
@@ -322,9 +322,8 @@ const CoursesPage = () => {
                         }}
                       >
                         <CourseCard
+                          key={course.id}
                           course={course}
-                          isInWishlist={isInWishlist(course.id)}
-                          isInCart={isInCart(course.id)}
                           onWishlistToggle={handleWishlistToggle}
                           onCartToggle={handleCartToggle}
                         />

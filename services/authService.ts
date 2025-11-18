@@ -1,5 +1,11 @@
 import axiosClient from "@/lib/axios";
-import { AuthLoginResponse, RegisterData } from "@/types/api/auth";
+import {
+  AuthLoginResponse,
+  RegisterData,
+  ResetPasswordDto,
+  UpdatePasswordDto,
+  UpdateProfileDto,
+} from "@/types/api/auth";
 
 export const login = async (
   email: string,
@@ -16,6 +22,39 @@ export const register = async (data: RegisterData) => {
 
 export const verifyEmail = async (email: string, codeId: number) => {
   const res = await axiosClient.post("auth/verify-email", { email, codeId });
-  console.log("verify-email", res);
+  return res.data;
+};
+
+export const handleUpdateProfile = async (dto: UpdateProfileDto) => {
+  const res = await axiosClient.put("/profile/edit", dto);
+  return res.data.data;
+};
+
+export const handleUpdateAvatar = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axiosClient.post("cloudinary/imageAvatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data.data;
+};
+
+export const handleChangePassword = async (dto: UpdatePasswordDto) => {
+  const res = await axiosClient.put("/profile/change-password", dto);
+  return res.data;
+};
+
+export const handlePasswordForget = async (email: string) => {
+  const res = await axiosClient.put("/auth/forget-password", { email });
+  return res.data;
+};
+
+export const handleResetPassword = async (dto: ResetPasswordDto) => {
+  const res = await axiosClient.put("/auth/reset-password", dto);
+  return res.data;
+};
+
+export const handleSendVerifyMail = async (email: string) => {
+  const res = await axiosClient.post("/auth/send-verify-email", { email });
   return res.data;
 };

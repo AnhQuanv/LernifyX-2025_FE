@@ -1,58 +1,59 @@
-"use client";
-
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import {
-  addToWishlist,
-  removeFromWishlist,
-} from "@/redux/features/wishlist/wishListSlice";
-import { addToCart, removeFromCart } from "@/redux/features/cart/cartSlice";
 import type { Course } from "@/types/course/course";
-import { useEffect, useState } from "react";
+import { addToWishlist, removeFromWishlist } from "@/redux/thunk/wishlistThunk";
+import { addToCart, removeFromCart } from "@/redux/thunk/cartThunk";
+import {
+  updateCourseWishlist,
+  updateCourseCart,
+} from "@/redux/features/course/courseSlice";
+import { useRouter } from "next/navigation";
 
 export const useWishlistCart = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const router = useRouter();
+  const isAuthenticated = useSelector((state: RootState) => state.auth);
 
-  const isInWishlist = (courseId: string): boolean =>
-    wishlistItems.some((item) => item.id === courseId);
+  const wishlistItems = useSelector(
+    (state: RootState) => state.wishlist.allCourses
+  );
+  const cartItems = useSelector((state: RootState) => state.cart.allCourses);
 
-  const isInCart = (courseId: string): boolean =>
-    cartItems.some((item) => item.id === courseId);
+  const handleWishlistToggle = async (course: Course) => {
+    if (!isAuthenticated) return router.push("/auth/login");
 
-  const handleWishlistToggle = (course: Course): void => {
-    if (isInWishlist(course.id)) {
-      dispatch(removeFromWishlist(course.id));
-    } else {
-      dispatch(addToWishlist(course));
+    const isInWishlist = wishlistItems.some((item) => item.id === course.id);
+
+    try {
+      if (isInWishlist) {
+        await dispatch(removeFromWishlist(course.id)).unwrap();
+        dispatch(updateCourseWishlist({ courseId: course.id, value: false }));
+      } else {
+        await dispatch(addToWishlist(course.id)).unwrap();
+        dispatch(updateCourseWishlist({ courseId: course.id, value: true }));
+      }
+    } catch (error) {
+      console.error("Wishlist update failed", error);
     }
   };
 
-  const handleCartToggle = (course: Course): void => {
-    if (isInCart(course.id)) {
-      dispatch(removeFromCart(course.id));
-    } else {
-      dispatch(addToCart(course));
+  const handleCartToggle = async (course: Course) => {
+    if (!isAuthenticated) return router.push("/auth/login");
+
+    const isInCart = cartItems.some((item) => item.id === course.id);
+
+    try {
+      if (isInCart) {
+        await dispatch(removeFromCart(course.id)).unwrap();
+        dispatch(updateCourseCart({ courseId: course.id, value: false }));
+      } else {
+        await dispatch(addToCart(course.id)).unwrap();
+        dispatch(updateCourseCart({ courseId: course.id, value: true }));
+      }
+    } catch (error) {
+      console.error("Cart update failed", error);
     }
   };
 
-  return {
-    wishlistItems,
-    cartItems,
-    isInWishlist,
-    isInCart,
-    handleWishlistToggle,
-    handleCartToggle,
-  };
-};
-
-export const useDebounce = (value: string, delay: number) => {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debounced;
+  return { handleWishlistToggle, handleCartToggle };
 };

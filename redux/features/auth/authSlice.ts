@@ -1,4 +1,8 @@
-import { loginAsync } from "@/redux/thunk/authThunk";
+import {
+  loginAsync,
+  updateAvatar,
+  updateProfile,
+} from "@/redux/thunk/authThunk";
 import { IUser } from "@/types/api/auth";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
@@ -7,6 +11,7 @@ interface AuthState {
   token: string | null;
   user: IUser | null;
   status: "idle" | "loading" | "succeeded" | "failed";
+  profileStatus: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
@@ -15,6 +20,7 @@ const initialState: AuthState = {
   token: null,
   user: null,
   status: "idle",
+  profileStatus: "idle",
   error: null,
 };
 
@@ -25,10 +31,7 @@ const authSlice = createSlice({
     setAccessToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
     },
-    logout: () => {
-      console.log("Auth state after logout:", initialState);
-      return initialState;
-    },
+    logout: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -38,13 +41,36 @@ const authSlice = createSlice({
       })
       .addCase(loginAsync.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("Auth state:", state);
         state.isAuthenticated = true;
         state.token = action.payload.accessToken;
         state.user = action.payload.user;
       })
       .addCase(loginAsync.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.profileStatus = "loading";
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.profileStatus = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.profileStatus = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(updateAvatar.pending, (state) => {
+        state.profileStatus = "loading";
+        state.error = null;
+      })
+      .addCase(updateAvatar.fulfilled, (state, action) => {
+        state.profileStatus = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(updateAvatar.rejected, (state, action) => {
+        state.profileStatus = "failed";
         state.error = action.payload as string;
       });
   },

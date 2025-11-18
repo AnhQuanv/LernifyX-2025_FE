@@ -15,6 +15,5 @@ export const handleGetFilteredCourses = async ({
 
 export const handleGetDetailCourse = async (courseId: string) => {
   const res = await axiosClient.get("course/detail", { params: { courseId } });
-  console.log("Course detail fetched from service:", res.data.data);
   return res.data.data;
 };

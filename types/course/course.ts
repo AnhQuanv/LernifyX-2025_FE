@@ -17,6 +17,8 @@ export interface Course {
   learnings?: string[];
   requirements?: string[];
   image: string;
+  isInWishlist: boolean;
+  isInCart: boolean;
 }
 
 export interface filterCourseParams {

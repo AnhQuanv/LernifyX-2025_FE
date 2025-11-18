@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, X, Mail, KeyRound } from "lucide-react";
+import { AlertCircle, X, Mail, Lock, CheckCircle } from "lucide-react";
+import {
+  handlePasswordForget,
+  handleResetPassword,
+} from "@/services/authService";
+import { ResetPasswordDto } from "@/types/api/auth";
+
+// Define the steps: email -> code (OTP & New Password combined) -> success
+type ForgotPasswordStep = "email" | "code" | "success";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -16,13 +24,18 @@ export function ForgotPasswordModal({
   isOpen,
   onClose,
 }: ForgotPasswordModalProps) {
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
+  const [step, setStep] = useState<ForgotPasswordStep>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [errors, setErrors] = useState({
     general: "",
     email: "",
     code: "",
+    password: "",
+    confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -56,36 +69,67 @@ export function ForgotPasswordModal({
 
   const validateEmail = () => {
     if (!email) {
-      setErrors((prev) => ({ ...prev, email: "Email không được để trống" }));
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setErrors((prev) => ({ ...prev, email: "Email không hợp lệ" }));
+      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
       return false;
     }
     setErrors((prev) => ({ ...prev, email: "" }));
     return true;
   };
 
-  const validateCode = () => {
+  // Validate both OTP code and New Password fields
+  const validateCodeAndPassword = () => {
+    let isValid = true;
+    setErrors((prev) => ({
+      ...prev,
+      general: "",
+      code: "",
+      password: "",
+      confirmPassword: "",
+    }));
+
     if (!code) {
       setErrors((prev) => ({
         ...prev,
-        code: "Mã xác thực không được để trống",
+        code: "Verification code is required",
       }));
-      return false;
+      isValid = false;
+    } else if (code.length !== 6) {
+      setErrors((prev) => ({ ...prev, code: "Code must be 6 digits" }));
+      isValid = false;
     }
-    if (code.length !== 6) {
-      setErrors((prev) => ({ ...prev, code: "Mã xác thực phải có 6 số" }));
-      return false;
+
+    if (!newPassword || newPassword.length < 6) {
+      setErrors((prev) => ({
+        ...prev,
+        password: "Password must be at least 6 characters",
+      }));
+      isValid = false;
     }
-    setErrors((prev) => ({ ...prev, code: "" }));
-    return true;
+
+    if (newPassword !== confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Confirmation password does not match",
+      }));
+      isValid = false;
+    }
+
+    return isValid;
   };
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({ general: "", email: "", code: "" });
+    setErrors({
+      general: "",
+      email: "",
+      code: "",
+      password: "",
+      confirmPassword: "",
+    });
 
     if (!validateEmail()) {
       return;
@@ -94,82 +138,53 @@ export function ForgotPasswordModal({
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const random = Math.random();
-      if (random < 0.2) {
-        setErrors((prev) => ({
-          ...prev,
-          general: "Email không tồn tại trong hệ thống",
-        }));
-      } else if (random < 0.3) {
-        setErrors((prev) => ({
-          ...prev,
-          general: "Lỗi kết nối. Vui lòng thử lại sau.",
-        }));
-      } else {
-        setStep("code");
-        setTimeLeft(300); // 5 phút
-        setCanResend(false);
-      }
-    } catch (error) {
+      await handlePasswordForget(email);
+      setStep("code");
+      setTimeLeft(300);
+      setCanResend(false);
+    } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        general: "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        general: err?.response?.data?.message || "Failed to send code",
       }));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyCode = async (e: React.FormEvent) => {
+  const handleResetPasswordStep = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({ general: "", email: "", code: "" });
+    setErrors({
+      general: "",
+      email: "",
+      code: "",
+      password: "",
+      confirmPassword: "",
+    });
 
-    if (!validateCode()) {
+    if (!validateCodeAndPassword()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const random = Math.random();
-      if (random < 0.3) {
-        setErrors((prev) => ({
-          ...prev,
-          general: "Mã xác thực không chính xác",
-        }));
-      } else if (random < 0.4) {
-        setErrors((prev) => ({
-          ...prev,
-          general: "Mã xác thực đã hết hạn",
-        }));
-      } else {
-        setStep("success");
-      }
-    } catch (error) {
+      const dto: ResetPasswordDto = {
+        email,
+        codeId: Number(code),
+        newPassword,
+        confirmPassword,
+      };
+      await handleResetPassword(dto); // gọi API thật
+      setStep("success");
+    } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        general: "Đã có lỗi xảy ra. Vui lòng thử lại.",
+        general: err?.response?.data?.message || "Failed to reset password",
       }));
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    setStep("email");
-    setEmail("");
-    setCode("");
-    setErrors({ general: "", email: "", code: "" });
-    setIsLoading(false);
-    setTimeLeft(0);
-    setCanResend(true);
-    onClose();
   };
 
   const handleResendCode = async () => {
@@ -178,28 +193,19 @@ export function ForgotPasswordModal({
     setTimeLeft(300); // Reset timer to 5 minutes
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setErrors({ general: "", email: "", code: "" });
-      setCode(""); // Clear current code
-
-      // Show success toast
-      const toast = document.createElement("div");
-      toast.className =
-        "fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-[60] animate-in slide-in-from-right-5";
-      toast.textContent = "Mã xác thực đã được gửi lại!";
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        if (document.body.contains(toast)) {
-          document.body.removeChild(toast);
-        }
-      }, 3000);
-    } catch (error) {
+      await handlePasswordForget(email); // gọi API resend code
+      setErrors({
+        general: "",
+        email: "",
+        code: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setCode("");
+    } catch (err: any) {
       setErrors((prev) => ({
         ...prev,
-        general: "Không thể gửi lại mã. Vui lòng thử lại.",
+        general: err?.response?.data?.message || "Could not resend code",
       }));
       setCanResend(true);
       setTimeLeft(0);
@@ -208,7 +214,62 @@ export function ForgotPasswordModal({
     }
   };
 
+  // --- Modal Close Logic ---
+
+  const handleClose = () => {
+    setStep("email");
+    setEmail("");
+    setCode("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setErrors({
+      general: "",
+      email: "",
+      code: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setIsLoading(false);
+    setTimeLeft(0);
+    setCanResend(true);
+    onClose();
+  };
+
   if (!isOpen) return null;
+
+  // --- Render Logic ---
+
+  // Icon displayed based on step
+  const renderIcon = () => {
+    if (step === "email") return <Mail className="h-6 w-6 text-indigo-600" />;
+    if (step === "code") return <Lock className="h-6 w-6 text-indigo-600" />; // Use Lock icon for the reset step
+    if (step === "success")
+      return (
+        <div className="h-6 w-6 bg-green-500 rounded-full flex items-center justify-center">
+          <CheckCircle className="h-4 w-4 text-white" />
+        </div>
+      );
+    return null;
+  };
+
+  // Header title displayed based on step
+  const renderTitle = () => {
+    if (step === "email") return "Forgot Password?";
+    if (step === "code") return "Verify & Set New Password";
+    if (step === "success") return "Success!";
+    return "";
+  };
+
+  // Description displayed based on step
+  const renderDescription = () => {
+    if (step === "email")
+      return "Enter your email to receive a verification code.";
+    if (step === "code")
+      return `Enter the code sent to ${email} and your new password.`;
+    if (step === "success")
+      return "Your password has been successfully updated.";
+    return "";
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 p-4">
@@ -224,39 +285,12 @@ export function ForgotPasswordModal({
         {/* Header */}
         <div className="text-center mb-6">
           <div className="mx-auto w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-            {step === "email" && <Mail className="h-6 w-6 text-indigo-600" />}
-            {step === "code" && (
-              <KeyRound className="h-6 w-6 text-indigo-600" />
-            )}
-            {step === "success" && (
-              <div className="h-6 w-6 bg-green-500 rounded-full flex items-center justify-center">
-                <svg
-                  className="h-4 w-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-            )}
+            {renderIcon()}
           </div>
           <h2 className="text-xl font-semibold text-gray-900">
-            {step === "email" && "Quên mật khẩu?"}
-            {step === "code" && "Nhập mã xác thực"}
-            {step === "success" && "Thành công!"}
+            {renderTitle()}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {step === "email" && "Nhập email để nhận mã xác thực"}
-            {step === "code" && `Mã xác thực đã được gửi đến ${email}`}
-            {step === "success" &&
-              "Liên kết đặt lại mật khẩu đã được gửi đến email của bạn"}
-          </p>
+          <p className="text-sm text-gray-500 mt-1">{renderDescription()}</p>
         </div>
 
         {/* General Error Alert */}
@@ -269,7 +303,7 @@ export function ForgotPasswordModal({
           </Alert>
         )}
 
-        {/* Email Step */}
+        {/* Step: Email */}
         {step === "email" && (
           <form onSubmit={handleSendCode} className="space-y-4">
             <div className="space-y-2">
@@ -277,7 +311,7 @@ export function ForgotPasswordModal({
               <Input
                 id="forgot-email"
                 type="email"
-                placeholder="Nhập email của bạn"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -305,10 +339,10 @@ export function ForgotPasswordModal({
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Đang gửi...
+                    Sending...
                   </div>
                 ) : (
-                  "Gửi mã xác thực"
+                  "Send Verification Code"
                 )}
               </Button>
 
@@ -318,21 +352,22 @@ export function ForgotPasswordModal({
                 onClick={handleClose}
                 className="w-full"
               >
-                Hủy
+                Cancel
               </Button>
             </div>
           </form>
         )}
 
-        {/* Code Step */}
+        {/* Step: Code (Combined OTP & Password) */}
         {step === "code" && (
-          <form onSubmit={handleVerifyCode} className="space-y-4">
+          <form onSubmit={handleResetPasswordStep} className="space-y-4">
+            {/* 1. Verification Code (OTP) */}
             <div className="space-y-2">
-              <Label htmlFor="verification-code">Mã xác thực</Label>
+              <Label htmlFor="verification-code">Verification Code (OTP)</Label>
               <Input
                 id="verification-code"
                 type="text"
-                placeholder="Nhập mã 6 số"
+                placeholder="Enter 6-digit code"
                 value={code}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, "").slice(0, 6);
@@ -352,11 +387,63 @@ export function ForgotPasswordModal({
               )}
             </div>
 
+            {/* 2. New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="New password (min 6 characters)"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  if (errors.password)
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                }}
+                className={`${
+                  errors.password ? "border-red-500 focus:border-red-500" : ""
+                }`}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.password}
+                </p>
+              )}
+            </div>
+
+            {/* 3. Confirm New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Re-enter new password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (errors.confirmPassword)
+                    setErrors((prev) => ({ ...prev, confirmPassword: "" }));
+                }}
+                className={`${
+                  errors.confirmPassword
+                    ? "border-red-500 focus:border-red-500"
+                    : ""
+                }`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
+
             {/* Timer and Resend Section */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-2 pt-2">
               {timeLeft > 0 && (
                 <p className="text-sm text-gray-500">
-                  Mã sẽ hết hạn sau:{" "}
+                  Code expires in:{" "}
                   <span className="font-mono font-semibold text-red-600">
                     {formatTime(timeLeft)}
                   </span>
@@ -370,8 +457,8 @@ export function ForgotPasswordModal({
                 className="text-sm text-indigo-600 hover:text-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 {canResend
-                  ? "Gửi lại mã xác thực"
-                  : `Gửi lại sau ${formatTime(timeLeft)}`}
+                  ? "Resend Code"
+                  : `Resend in ${formatTime(timeLeft)}`}
               </button>
             </div>
 
@@ -384,10 +471,10 @@ export function ForgotPasswordModal({
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Đang xác thực...
+                    Resetting Password...
                   </div>
                 ) : (
-                  "Xác thực"
+                  "Reset Password"
                 )}
               </Button>
 
@@ -397,24 +484,25 @@ export function ForgotPasswordModal({
                 onClick={() => setStep("email")}
                 className="w-full"
               >
-                Quay lại
+                Back
               </Button>
             </div>
           </form>
         )}
 
-        {/* Success Step */}
+        {/* Step: Success */}
         {step === "success" && (
           <div className="space-y-4">
             <div className="text-center text-sm text-gray-600">
-              Vui lòng kiểm tra email và làm theo hướng dẫn để đặt lại mật khẩu.
+              Your password has been successfully reset. You can now log in with
+              your new password.
             </div>
 
             <Button
               onClick={handleClose}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              Đóng
+              Close
             </Button>
           </div>
         )}
@@ -425,10 +513,10 @@ export function ForgotPasswordModal({
             <div className="flex items-start gap-2">
               <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-amber-800">
-                <p className="font-medium mb-1">Lưu ý bảo mật</p>
+                <p className="font-medium mb-1">Security Note</p>
                 <p>
-                  Không chia sẻ mã xác thực với bất kỳ ai. Mã sẽ hết hạn sau 5
-                  phút.
+                  Do not share this verification code with anyone. The code will
+                  expire in 5 minutes.
                 </p>
               </div>
             </div>
