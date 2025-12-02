@@ -43,30 +43,24 @@ export const CartPopover = () => {
   }
 
   return (
-    // Đồng bộ container với wishlist
     <div className="w-80 bg-white rounded-b-lg shadow-lg">
-      {/* Header (Cố định) */}
       <div className="px-4 pt-3 pb-2">
         <h3 className="font-semibold text-lg text-gray-900">
           Shopping Cart ({items.length})
         </h3>
       </div>
 
-      {/* CONTENT: Vùng cuộn. Giới hạn chiều cao max-h-72 */}
       <div className="max-h-72 overflow-y-auto">
         {items.map((course, index) => (
           <div
             key={course.id}
-            // Đồng bộ padding và vị trí relative
             className="px-4 py-3 relative hover:bg-gray-50 transition-colors"
           >
-            {/* Đường kẻ mỏng (trừ item cuối cùng) */}
             {index < items.length - 1 && (
               <div className="absolute left-4 right-4 bottom-0 h-px bg-gray-200" />
             )}
 
             <div className="flex gap-3 items-start">
-              {/* Image Container đồng bộ kích thước w-14 h-14 */}
               <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={
@@ -87,15 +81,17 @@ export const CartPopover = () => {
                   {course.instructor}
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  {/* Sử dụng text-base font-bold để đồng bộ với wishlist */}
                   <span className="text-base font-bold text-gray-900">
-                    ${course.price.toFixed(2)}
+                    {course.price.toLocaleString()}₫
                   </span>
-                  {course.originalPrice && (
-                    <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
-                      ${course.originalPrice.toFixed(2)}
-                    </span>
-                  )}
+                  {course.discountExpiresAt &&
+                    course.originalPrice &&
+                    new Date(course.discountExpiresAt).getTime() >
+                      Date.now() && (
+                      <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                        {course.originalPrice.toLocaleString()}₫
+                      </span>
+                    )}
                 </div>
               </div>
 
@@ -111,12 +107,11 @@ export const CartPopover = () => {
         ))}
       </div>
 
-      {/* Footer (Cố định) */}
       <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
         <div className="flex justify-between items-center mb-3 px-1">
           <span className="text-sm font-medium text-gray-900">Total:</span>
           <span className="text-lg font-bold text-gray-900">
-            ${totalPrice.toFixed(2)}
+            {totalPrice.toLocaleString()}₫
           </span>
         </div>
         <Button

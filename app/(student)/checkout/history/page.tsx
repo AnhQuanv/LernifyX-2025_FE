@@ -103,8 +103,8 @@ export default function PurchaseHistoryPage() {
                 <p className="text-2xl font-bold text-purple-700">
                   {purchases
                     .reduce((sum, p) => sum + p.amount, 0)
-                    .toLocaleString()}{" "}
-                  {purchases[0]?.currency || "VND"}
+                    .toLocaleString()}
+                  ₫
                 </p>
               </div>
             </div>

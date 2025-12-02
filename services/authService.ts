@@ -1,6 +1,7 @@
 import axiosClient from "@/lib/axios";
 import {
   AuthLoginResponse,
+  CreateUserPreferenceDto,
   RegisterData,
   ResetPasswordDto,
   UpdatePasswordDto,
@@ -56,5 +57,11 @@ export const handleResetPassword = async (dto: ResetPasswordDto) => {
 
 export const handleSendVerifyMail = async (email: string) => {
   const res = await axiosClient.post("/auth/send-verify-email", { email });
+  return res.data;
+};
+
+export const handlecreatePreference = async (dto: CreateUserPreferenceDto) => {
+  console.log("dto", dto);
+  const res = await axiosClient.post("/user-preferences/create", dto);
   return res.data;
 };

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useWishlistCart } from "@/hooks/commonHooks";
-import { getCartTotal } from "@/lib/utils";
+import { getCartTotal, roundVND } from "@/lib/utils";
 
 export default function WishlistPage() {
   const router = useRouter();
@@ -32,57 +32,21 @@ export default function WishlistPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header Section (Đã sửa để đồng bộ với Cart Page) */}
-      {/* Thay đổi: nền trắng, chữ đen, shadow-md */}
+      {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 sticky top-0 z-50 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center gap-4 mb-6">
             <button
               onClick={() => router.back()}
-              // Thay đổi: nền xám 100, icon đen
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-              aria-label="Go back"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+              aria-label="Quay lại"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold">My Wishlist</h1>
-              {/* Thay đổi: text-violet-100 thành text-gray-500 */}
-              <p className="text-gray-500 text-sm">
-                Save your favorite courses for later
-              </p>
+              <h1 className="text-3xl font-bold">Danh sách yêu thích</h1>
             </div>
           </div>
-
-          {/* Stats Bar (Đã sửa để đồng bộ với Cart Page) */}
-          {wishlistItems.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {/* Thay đổi: Dùng nền trắng, bo góc 2xl, shadow-md, border */}
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                {/* Thay đổi: text-violet-100 thành text-gray-500 */}
-                <p className="text-gray-500 text-xs font-medium">Total Items</p>
-                {/* Thay đổi: Thêm màu chính (violet-600) cho số liệu quan trọng */}
-                <p className="text-2xl font-bold text-violet-600">
-                  {wishlistItems.length}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Total Value</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  ${totalValue.toFixed(2)}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100 col-span-2 md:col-span-1">
-                <p className="text-gray-500 text-xs font-medium">Avg Price</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {/* Cần đảm bảo `averagePrice` được tính toán an toàn (như đã sửa ở lần trước) */}
-                  {wishlistItems.length > 0
-                    ? `$${(totalValue / wishlistItems.length).toFixed(2)}`
-                    : "$0.00"}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -96,17 +60,17 @@ export default function WishlistPage() {
                 <Heart className="w-10 h-10 text-violet-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                Your wishlist is empty
+                Danh sách yêu thích trống
               </h2>
               <p className="text-gray-600 mb-8 text-lg">
-                Start adding courses to your wishlist to save them for later.
-                You can add courses from the course catalog.
+                Bắt đầu thêm khóa học vào danh sách yêu thích để lưu xem sau.
+                Bạn có thể thêm các khóa học từ danh mục khóa học.
               </p>
               <button
                 onClick={() => router.push("/homepage")}
                 className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
               >
-                Browse Courses
+                Xem Khóa Học
               </button>
             </div>
           </div>
@@ -152,7 +116,7 @@ export default function WishlistPage() {
                               </h3>
                             </Link>
                             <p className="text-sm text-gray-600 mt-1">
-                              by {course.instructor}
+                              bởi {course.instructor}
                             </p>
                           </div>
                           <div className="flex items-center gap-1 ml-4 flex-shrink-0">
@@ -186,11 +150,11 @@ export default function WishlistPage() {
                       <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl font-bold text-violet-600">
-                            ${course.price}
+                            {course.price.toLocaleString()}₫
                           </span>
                           {course.originalPrice && (
                             <span className="text-sm text-gray-400 line-through">
-                              ${course.originalPrice}
+                              {course.originalPrice.toLocaleString()}₫
                             </span>
                           )}
                         </div>
@@ -206,7 +170,9 @@ export default function WishlistPage() {
                           >
                             <ShoppingCart className="w-4 h-4" />
                             <span className="hidden sm:inline">
-                              {isInCart(course.id) ? "In Cart" : "Add to Cart"}
+                              {isInCart(course.id)
+                                ? "Đã thêm vào giỏ"
+                                : "Thêm vào giỏ"}
                             </span>
                           </button>
 
@@ -215,8 +181,8 @@ export default function WishlistPage() {
                             className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
                             aria-label={
                               course.isInWishlist
-                                ? "Remove from wishlist"
-                                : "Add to wishlist"
+                                ? "Xóa khỏi danh sách yêu thích"
+                                : "Thêm vào danh sách yêu thích"
                             }
                           >
                             <Trash2 className="w-4 h-4" />
@@ -233,26 +199,29 @@ export default function WishlistPage() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
                 <h3 className="text-xl font-bold text-gray-800 mb-6">
-                  Wishlist Summary
+                  Tóm tắt danh sách
                 </h3>
 
                 <div className="space-y-4 mb-6 pb-6 border-b border-gray-200">
                   <div className="flex justify-between text-gray-600">
-                    <span>Total Items:</span>
+                    <span>Tổng số khóa học:</span>
                     <span className="font-semibold text-gray-800">
                       {wishlistItems.length}
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Total Value:</span>
+                    <span>Tổng giá trị:</span>
                     <span className="font-semibold text-gray-800">
-                      ${totalValue.toFixed(2)}
+                      {totalValue.toLocaleString()}₫
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-600">
-                    <span>Average Price:</span>
+                    <span>Giá trung bình:</span>
                     <span className="font-semibold text-gray-800">
-                      ${(totalValue / wishlistItems.length).toFixed(2)}
+                      {roundVND(
+                        totalValue / wishlistItems.length
+                      ).toLocaleString()}
+                      ₫
                     </span>
                   </div>
                 </div>
@@ -270,20 +239,22 @@ export default function WishlistPage() {
                       : "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
                   }`}
                 >
-                  {allInCart ? "All Courses in Cart" : "Add All to Cart"}
+                  {allInCart
+                    ? "Tất cả khóa học đã trong giỏ"
+                    : "Thêm tất cả vào giỏ"}
                 </button>
 
                 <button
                   onClick={() => router.push("/courses")}
                   className="w-full border-2 border-violet-600 text-violet-600 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-all duration-300 cursor-pointer"
                 >
-                  Continue Shopping
+                  Tiếp tục mua sắm
                 </button>
 
                 <div className="mt-6 p-4 bg-violet-50 rounded-lg border border-violet-200">
                   <p className="text-xs text-violet-700 font-medium">
-                    💡 Tip: Items in your wishlist are saved for 30 days. Add
-                    them to your cart before they expire!
+                    💡 Lưu ý: Các khóa học trong danh sách yêu thích được lưu
+                    trong 30 ngày. Hãy thêm chúng vào giỏ trước khi hết hạn!
                   </p>
                 </div>
               </div>

@@ -71,3 +71,23 @@ export const LoadingSkeleton = () => {
     </div>
   );
 };
+
+export function CommentSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-6">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div
+          key={idx}
+          className="flex gap-4 animate-pulse border-b border-gray-200 pb-6 last:border-0"
+        >
+          <div className="w-12 h-12 rounded-full bg-gray-300" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+            <div className="h-3 bg-gray-300 rounded w-full"></div>
+            <div className="h-3 bg-gray-300 rounded w-5/6"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

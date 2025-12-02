@@ -1,7 +1,9 @@
 import {
+  handleGetCourseRecommendation,
   handleGetDetailCourse,
   handleGetFilteredCourses,
   handleGetHomeCourses,
+  handleGetLessonDetail,
 } from "@/services/courseService";
 import { ApiError } from "@/types/api/apiResponse";
 import { filterCourseParams } from "@/types/course/course";
@@ -43,6 +45,22 @@ export const getHomeCourses = createAsyncThunk(
   }
 );
 
+export const getCourseRecommendation = createAsyncThunk(
+  "courses/getCourseRecommendation",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await handleGetCourseRecommendation();
+      return res;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message: error.response?.data?.message || "Lấy gợi ý khóa học thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);
+
 export const getDetailCourse = createAsyncThunk(
   "courses/getDetailCourse",
   async (courseId: string, { rejectWithValue }) => {
@@ -54,6 +72,26 @@ export const getDetailCourse = createAsyncThunk(
       return rejectWithValue({
         message:
           error.response?.data?.message || "Lấy chi tiết khóa học thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);
+
+export const getLessonDetail = createAsyncThunk(
+  "courses/getLessonDetail",
+  async (
+    params: { courseId: string; lessonId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await handleGetLessonDetail(params.courseId, params.lessonId);
+      return res;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message:
+          error.response?.data?.message || "Lấy chi tiết bài học thất bại",
         errorCode: error.response?.data?.errorCode,
       });
     }

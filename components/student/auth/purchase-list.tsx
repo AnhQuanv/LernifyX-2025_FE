@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronDown,
-  Download,
-  Eye,
-  CheckCircle,
-  Clock,
-  XCircle,
-} from "lucide-react";
+import { ChevronDown, Eye, CheckCircle, Clock, XCircle } from "lucide-react";
 import PurchaseDetailModal from "./purchase-detail-history";
 import Image from "next/image";
 import { Purchase } from "@/types/payment/payment";
@@ -106,8 +99,7 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
                     {purchase.items.length} khóa học
                   </span>
                   <span className="text-violet-600 font-semibold">
-                    {purchase.amount.toLocaleString()}{" "}
-                    {purchase.currency || "VND"}
+                    {purchase.amount.toLocaleString()}₫
                   </span>
                 </div>
               </div>
@@ -169,22 +161,10 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
 
                       {/* Price */}
                       <span className="text-lg font-bold text-violet-600">
-                        ${item.price.toFixed(2)}
+                        {item.price.toLocaleString()}₫
                       </span>
                     </div>
                   ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mt-6 pt-6 border-t border-gray-200 flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition-colors">
-                    <Download className="w-4 h-4" />
-                    Tải Hóa đơn
-                  </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border-2 border-violet-600 text-violet-600 rounded-lg font-semibold hover:bg-violet-50 transition-colors">
-                    <Eye className="w-4 h-4" />
-                    Chi Tiết
-                  </button>
                 </div>
               </div>
             )}

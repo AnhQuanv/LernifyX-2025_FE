@@ -51,11 +51,10 @@ export function LoginForm() {
     try {
       const res = await dispatch(loginAsync(values)).unwrap();
 
-      // Lấy token → gán cho axios
       const token = res.accessToken;
       setTokenGetter(() => token);
 
-      router.push("/homepage");
+      router.push("/");
     } catch (err: any) {
       const msg = err?.message;
       const code = err?.errorCode;
@@ -74,7 +73,7 @@ export function LoginForm() {
           form.clearErrors();
         }, 3000);
       } else if (msg?.toLowerCase().includes("email")) {
-        setError("email", { message: "Email không tồn tại" });
+        setError("email", { message: "Email không tồn tại." });
       } else {
         setError("root", {
           message: msg || "Đã có lỗi xảy ra. Vui lòng thử lại.",
@@ -88,10 +87,10 @@ export function LoginForm() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-indigo-200 px-4 py-10">
         <div className="bg-white shadow-2xl rounded-3xl w-full max-w-xl p-10">
           <h1 className="text-3xl font-bold text-center text-indigo-600 mb-2">
-            Welcome
+            Chào mừng
           </h1>
           <p className="text-center text-gray-500 mb-8">
-            Login to continue learning with LearnifyX
+            Đăng nhập để tiếp tục học tập với LearnifyX
           </p>
 
           {/* Root error */}
@@ -114,7 +113,6 @@ export function LoginForm() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
                         className="bg-gray-100"
                         autoComplete="email"
                       />
@@ -130,7 +128,7 @@ export function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Mật khẩu</FormLabel>
                     <div className="relative">
                       <FormControl>
                         <Input
@@ -162,7 +160,7 @@ export function LoginForm() {
                   className="p-0 text-indigo-500"
                   onClick={() => setShowForgotPasswordModal(true)}
                 >
-                  Forgot password?
+                  Quên mật khẩu?
                 </Button>
               </div>
 
@@ -172,18 +170,18 @@ export function LoginForm() {
                 className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white"
                 disabled={formState.isSubmitting}
               >
-                {formState.isSubmitting ? "Đang đăng nhập..." : "Login"}
+                {formState.isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
 
               {/* Register link */}
               <p className="text-center text-sm text-gray-500 mt-4">
-                Don’t have an account?{" "}
+                Chưa có tài khoản?{" "}
                 <Button
                   variant="link"
                   className="text-indigo-600 p-0"
                   onClick={() => router.push("/auth/register")}
                 >
-                  Sign up
+                  Đăng ký
                 </Button>
               </p>
             </form>

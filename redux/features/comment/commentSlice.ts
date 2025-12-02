@@ -1,5 +1,8 @@
 // src/redux/slice/commentSlice.ts
-import { getCommentsByCourse } from "@/redux/thunk/commentThunk";
+import {
+  getCommentsByCourse,
+  getCommentsByLesson,
+} from "@/redux/thunk/commentThunk";
 import { Comment } from "@/types/comment/comment";
 import { Pagination } from "@/types/course/course";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -53,6 +56,27 @@ const commentSlice = createSlice({
         }
       )
       .addCase(getCommentsByCourse.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
+      .addCase(getCommentsByLesson.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        getCommentsByLesson.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            pagination: Pagination;
+            data: Comment[];
+          }>
+        ) => {
+          state.status = "succeeded";
+          state.pagination = action.payload.pagination;
+          state.comments = action.payload.data;
+        }
+      )
+      .addCase(getCommentsByLesson.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });

@@ -4,39 +4,53 @@ export const registerSchema = z
   .object({
     fullName: z
       .string()
-      .min(2, "Full name must be at least 2 characters long")
+      .min(1, "Vui lòng nhập họ và tên")
+      .min(2, "Họ và tên phải ít nhất 2 ký tự")
       .trim(),
 
-    email: z.string().email("Invalid email address"),
+    email: z.string().min(1, "Vui lòng nhập email").email("Email không hợp lệ"),
 
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-
-    confirm_password: z
+    password: z
       .string()
-      .min(6, "Confirm password must be at least 6 characters long"),
+      .min(1, "Vui lòng nhập mật khẩu")
+      .min(6, "Mật khẩu phải ít nhất 6 ký tự")
+      .regex(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt"
+      ),
 
-    dateOfBirth: z.string().refine((date) => {
-      const birth = new Date(date);
-      const age = new Date().getFullYear() - birth.getFullYear();
-      return age >= 13;
-    }, "You must be at least 13 years old"),
+    confirm_password: z.string().min(1, "Vui lòng nhập xác nhận mật khẩu"),
+
+    dateOfBirth: z
+      .string()
+      .min(1, "Vui lòng chọn ngày sinh")
+      .refine((date) => {
+        const birth = new Date(date);
+        const age = new Date().getFullYear() - birth.getFullYear();
+        return age >= 13;
+      }, "Bạn phải từ 13 tuổi trở lên"),
 
     phone: z
       .string()
+      .min(1, "Vui lòng nhập số điện thoại")
       .refine(
         (phone) => /^(\+84|0)[3-9]\d{8}$/.test(phone.replace(/\s/g, "")),
         {
-          message: "Invalid phone number",
+          message: "Số điện thoại không hợp lệ",
         }
       ),
 
-    address: z.string().min(5, "Address is too short"),
+    address: z
+      .string()
+      .min(1, "Vui lòng nhập địa chỉ")
+      .min(5, "Địa chỉ không hợp lệ"),
 
     roleName: z.enum(["student", "teacher"], {
-      required_error: "Role is required",
+      message: "Vui lòng chọn vai trò",
     }),
   })
   .refine((data) => data.password === data.confirm_password, {
     path: ["confirm_password"],
-    message: "Passwords do not match",
+    message: "Mật khẩu và xác nhận mật khẩu không khớp",
   });

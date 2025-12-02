@@ -19,20 +19,20 @@ import axios from "axios";
 
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(1, "Current password is required"),
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
     newPassword: z
       .string()
-      .min(6, "Password must be at least 6 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
+      .min(6, "Mật khẩu phải ít nhất 6 ký tự")
+      .regex(/[A-Z]/, "Mật khẩu phải có ít nhất một chữ cái viết hoa")
+      .regex(/[0-9]/, "Mật khẩu phải có ít nhất một số")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Password must contain at least one special character"
+        "Mật khẩu phải có ít nhất một ký tự đặc biệt"
       ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
   });
 
@@ -72,16 +72,16 @@ export default function AccountSettingsPage() {
       form.reset();
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error: unknown) {
-      console.error("Error updating password:", error);
+      console.error("Lỗi khi cập nhật mật khẩu:", error);
 
       if (axios.isAxiosError(error)) {
         const message =
-          error.response?.data?.message || "Đã có lỗi xảy ra, thử lại sau";
+          error.response?.data?.message || "Đã có lỗi xảy ra, vui lòng thử lại";
         setErrorMessage(message);
       } else if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage("Đã có lỗi xảy ra, thử lại sau");
+        setErrorMessage("Đã có lỗi xảy ra, vui lòng thử lại");
       }
       setTimeout(() => setErrorMessage(""), 3000);
     } finally {
@@ -98,14 +98,14 @@ export default function AccountSettingsPage() {
             <button
               onClick={() => router.back()}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-              aria-label="Go back"
+              aria-label="Quay lại"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold">Account Settings</h1>
+              <h1 className="text-3xl font-bold">Cài đặt tài khoản</h1>
               <p className="text-gray-500 text-sm">
-                Manage your account security and preferences
+                Quản lý bảo mật và tùy chọn tài khoản của bạn
               </p>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function AccountSettingsPage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <Lock className="w-5 h-5 text-white" />
               </div>
-              Change Password
+              Đổi mật khẩu
             </h2>
 
             <Form {...form}>
@@ -159,13 +159,13 @@ export default function AccountSettingsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Current Password
+                        Mật khẩu hiện tại
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPasswords.current ? "text" : "password"}
-                            placeholder="Enter your current password"
+                            placeholder="Nhập mật khẩu hiện tại"
                             className="pr-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -199,13 +199,13 @@ export default function AccountSettingsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        New Password
+                        Mật khẩu mới
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPasswords.new ? "text" : "password"}
-                            placeholder="Enter your new password"
+                            placeholder="Nhập mật khẩu mới"
                             className="pr-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -239,13 +239,13 @@ export default function AccountSettingsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Confirm Password
+                        Xác nhận mật khẩu
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPasswords.confirm ? "text" : "password"}
-                            placeholder="Confirm your new password"
+                            placeholder="Xác nhận mật khẩu mới"
                             className="pr-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -275,13 +275,13 @@ export default function AccountSettingsPage() {
                 {/* Password Requirements */}
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                   <p className="text-sm font-semibold text-blue-900 mb-2">
-                    Password Requirements:
+                    Yêu cầu mật khẩu:
                   </p>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• At least 6 characters long</li>
-                    <li>• Contains at least one uppercase letter</li>
-                    <li>• Contains at least one number</li>
-                    <li>• Contains at least one special character</li>
+                    <li>• Ít nhất 6 ký tự</li>
+                    <li>• Có ít nhất một chữ cái viết hoa</li>
+                    <li>• Có ít nhất một số</li>
+                    <li>• Có ít nhất một ký tự đặc biệt</li>
                   </ul>
                 </div>
 
@@ -293,12 +293,12 @@ export default function AccountSettingsPage() {
                   {isLoading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Updating...
+                      Đang cập nhật...
                     </>
                   ) : (
                     <>
                       <Lock className="w-5 h-5" />
-                      Update Password
+                      Cập nhật mật khẩu
                     </>
                   )}
                 </button>

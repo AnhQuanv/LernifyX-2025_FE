@@ -29,8 +29,8 @@ export default function Footer() {
               LeanrifyX
             </h3>
             <p className="text-indigo-100 leading-relaxed">
-              Empowering learners worldwide with high-quality online education
-              and professional development opportunities.
+              Giúp người học trên toàn thế giới tiếp cận giáo dục trực tuyến
+              chất lượng cao và cơ hội phát triển nghề nghiệp.
             </p>
             <div className="flex space-x-4 pt-2">
               <Link
@@ -63,15 +63,15 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
-              Quick Links
+              Liên kết nhanh
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/courses", label: "All Courses" },
-                { href: "/teachers", label: "Our Teachers" },
-                { href: "/pricing", label: "Pricing Plans" },
+                { href: "/courses", label: "Tất cả khóa học" },
+                { href: "/teachers", label: "Giáo viên của chúng tôi" },
+                { href: "/pricing", label: "Bảng giá" },
                 { href: "/blog", label: "Blog" },
-                { href: "/contact", label: "Contact Us" },
+                { href: "/contact", label: "Liên hệ" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -89,18 +89,18 @@ export default function Footer() {
           {/* Categories */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
-              Categories
+              Danh mục
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/category/web-development", label: "Web Development" },
-                { href: "/category/data-science", label: "Data Science" },
+                { href: "/category/web-development", label: "Phát triển web" },
+                { href: "/category/data-science", label: "Khoa học dữ liệu" },
                 {
                   href: "/category/mobile-development",
-                  label: "Mobile Development",
+                  label: "Phát triển di động",
                 },
-                { href: "/category/design", label: "Design" },
-                { href: "/category/business", label: "Business" },
+                { href: "/category/design", label: "Thiết kế" },
+                { href: "/category/business", label: "Kinh doanh" },
               ].map((category) => (
                 <li key={category.href}>
                   <Link
@@ -118,12 +118,12 @@ export default function Footer() {
           {/* Contact */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
-              Contact Us
+              Liên hệ
             </h3>
             <ul className="space-y-4 text-indigo-100">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 mt-0.5 text-indigo-200" />
-                <span>123 Education Street, Learning City, NY 10001</span>
+                <span>123 Phố Giáo dục, Thành phố Học tập, NY 10001</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 text-indigo-200" />
@@ -148,9 +148,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-indigo-400/30 mt-8 pt-8 text-center text-indigo-100">
-          <p>
-            &copy; {new Date().getFullYear()} LeanrifyX. All rights reserved.
-          </p>
+          <p>&copy; {new Date().getFullYear()} LeanrifyX. Bảo lưu mọi quyền.</p>
         </div>
       </div>
     </footer>

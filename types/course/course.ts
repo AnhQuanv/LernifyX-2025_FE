@@ -5,20 +5,22 @@ export interface Course {
   title: string;
   description?: string;
   instructor: string;
-  rating: number;
-  students: number;
+  rating?: number;
+  ratingCount?: number;
+  students?: number;
   price: number;
   originalPrice: number | null;
   discount: number | null;
   level: string;
-  duration: number;
+  duration?: string;
   category: string;
   discountExpiresAt: string | null;
   learnings?: string[];
   requirements?: string[];
   image: string;
-  isInWishlist: boolean;
-  isInCart: boolean;
+  isInWishlist?: boolean;
+  isInCart?: boolean;
+  progress?: number;
 }
 
 export interface filterCourseParams {
@@ -31,12 +33,40 @@ export interface filterCourseParams {
   search?: string;
 }
 
+export interface Lesson_Note {
+  id: string;
+  text: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Progress_Lesson {
+  id: string;
+  completed: boolean;
+  lastPosition: number;
+  notes?: Lesson_Note[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+}
+
 export interface Lesson {
   id: string;
   title: string;
   duration: number;
-  videoUrl: string | null;
-  comments?: Comment[];
+  order: number;
+  content: string;
+  hasQuiz?: boolean;
+  canViewVideo?: boolean;
+  videoUrl?: string | null;
+  progress?: Progress_Lesson;
+  quiz?: QuizQuestion[];
 }
 
 export interface Chapter {
@@ -47,6 +77,7 @@ export interface Chapter {
 }
 
 export interface CourseDetail extends Course {
+  isPurchased?: boolean;
   chapters: Chapter[];
   comments?: Comment[];
   createdAt: string;

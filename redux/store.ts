@@ -60,7 +60,7 @@ const rootReducer = (state: any, action: any) => {
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "wishlist", "cart"],
+  whitelist: ["auth", "wishlist", "cart", "course"],
 };
 
 // --- Persisted reducer ---

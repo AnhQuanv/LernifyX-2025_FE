@@ -24,8 +24,8 @@ export default function CheckoutPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0); // Giả định 0% giảm giá ban đầu
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card"); // Phương thức thanh toán mặc định
+  const [discount, setDiscount] = useState(0);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
 
   if (cartItems.length === 0) {
     return (
@@ -82,7 +82,7 @@ export default function CheckoutPage() {
       console.error("Lỗi khi thanh toán:", error);
       alert("Đã xảy ra lỗi khi thanh toán.");
     } finally {
-      setIsLoading(false); // ✅ đảm bảo reset trạng thái
+      setIsLoading(false);
     }
   };
 
@@ -105,9 +105,7 @@ export default function CheckoutPage() {
         <hr className="mb-8" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* 1. Chi tiết Thanh toán & Mã giảm giá */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Thông tin Người dùng (Đã Đăng nhập) */}
             <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <ArrowRight className="w-6 h-6 text-violet-600" />
@@ -245,13 +243,13 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-gray-600">
                   <span>Tổng giá trị khóa học ({cartItems.length} items):</span>
                   <span className="font-semibold text-gray-800">
-                    ${totalValue.toFixed(2)}
+                    {totalValue.toLocaleString()}₫
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Thuế (VAT {taxRate * 100}%):</span>
                   <span className="font-semibold text-gray-800">
-                    ${tax.toFixed(2)}
+                    {Math.round(totalValue * 0.1).toLocaleString()}₫
                   </span>
                 </div>
                 <div
@@ -266,7 +264,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-2xl font-bold text-gray-800 mb-6">
                 <span>Tổng cộng:</span>
                 <span className="text-violet-600">
-                  ${finalTotal.toFixed(2)}
+                  {finalTotal.toLocaleString()}₫
                 </span>
               </div>
 
@@ -294,7 +292,6 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            {/* Danh sách Khóa học được Mua */}
             <div className="mt-8">
               <h3 className="text-lg font-bold text-gray-700 mb-4">
                 Các khóa học bạn đang mua:

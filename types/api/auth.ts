@@ -9,6 +9,7 @@ export interface IUser {
   dateOfBirth: string;
   address: string;
   avatar?: string;
+  hasPreferences: boolean;
 }
 
 export interface AuthLoginData {
@@ -46,6 +47,13 @@ export interface ResetPasswordDto {
   codeId: number;
   newPassword: string;
   confirmPassword: string;
+}
+
+export interface CreateUserPreferenceDto {
+  mainCategoryIds: string[];
+  desiredLevels: string[];
+  learningGoals: string[];
+  interestedSkills: string[];
 }
 
 export type AuthLoginResponse = ApiResponse<AuthLoginData>;

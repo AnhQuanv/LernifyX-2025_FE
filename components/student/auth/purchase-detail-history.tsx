@@ -173,7 +173,7 @@ export default function PurchaseDetailModal({
 
                   {/* Price */}
                   <span className="text-lg font-bold text-violet-600">
-                    ${item.price.toFixed(2)}
+                    {item.price.toLocaleString()}₫
                   </span>
                 </div>
               ))}
@@ -187,17 +187,13 @@ export default function PurchaseDetailModal({
                 Tổng cộng:
               </span>
               <span className="text-2xl font-bold text-violet-600">
-                {purchase.amount.toLocaleString()} {purchase.currency || "VND"}
+                {purchase.amount.toLocaleString()}₫
               </span>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-4 border-t border-gray-100">
-            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition-colors">
-              <Download className="w-5 h-5" />
-              Tải Hóa đơn
-            </button>
             <button
               onClick={onClose}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"

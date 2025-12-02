@@ -7,7 +7,6 @@ import {
   CheckCircle,
   XCircle,
   ArrowRight,
-  Download,
   Mail,
   Home,
   Package,
@@ -38,10 +37,6 @@ export default function PaymentResultPage() {
   const total = totalValue + tax;
   const isSuccess = statusParam === "success";
 
-  const handleDownloadReceipt = () => {
-    console.log("Downloading receipt...");
-  };
-
   const handleRetryPayment = () => {
     router.push("/checkout");
   };
@@ -62,7 +57,7 @@ export default function PaymentResultPage() {
     return () => {
       dispatch(resetPayment());
     };
-  }, [dispatch, paymentId]);
+  }, [dispatch, paymentId, isSuccess]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-10 pb-20">
@@ -125,18 +120,22 @@ export default function PaymentResultPage() {
                       Tổng giá trị ({payment?.items.length} khóa học):
                     </span>
                     <span className="font-semibold text-gray-800">
-                      ${Number(payment?.amount || 0).toFixed(2)}
+                      {Number(totalValue || 0).toLocaleString()}₫
                     </span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Thuế (VAT 10%):</span>
                     <span className="font-semibold text-gray-800">
-                      ${tax.toFixed(2)}
+                      {/* ${tax.toFixed(2)} */}
+                      {Number(tax || 0).toLocaleString()}₫
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-gray-800 pt-3 border-t border-dashed border-gray-200">
                     <span>Tổng cộng:</span>
-                    <span className="text-green-600">${total.toFixed(2)}</span>
+                    <span className="text-green-600">
+                      {/* ${total.toFixed(2)} */}
+                      {Number(total || 0).toLocaleString()}₫
+                    </span>
                   </div>
                 </div>
               </div>
@@ -156,7 +155,7 @@ export default function PaymentResultPage() {
                         {course.course.title}
                       </span>
                       <span className="font-semibold text-green-600 ml-2 flex-shrink-0">
-                        ${course.price}
+                        {Math.round(course.price).toLocaleString()}₫
                       </span>
                     </div>
                   ))}
@@ -191,16 +190,8 @@ export default function PaymentResultPage() {
             {/* Action Buttons - Success */}
             <div className="space-y-3">
               <button
-                onClick={handleDownloadReceipt}
-                className="w-full bg-white border-2 border-gray-300 text-gray-700 px-6 py-4 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <Download className="w-5 h-5" />
-                Tải xuống Hóa đơn
-              </button>
-
-              <button
                 onClick={() => router.push("/my-learning")}
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Package className="w-5 h-5" />
                 Xem khóa học của tôi
@@ -208,7 +199,7 @@ export default function PaymentResultPage() {
 
               <button
                 onClick={() => router.push("/homepage")}
-                className="w-full border-2 border-violet-600 text-violet-600 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full border-2 border-violet-600 text-violet-600 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Home className="w-5 h-5" />
                 Quay lại trang chủ

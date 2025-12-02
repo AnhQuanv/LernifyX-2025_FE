@@ -76,10 +76,10 @@ export function RegisterForm() {
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-100 via-white to-indigo-100 px-4 py-10">
         <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl">
           <h1 className="text-3xl font-bold text-center text-indigo-600 mb-2">
-            Create your account
+            Tạo tài khoản
           </h1>
           <p className="text-center text-gray-500 mb-6">
-            Join the LearnifyX platform to start your learning journey!
+            Tham gia LearnifyX để bắt đầu hành trình học tập của bạn!
           </p>
 
           {/* Root Error */}
@@ -91,18 +91,19 @@ export function RegisterForm() {
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Full name & Email */}
+              {/* Họ tên & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <FormField
                   control={form.control}
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel>Họ và tên</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           className="bg-gray-100"
+                          placeholder="Nhập họ và tên"
                           autoComplete="name"
                         />
                       </FormControl>
@@ -122,6 +123,7 @@ export function RegisterForm() {
                           type="email"
                           {...field}
                           className="bg-gray-100"
+                          placeholder="Nhập email"
                           autoComplete="email"
                         />
                       </FormControl>
@@ -131,24 +133,24 @@ export function RegisterForm() {
                 />
               </div>
 
-              {/* Password */}
+              {/* Mật khẩu & Xác nhận mật khẩu */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Mật khẩu</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input
                             type={showPassword ? "text" : "password"}
                             {...field}
                             className="pr-10 bg-gray-100"
+                            placeholder="Nhập mật khẩu"
                             autoComplete="new-password"
                           />
                         </FormControl>
-
                         <button
                           type="button"
                           onClick={() => setShowPassword((p) => !p)}
@@ -167,17 +169,17 @@ export function RegisterForm() {
                   name="confirm_password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>Xác nhận mật khẩu</FormLabel>
                       <div className="relative">
                         <FormControl>
                           <Input
                             type={showConfirmPassword ? "text" : "password"}
                             {...field}
                             className="pr-10 bg-gray-100"
+                            placeholder="Nhập lại mật khẩu"
                             autoComplete="new-password"
                           />
                         </FormControl>
-
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword((p) => !p)}
@@ -192,13 +194,13 @@ export function RegisterForm() {
                 />
               </div>
 
-              {/* Birth Date */}
+              {/* Ngày sinh */}
               <FormField
                 control={form.control}
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Birth Date</FormLabel>
+                    <FormLabel>Ngày sinh</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -212,17 +214,18 @@ export function RegisterForm() {
                 )}
               />
 
-              {/* Address */}
+              {/* Địa chỉ */}
               <FormField
                 control={form.control}
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>Địa chỉ</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         className="bg-gray-100"
+                        placeholder="Nhập địa chỉ"
                         autoComplete="address"
                       />
                     </FormControl>
@@ -231,17 +234,18 @@ export function RegisterForm() {
                 )}
               />
 
-              {/* Phone */}
+              {/* Số điện thoại */}
               <FormField
                 control={form.control}
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>Số điện thoại</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         className="bg-gray-100"
+                        placeholder="Nhập số điện thoại"
                         autoComplete="tel"
                       />
                     </FormControl>
@@ -250,13 +254,13 @@ export function RegisterForm() {
                 )}
               />
 
-              {/* Role */}
+              {/* Vai trò */}
               <FormField
                 control={form.control}
                 name="roleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Registering as</FormLabel>
+                    <FormLabel>Đăng ký với vai trò</FormLabel>
                     <div className="flex gap-6 mt-1">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -265,7 +269,7 @@ export function RegisterForm() {
                           checked={field.value === "student"}
                           onChange={() => field.onChange("student")}
                         />
-                        Student
+                        Học viên
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -274,7 +278,7 @@ export function RegisterForm() {
                           checked={field.value === "teacher"}
                           onChange={() => field.onChange("teacher")}
                         />
-                        Teacher
+                        Giảng viên
                       </label>
                     </div>
                     <FormMessage />
@@ -282,31 +286,31 @@ export function RegisterForm() {
                 )}
               />
 
-              {/* Submit */}
+              {/* Nút đăng ký */}
               <Button
                 type="submit"
                 className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white"
               >
-                {formState.isSubmitting ? "Đang đăng ký..." : "Register"}
+                {formState.isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
               </Button>
             </form>
           </Form>
 
-          {/* Already have account */}
+          {/* Chuyển sang đăng nhập */}
           <div className="text-center text-sm text-gray-500 mt-6">
-            Already have an account?{" "}
+            Đã có tài khoản?{" "}
             <Button
               variant="link"
               className="text-indigo-600 p-0"
               onClick={() => router.push("/auth/login")}
             >
-              Login
+              Đăng nhập
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Verify Modal */}
+      {/* Modal xác minh email */}
       <EmailVerificationModal
         isOpen={showVerify}
         onClose={() => setShowVerify(false)}

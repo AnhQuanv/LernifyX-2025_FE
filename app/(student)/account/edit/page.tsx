@@ -15,8 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
 import {
   User,
   Mail,
@@ -31,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { updateAvatar, updateProfile } from "@/redux/thunk/authThunk";
+import { UserAvatar } from "@/components/ui/avatar-cop";
 
 const editProfileSchema = z.object({
   fullName: z
@@ -98,8 +97,9 @@ export default function EditProfilePage() {
   const onSubmit = async (data: EditProfileFormValues) => {
     setIsLoading(true);
     try {
-      await dispatch(updateProfile(data)).unwrap();
-      setSuccessMessage("Profile updated successfully!");
+      const { email, ...profileData } = data;
+      await dispatch(updateProfile(profileData)).unwrap();
+      setSuccessMessage("Cập nhật hồ sơ thành công!");
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -113,7 +113,7 @@ export default function EditProfilePage() {
     setIsLoadingAvatar(true);
     try {
       await dispatch(updateAvatar(avatarFile)).unwrap();
-      setSuccessMessageAvatar("Picture updated successfully!");
+      setSuccessMessageAvatar("Cập nhật ảnh đại diện thành công!");
       setHasAvatarChanged(false);
       setTimeout(() => setSuccessMessageAvatar(""), 3000);
     } catch (error) {
@@ -151,14 +151,14 @@ export default function EditProfilePage() {
             <button
               onClick={() => router.back()}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-              aria-label="Go back"
+              aria-label="Quay lại"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold">Edit Profile</h1>
+              <h1 className="text-3xl font-bold">Chỉnh sửa hồ sơ</h1>
               <p className="text-gray-500 text-sm">
-                Update your personal information
+                Cập nhật thông tin cá nhân
               </p>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function EditProfilePage() {
               <div>
                 <p className="font-semibold text-green-900">{successMessage}</p>
                 <p className="text-sm text-green-700">
-                  Your changes have been saved
+                  Thay đổi của bạn đã được lưu
                 </p>
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function EditProfilePage() {
                   {successMessageAvatar}
                 </p>
                 <p className="text-sm text-green-700">
-                  Your picture has been updated
+                  Ảnh đại diện của bạn đã được cập nhật
                 </p>
               </div>
             </div>
@@ -206,21 +206,17 @@ export default function EditProfilePage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
               </div>
-              Profile Picture
+              Ảnh đại diện
             </h2>
 
             <div className="flex flex-col sm:flex-row items-center gap-8">
               {/* Avatar Display */}
               <div className="flex-shrink-0">
-                <Avatar className="h-32 w-32 rounded-2xl ring-4 ring-violet-100 shadow-lg">
-                  <AvatarImage
-                    src={avatarPreview || "/placeholder.svg"}
-                    alt={user?.fullName || "Profile"}
-                  />
-                  <AvatarFallback className="bg-gradient-to-br from-violet-600 to-purple-600 text-white text-2xl font-bold rounded-2xl">
-                    {getInitials(user?.fullName || "User")}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  fullName={user?.fullName || "User"}
+                  avatarUrl={avatarPreview} // nếu avatarPreview là null/undefined thì sẽ tự fallback
+                  size={128}
+                />
               </div>
 
               {/* Upload Section */}
@@ -234,15 +230,14 @@ export default function EditProfilePage() {
                   />
                   <div className="bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-dashed border-violet-300 rounded-2xl p-6 text-center hover:border-violet-500 hover:bg-violet-100/50 transition-all duration-300 group-hover:shadow-lg">
                     <Upload className="w-8 h-8 text-violet-600 mx-auto mb-2" />
-                    <p className="font-semibold text-gray-800">
-                      Upload new picture
-                    </p>
+                    <p className="font-semibold text-gray-800">Tải ảnh mới</p>
                     <p className="text-sm text-gray-600 mt-1">
-                      PNG, JPG up to 5MB
+                      PNG, JPG tối đa 5MB
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Recommended size:{" "}
-                      <span className="font-medium">256×256px</span> or higher
+                      Kích thước khuyên dùng:{" "}
+                      <span className="font-medium">256×256px</span> hoặc lớn
+                      hơn
                     </p>
                   </div>
                 </label>
@@ -259,7 +254,7 @@ export default function EditProfilePage() {
                   }}
                   className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="button"
@@ -275,7 +270,7 @@ export default function EditProfilePage() {
                   ) : (
                     <>
                       <Check className="w-5 h-5" />
-                      Save Picture
+                      Lưu ảnh
                     </>
                   )}
                 </button>
@@ -289,7 +284,7 @@ export default function EditProfilePage() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <Mail className="w-5 h-5 text-white" />
               </div>
-              Personal Information
+              Thông tin cá nhân
             </h2>
 
             <Form {...form}>
@@ -304,13 +299,13 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Full Name
+                        Họ và tên
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           <Input
-                            placeholder="Enter your full name"
+                            placeholder="Nhập họ và tên"
                             className="pl-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -328,14 +323,15 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Email Address
+                        Địa chỉ Email
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           <Input
+                            disabled
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder="Nhập địa chỉ email"
                             className="pl-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -353,13 +349,13 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Phone Number
+                        Số điện thoại
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                           <Input
-                            placeholder="Enter your phone number"
+                            placeholder="Nhập số điện thoại"
                             className="pl-12 h-12 rounded-xl border-gray-200 focus:border-violet-500 focus:ring-violet-500/20"
                             {...field}
                           />
@@ -377,7 +373,7 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Date of Birth
+                        Ngày sinh
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
@@ -401,13 +397,13 @@ export default function EditProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700 font-semibold">
-                        Address
+                        Địa chỉ
                       </FormLabel>
                       <FormControl>
                         <div className="relative">
                           <MapPin className="absolute left-4 top-4 w-5 h-5 text-gray-400 pointer-events-none" />
                           <textarea
-                            placeholder="Enter your address"
+                            placeholder="Nhập địa chỉ"
                             className="pl-12 pt-3 h-24 w-full rounded-xl border border-gray-200 bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus:border-violet-500 focus:ring-violet-500/20 focus:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                             {...field}
                           />
@@ -440,7 +436,7 @@ export default function EditProfilePage() {
                     ) : (
                       <>
                         <Check className="w-5 h-5" />
-                        Save Changes
+                        Lưu thay đổi
                       </>
                     )}
                   </button>
@@ -455,26 +451,27 @@ export default function EditProfilePage() {
               <div className="w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center text-white text-xs font-bold">
                 i
               </div>
-              Important Information
+              Thông tin quan trọng
             </h3>
             <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex gap-2">
                 <span className="text-violet-600 font-bold">•</span>
                 <span>
-                  Your email address is used for account recovery and
-                  notifications
+                  Địa chỉ email của bạn được sử dụng để khôi phục tài khoản và
+                  nhận thông báo
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="text-violet-600 font-bold">•</span>
                 <span>
-                  Phone number helps us contact you about important updates
+                  Số điện thoại giúp chúng tôi liên lạc với bạn về các cập nhật
+                  quan trọng
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="text-violet-600 font-bold">•</span>
                 <span>
-                  All changes are saved immediately after you click Save Changes
+                  Tất cả thay đổi được lưu ngay sau khi bạn nhấn "Lưu thay đổi"
                 </span>
               </li>
             </ul>

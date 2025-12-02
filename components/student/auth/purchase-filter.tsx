@@ -73,16 +73,6 @@ export default function PurchaseFilter({
       </div>
 
       <hr className="my-6" />
-
-      <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-gray-700">Dữ liệu</h4>
-        <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm">
-          Xuất CSV
-        </button>
-        <button className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm">
-          Xuất PDF
-        </button>
-      </div>
     </div>
   );
 }

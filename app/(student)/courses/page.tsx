@@ -47,21 +47,20 @@ const CoursesPage = () => {
     "All",
     ...categories.map((cat) => cat.categoryName),
   ];
-  const levels = ["All", "Beginner", "Intermediate", "Advanced"];
-  // const ratings = ["All", "4.5+", "4.7+", "4.9"];
+  const levels = ["All", "Cơ Bản", "Trung Cấp", "Nâng Cao"];
   const ratings = [
-    { label: "All", value: "All" },
+    { label: "Tất cả", value: "All" },
     { label: "4.5+", value: "4.5" },
     { label: "4.0+", value: "4.0" },
     { label: "3.5+", value: "3.5" },
     { label: "3.0+", value: "3.0" },
   ];
   const sortOptions = [
-    { value: "default", label: "Default" },
-    { value: "a-z", label: "A - Z" },
-    { value: "z-a", label: "Z - A" },
-    { value: "price_asc", label: "Price: Low to High" },
-    { value: "price_desc", label: "Price: High to Low" },
+    { value: "default", label: "Mặc định" },
+    { value: "a-z", label: "Tên: A - Z" },
+    { value: "z-a", label: "Tên: Z - A" },
+    { value: "price_asc", label: "Giá: Thấp → Cao" },
+    { value: "price_desc", label: "Giá: Cao → Thấp" },
   ];
 
   const categoriesToShow = showAllCategories
@@ -122,27 +121,27 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Category
+          Danh mục
         </h3>
         <div className="space-y-2">
           {categoriesToShow.map((category) => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 selectedCategory === category
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
-              {category}
+              {category === "All" ? "Tất cả" : category}
             </button>
           ))}
         </div>
         {displayCategories.length > 3 && (
           <button
             onClick={() => setShowAllCategories(!showAllCategories)}
-            className="w-full mt-3 px-4 py-2 text-violet-600 hover:text-violet-700 font-medium text-sm transition-colors flex items-center justify-center gap-1"
+            className="w-full mt-3 px-4 py-2 text-violet-600 hover:text-violet-700 font-medium text-sm transition-colors flex items-center justify-center gap-1 cursor-pointer border border-violet-600 rounded-lg hover:bg-violet-50"
           >
             {showAllCategories ? (
               <>
@@ -152,7 +151,7 @@ const CoursesPage = () => {
             ) : (
               <>
                 <ChevronDown className="w-4 h-4" />
-                Show all ({displayCategories.length - 3} more categories)
+                Xem tất cả ({displayCategories.length - 3} danh mục)
               </>
             )}
           </button>
@@ -163,14 +162,14 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Level
+          Trình độ
         </h3>
         <div className="space-y-2">
           {levels.map((level) => (
             <button
               key={level}
               onClick={() => setSelectedLevel(level)}
-              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 selectedLevel === level
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -186,14 +185,14 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Rating
+          Đánh giá
         </h3>
         <div className="space-y-2">
           {ratings.map((rating) => (
             <button
               key={rating.value}
               onClick={() => setSelectedRating(rating.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 cursor-pointer ${
                 selectedRating === rating.value
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -209,14 +208,14 @@ const CoursesPage = () => {
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
           <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
-          Sort By
+          Sắp xếp
         </h3>
         <div className="space-y-2">
           {sortOptions.map((option) => (
             <button
               key={option.value}
               onClick={() => setSortBy(option.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 sortBy === option.value
                   ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
@@ -239,14 +238,14 @@ const CoursesPage = () => {
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl leading-tight">
-              Discover{" "}
+              Khám phá{" "}
               <span className="block text-violet-200 mt-2">
-                Your Learning Journey
+                Hành trình học tập của bạn
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-violet-50 max-w-2xl drop-shadow-lg leading-relaxed">
-              Thousands of high-quality courses from leading experts. Learn
-              flexibly and upgrade your skills anytime, anywhere.
+              Hàng ngàn khóa học chất lượng từ các chuyên gia hàng đầu. Học linh
+              hoạt và nâng cao kỹ năng mọi lúc, mọi nơi.
             </p>
           </div>
         </div>
@@ -261,7 +260,7 @@ const CoursesPage = () => {
               className="lg:hidden flex items-center gap-2 px-4 py-3 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700 transition-all"
             >
               <Filter className="w-5 h-5" />
-              Lọc
+              Bộ lọc
             </button>
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -291,102 +290,100 @@ const CoursesPage = () => {
             <div className="flex-1 min-w-0">
               <div className="mb-8 flex justify-between items-center">
                 <p className="text-gray-600 text-lg">
-                  Showing {filteredCourses.length} courses
+                  Hiển thị {filteredCourses.length} khóa học
                 </p>
                 <p className="text-gray-600 text-sm">
-                  Page {pagination.page} of {pagination.totalPages}
+                  Trang {pagination.page} / {pagination.totalPages}
                 </p>
               </div>
 
               {filteredCourses.length > 0 ? (
-                <>
-                  <div
-                    className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ${
-                      isFilterLoading
-                        ? "blur-sm opacity-50 pointer-events-none"
-                        : "blur-0 opacity-100"
-                    }`}
-                  >
-                    {filteredCourses.map((course: Course, index: number) => (
-                      <div
+                <div
+                  className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ${
+                    isFilterLoading
+                      ? "blur-sm opacity-50 pointer-events-none"
+                      : "blur-0 opacity-100"
+                  }`}
+                >
+                  {filteredCourses.map((course: Course, index: number) => (
+                    <div
+                      key={course.id}
+                      className={`transition-all duration-500 ${
+                        isFilterLoading
+                          ? "opacity-0 translate-y-4"
+                          : "opacity-100 translate-y-0"
+                      }`}
+                      style={{
+                        transitionDelay: isFilterLoading
+                          ? "0ms"
+                          : `${index * 50}ms`,
+                      }}
+                    >
+                      <CourseCard
                         key={course.id}
-                        className={`transition-all duration-500 ${
-                          isFilterLoading
-                            ? "opacity-0 translate-y-4"
-                            : "opacity-100 translate-y-0"
-                        }`}
-                        style={{
-                          transitionDelay: isFilterLoading
-                            ? "0ms"
-                            : `${index * 50}ms`,
-                        }}
-                      >
-                        <CourseCard
-                          key={course.id}
-                          course={course}
-                          onWishlistToggle={handleWishlistToggle}
-                          onCartToggle={handleCartToggle}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {pagination.totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2 mt-12">
-                      <button
-                        onClick={() =>
-                          setCurrentPage(Math.max(1, pagination.page - 1))
-                        }
-                        disabled={pagination.page === 1}
-                        className="p-2 rounded-lg border border-gray-300 text-gray-600 
-                                  hover:bg-gray-100 hover:scale-105 hover:shadow-md 
-                                  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
-                                  transition-all"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-
-                      <div className="flex gap-1">
-                        {Array.from(
-                          { length: pagination.totalPages },
-                          (_, i) => i + 1
-                        ).map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
-                               ${
-                                 currentPage === page
-                                   ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
-                                   : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
-                               }`}
-                          >
-                            {page}
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() =>
-                          setCurrentPage(
-                            Math.min(pagination.totalPages, pagination.page + 1)
-                          )
-                        }
-                        disabled={currentPage === pagination.totalPages}
-                        className="p-2 rounded-lg border border-gray-300 text-gray-600 
-                                  hover:bg-gray-100 hover:scale-105 hover:shadow-md 
-                                  cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
-                                  transition-all"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
+                        course={course}
+                        onWishlistToggle={handleWishlistToggle}
+                        onCartToggle={handleCartToggle}
+                      />
                     </div>
-                  )}
-                </>
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-16">
                   <p className="text-xl text-gray-600">
-                    No courses found matching your criteria.
+                    Không tìm thấy khóa học phù hợp.
                   </p>
+                </div>
+              )}
+
+              {pagination.totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-12">
+                  <button
+                    onClick={() =>
+                      setCurrentPage(Math.max(1, pagination.page - 1))
+                    }
+                    disabled={pagination.page === 1}
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                              hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                              cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                              transition-all"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex gap-1">
+                    {Array.from(
+                      { length: pagination.totalPages },
+                      (_, i) => i + 1
+                    ).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                             ${
+                               currentPage === page
+                                 ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
+                                 : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
+                             }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() =>
+                      setCurrentPage(
+                        Math.min(pagination.totalPages, pagination.page + 1)
+                      )
+                    }
+                    disabled={currentPage === pagination.totalPages}
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                              hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                              cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                              transition-all"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
                 </div>
               )}
             </div>

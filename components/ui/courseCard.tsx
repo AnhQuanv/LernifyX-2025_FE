@@ -2,17 +2,10 @@
 import Image from "next/image";
 import type React from "react";
 
-import Link from "next/link";
-import {
-  Star,
-  Users,
-  Clock,
-  PlayCircle,
-  Heart,
-  ShoppingCart,
-} from "lucide-react";
+import { Star, Users, Clock, PlayCircle, Heart } from "lucide-react";
 import DiscountCountdown from "./discountCountDown";
 import type { Course } from "@/types/course/course";
+import { formatTimeRounded } from "@/lib/utils";
 
 interface CourseCardProps {
   course: Course;
@@ -27,8 +20,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group border border-gray-100 hover:border-violet-200 transform hover:-translate-y-2">
-      <Link href={`/courses/${course.id}`} className="block">
-        {/* Image & Badge */}
+      <a href={`/courses/${course.id}`} className="block">
         <div className="relative h-52 overflow-hidden bg-gray-200 cursor-pointer">
           <Image
             src={
@@ -48,7 +40,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
 
           {/* Wishlist Button */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 ">
+          <div className="absolute top-4 right-4 flex flex-col gap-2">
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -70,34 +62,39 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
         </div>
 
-        {/* Info */}
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
               {course.category}
             </span>
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm font-semibold text-gray-700">
-                {course.rating}
-              </span>
-            </div>
+            {course.rating != null && course.ratingCount != null && (
+              <div className="flex items-center space-x-1">
+                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                <span className="text-sm font-semibold text-gray-700">
+                  {course.rating} ({course.ratingCount} đánh giá)
+                </span>
+              </div>
+            )}
           </div>
 
           <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2 h-[52px]">
             {course.title}
           </h3>
 
-          <p className="text-gray-600 font-medium">by {course.instructor}</p>
+          <p className="text-gray-600 font-medium">
+            Giảng viên: {course.instructor}
+          </p>
 
           <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Users className="w-4 h-4" />
-              <span>{course.students.toLocaleString()}</span>
-            </div>
+            {course.students != null && (
+              <div className="flex items-center space-x-1">
+                <Users className="w-4 h-4" />
+                <span>{course.students.toLocaleString()} học viên</span>
+              </div>
+            )}
             <div className="flex items-center space-x-1">
               <Clock className="w-4 h-4" />
-              <span>{course.duration}</span>
+              <span>{formatTimeRounded(Number(course.duration))}</span>
             </div>
           </div>
 
@@ -116,35 +113,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl font-bold text-violet-600">
-                  ${course.price}
+                  {course.price.toLocaleString()}₫
                 </span>
-                {course.originalPrice && (
-                  <span className="text-gray-400 line-through">
-                    ${course.originalPrice}
-                  </span>
-                )}
+                {course.originalPrice &&
+                  course.discountExpiresAt &&
+                  new Date(course.discountExpiresAt) > new Date() && (
+                    <span className="text-gray-400 line-through">
+                      {course.originalPrice.toLocaleString()}₫
+                    </span>
+                  )}
               </div>
             </div>
           </div>
         </div>
-      </Link>
+      </a>
 
       <div className="px-6 pb-6 flex gap-2">
-        <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
-          Enroll Now
-        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onCartToggle(course);
           }}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2 cursor-pointer ${
-            course.isInCart
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`flex-1 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center cursor-pointer bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700`}
         >
-          <ShoppingCart className="w-4 h-4" />
+          {course.isInCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
         </button>
       </div>
     </div>

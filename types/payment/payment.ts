@@ -9,6 +9,7 @@ export interface Payment_items {
 export interface Payment {
   id: string;
   amount: string;
+  currency: string;
   status: string;
   gateway: string;
   transaction_ref: string;

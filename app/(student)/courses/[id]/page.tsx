@@ -22,82 +22,119 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getDetailCourse } from "@/redux/thunk/courseThunk";
 import { getCommentsByCourse } from "@/redux/thunk/commentThunk";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import DiscountCountdown from "@/components/ui/discountCountDown";
+import { useStartLesson } from "@/hooks/useStartLesson";
+import { useParams, useRouter } from "next/navigation";
+import { formatTimeFull, formatTimeRounded } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/avatar-cop";
+import { useWishlistCart } from "@/hooks/commonHooks";
+import { handlePostComment } from "@/services/commentService";
 
-export default function CourseDetailPageWrapper({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const unwrappedParams = React.use(params);
-
-  return <CourseDetailPage params={unwrappedParams} />;
-}
-
-function CourseDetailPage({ params }: { params: { id: string } }) {
+export default function LessonPage() {
+  const params = useParams<{ id: string }>();
+  const courseId = params.id;
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const { selectedCourse: course, status: courseStatus } = useSelector(
     (state: RootState) => state.course
   );
-  const {
-    comments,
-    status: commentStatus,
-    pagination,
-  } = useSelector((state: RootState) => state.comment);
+  const { comments, pagination } = useSelector(
+    (state: RootState) => state.comment
+  );
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedSections, setExpandedSections] = useState<number[]>([]);
-  const [showSpinner, setShowSpinner] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reviewContent, setReviewContent] = useState("");
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  const [reviewRating, setReviewRating] = useState(5);
   const wishlist = useSelector((state: RootState) => state.wishlist.items);
   const cart = useSelector((state: RootState) => state.cart.items);
+  const { startLesson, goToLesson } = useStartLesson(course);
 
   const toggleSection = (index: number) => {
     setExpandedSections((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
+  const isLessonLocked = (chapterIndex: number, lessonIndex: number) => {
+    if (!course) return true;
 
-  const handleToggleWishlist = () => {};
+    const chapters = course.chapters;
 
-  const handleToggleCart = () => {};
-  useEffect(() => {
-    if (params.id) {
-      dispatch(getDetailCourse(params.id));
+    if (chapterIndex === 0 && lessonIndex === 0) {
+      return false;
     }
-  }, [params.id, dispatch]);
+
+    let prevChapterIndex = chapterIndex;
+    let prevLessonIndex = lessonIndex - 1;
+
+    if (lessonIndex === 0) {
+      prevChapterIndex = chapterIndex - 1;
+      const prevChapter = chapters[prevChapterIndex];
+      if (!prevChapter) return true;
+
+      prevLessonIndex = prevChapter.lessons.length - 1;
+    }
+
+    const prevLesson = chapters[prevChapterIndex]?.lessons[prevLessonIndex];
+
+    const prevCompleted = prevLesson?.progress?.completed === true;
+
+    return !prevCompleted;
+  };
+
+  const getCourseProgress = () => {
+    let totalLessons = 0;
+    let completedLessons = 0;
+    if (!course) return true;
+    course.chapters.forEach((chapter) => {
+      chapter.lessons.forEach((lesson) => {
+        totalLessons++;
+        if (lesson.progress?.completed) completedLessons++;
+      });
+    });
+
+    return Math.round((completedLessons / totalLessons) * 100);
+  };
+
+  const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (reviewContent.trim()) {
+      await handlePostComment({
+        content: reviewContent,
+        type: "course",
+        targetId: courseId,
+        rating: reviewRating,
+      });
+      setHasReviewed(true);
+      setReviewContent("");
+      setReviewRating(5);
+      await dispatch(getCommentsByCourse({ courseId, page: 1, limit: 6 }));
+      setCurrentPage(1);
+    }
+  };
+  useEffect(() => {
+    if (courseId) {
+      dispatch(getDetailCourse(courseId));
+    }
+  }, [courseId, dispatch]);
 
   useEffect(() => {
-    if (params.id) {
+    if (courseId) {
       dispatch(
         getCommentsByCourse({
-          courseId: params.id,
+          courseId: courseId,
           page: currentPage,
           limit: 6,
         })
       );
     }
-  }, [params.id, dispatch, currentPage]);
-
-  useEffect(() => {
-    if (commentStatus === "loading") {
-      setShowSpinner(true);
-      const timer = setTimeout(() => setShowSpinner(false), 2000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowSpinner(false);
-    }
-  }, [commentStatus]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [dispatch]);
+  }, [courseId, dispatch, currentPage]);
 
   useEffect(() => {
     if (course) {
@@ -108,7 +145,7 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
     }
   }, [wishlist, cart, course]);
 
-  if (isLoading || courseStatus === "loading" || courseStatus === "idle") {
+  if (courseStatus === "loading" || courseStatus === "idle") {
     return <LoadingSkeleton />;
   }
   if (!course) {
@@ -116,17 +153,17 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Course Not Found
+            Không tìm thấy khóa học
           </h1>
           <p className="text-gray-600 mb-8">
-            The course you&apos;re looking for doesn&apos;t exist.
+            Khóa học bạn đang tìm kiếm không tồn tại.
           </p>
           <Link
             href="/courses"
             className="inline-flex items-center gap-2 bg-violet-600 text-white px-6 py-3 rounded-xl hover:bg-violet-700 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Courses
+            Quay lại danh sách khóa học
           </Link>
         </div>
       </div>
@@ -143,19 +180,24 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
             className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            Back to Courses
+            Quay lại khóa học
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-violet-700 via-purple-600 to-indigo-700 text-white py-16">
+      <section className="bg-gradient-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-16">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-2">
               <div className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
                 {course.category}
               </div>
+              {course.isPurchased && (
+                <div className="inline-block ml-2 bg-green-400/20 backdrop-blur-sm text-green-100 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+                  ✓ Already Purchased
+                </div>
+              )}
               <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
                 {course.title}
               </h1>
@@ -166,17 +208,23 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
               <div className="flex flex-wrap gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-yellow-300 fill-current" />
-                  <span className="font-semibold">{course.rating} Rating</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
                   <span className="font-semibold">
-                    {course.students.toLocaleString()} Students
+                    {course.rating} Đánh giá
                   </span>
                 </div>
+                {course.students != null && (
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    <span className="font-semibold">
+                      {course.students.toLocaleString()} Học viên
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Clock className="w-5 h-5" />
-                  <span className="font-semibold">{course.duration}</span>
+                  <span className="font-semibold">
+                    {formatTimeRounded(Number(course.duration))}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5" />
@@ -185,7 +233,7 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
               </div>
 
               <p className="text-violet-100 mt-6">
-                <span className="font-semibold">Instructor:</span>{" "}
+                <span className="font-semibold">Giảng viên:</span>{" "}
                 {course.instructor}
               </p>
             </div>
@@ -200,8 +248,8 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
                     "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                   }
                   alt={course.title}
-                  width={400} // width bắt buộc phải là number
-                  height={250} // height bắt buộc phải là number
+                  width={400}
+                  height={250}
                   className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                 />
               </div>
@@ -214,13 +262,11 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
       <section className="py-16">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-12">
-            {/* Left Column */}
             <div className="md:col-span-2 space-y-12">
-              {/* What You'll Learn */}
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                   <BookOpen className="w-8 h-8 text-violet-600" />
-                  What You&apos;ll Learn
+                  Những gì bạn sẽ học
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   {course.learnings?.map((learning, index) => (
@@ -231,74 +277,11 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
                   ))}
                 </div>
               </div>
-
-              {/* Course Sections */}
-              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                  <PlayCircle className="w-8 h-8 text-violet-600" />
-                  Course Sections
-                </h2>
-                <div className="space-y-3">
-                  {course.chapters?.map((section, index) => (
-                    <div key={index}>
-                      {/* Section Header - Clickable */}
-                      <button
-                        onClick={() => toggleSection(index)}
-                        className="w-full border border-gray-200 rounded-xl p-4 hover:border-violet-300 hover:bg-violet-50 transition-all text-left"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <ChevronDown
-                              className={`w-5 h-5 text-violet-600 transition-transform duration-300 ${
-                                expandedSections.includes(index)
-                                  ? "rotate-180"
-                                  : ""
-                              }`}
-                            />
-                            <h3 className="font-semibold text-gray-800">
-                              {section.title}
-                            </h3>
-                          </div>
-                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap ml-4">
-                            {section.lessons.length} lessons
-                          </span>
-                        </div>
-                      </button>
-
-                      {/* Lessons List - Expandable */}
-                      {expandedSections.includes(index) && (
-                        <div className="border border-t-0 border-gray-200 rounded-b-xl bg-gray-50 overflow-hidden">
-                          <div className="space-y-2 p-4">
-                            {section.lessons.map((lesson, lessonIndex) => (
-                              <div
-                                key={lesson.id}
-                                className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-violet-50 transition-colors border border-gray-100"
-                              >
-                                <div className="flex items-center gap-3 flex-1">
-                                  <span className="text-sm font-medium text-gray-500 w-6">
-                                    {lessonIndex + 1}
-                                  </span>
-                                  <span className="text-gray-700">
-                                    {lesson.title}
-                                  </span>
-                                </div>
-                                <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
-                                  {lesson.duration}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
               {/* Requirements */}
               {course.requirements && course.requirements.length > 0 && (
                 <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                   <h2 className="text-3xl font-bold text-gray-800 mb-6">
-                    Requirements
+                    Yêu cầu
                   </h2>
                   <ul className="space-y-3">
                     {course.requirements.map((requirement, index) => (
@@ -313,30 +296,229 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
                   </ul>
                 </div>
               )}
+              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+                <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                  <PlayCircle className="w-8 h-8 text-violet-600" />
+                  Nội dung khóa học
+                </h2>
+                <div className="space-y-3">
+                  {course.chapters?.map((section, chapterIndex) => (
+                    <div key={chapterIndex}>
+                      {/* Section Header - Clickable */}
+                      <button
+                        onClick={() => toggleSection(chapterIndex)}
+                        className="w-full border border-gray-200 rounded-xl p-4 hover:border-violet-300 hover:bg-violet-50 transition-all text-left cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1">
+                            <ChevronDown
+                              className={`w-5 h-5 text-violet-600 transition-transform duration-300 ${
+                                expandedSections.includes(chapterIndex)
+                                  ? "rotate-180"
+                                  : ""
+                              }`}
+                            />
+                            <h3 className="font-semibold text-gray-800">
+                              {section.title}
+                            </h3>
+                          </div>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full whitespace-nowrap ml-4">
+                            {section.lessons.length} bài học
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Lessons List - Expandable */}
+                      {expandedSections.includes(chapterIndex) && (
+                        <div className="border border-t-0 border-gray-200 rounded-b-xl bg-gray-50 overflow-hidden cursor-pointer">
+                          <div className="space-y-2 p-4">
+                            {section.lessons.map((lesson, lessonIndex) => {
+                              const isLocked =
+                                !course.isPurchased ||
+                                isLessonLocked(chapterIndex, lessonIndex);
+                              const isCompleted =
+                                lesson.progress?.completed === true;
+                              const lessonLink = `/courses/${course.id}/lessons/${lesson.id}`;
+
+                              return (
+                                <div
+                                  key={lesson.id}
+                                  onClick={() => {
+                                    if (!isLocked) {
+                                      router.push(lessonLink);
+                                    }
+                                  }}
+                                  className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
+                                    isLocked
+                                      ? "bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed"
+                                      : "bg-white border-gray-100 hover:bg-violet-50"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3 flex-1">
+                                    {/* STT */}
+                                    <span className="text-sm font-medium text-gray-500 w-6">
+                                      {lessonIndex + 1}
+                                    </span>
+
+                                    {/* Icon Locked */}
+                                    {isLocked && (
+                                      <div className="w-5 h-5 text-gray-400">
+                                        🔒
+                                      </div>
+                                    )}
+
+                                    {/* Icon Completed */}
+                                    {!isLocked && isCompleted && (
+                                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                    )}
+
+                                    {/* Lesson Title */}
+                                    <span
+                                      className={
+                                        isLocked
+                                          ? "text-gray-500"
+                                          : "text-gray-700"
+                                      }
+                                    >
+                                      {lesson.title}
+                                    </span>
+
+                                    {/* Quiz Indicator */}
+                                    {lesson.hasQuiz && (
+                                      <span className="ml-2 inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">
+                                        📝 Quiz
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Thời lượng */}
+                                  <span
+                                    className={`text-xs whitespace-nowrap ml-4 ${
+                                      isLocked
+                                        ? "text-gray-400"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {formatTimeFull(lesson.duration)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Student Reviews */}
+              {course.isPurchased && !hasReviewed && (
+                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200 mb-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                    Chia sẻ trải nghiệm của bạn
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Bạn đã mua khóa học này! Hãy giúp các học viên khác bằng
+                    cách chia sẻ phản hồi của bạn.
+                  </p>
+
+                  <form onSubmit={handleSubmitReview} className="space-y-4">
+                    {/* Rating Stars */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Đánh giá của bạn
+                      </label>
+                      <div className="flex items-center gap-3">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setReviewRating(i + 1)}
+                            className="transform hover:scale-125 transition-transform"
+                          >
+                            <Star
+                              className={`w-8 h-8 cursor-pointer ${
+                                i < reviewRating
+                                  ? "text-yellow-400 fill-current"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                        <span className="text-sm text-gray-600 ml-2">
+                          {reviewRating} trên thang điểm 5
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Review Text */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nhận xét của bạn
+                      </label>
+                      <textarea
+                        value={reviewContent}
+                        onChange={(e) => setReviewContent(e.target.value)}
+                        placeholder="Chia sẻ suy nghĩ của bạn về khóa học này..."
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-600 resize-none"
+                        rows={4}
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+                    >
+                      Gửi đánh giá
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {course.isPurchased && hasReviewed && (
+                <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 shadow-lg mb-8">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                    <div>
+                      <p className="font-semibold text-green-800">
+                        Thank you for your review!
+                      </p>
+                      <p className="text-sm text-green-700">
+                        Your feedback helps other students make informed
+                        decisions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                   <Star className="w-8 h-8 text-violet-600" />
-                  Student Reviews
+                  Đánh giá của học viên
                 </h2>
                 <div className="space-y-6">
-                  {showSpinner ? (
-                    <div className="flex justify-center items-center py-12">
-                      <LoadingSpinner />
-                    </div>
-                  ) : comments && comments.length > 0 ? (
+                  {comments && comments.length > 0 ? (
                     comments.map((review) => (
                       <div
                         key={review.id}
                         className="border border-gray-200 rounded-xl p-6 hover:border-violet-300 transition-colors"
                       >
                         <div className="flex items-start gap-4 mb-4">
-                          <Image
+                          {/* <Image
                             src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                            // src={review.user.avatarUrl}
                             alt={review.user.fullName}
                             width={100}
                             height={100}
                             className="w-12 h-12 rounded-full object-cover"
+                          /> */}
+                          <UserAvatar
+                            fullName={review.user.fullName || "User"}
+                            avatarUrl={review.user.avatarUrl} // nếu avatarUrl là null/undefined thì sẽ tự fallback
+                            size={64}
                           />
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
@@ -430,104 +612,155 @@ function CourseDetailPage({ params }: { params: { id: string } }) {
               <div className="sticky top-24 space-y-6">
                 {/* Price Info */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-4">
-                  {/* Pricing Section */}
-                  <div className="relative">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-baseline gap-3">
-                          <span className="text-5xl font-extrabold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                            ${course.price}
+                  {course.isPurchased ? (
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-semibold text-gray-700">
+                            Tiến độ khóa học
                           </span>
-                          {course.originalPrice && (
-                            <div className="flex flex-col">
-                              <span className="text-xl text-gray-400 line-through font-medium">
-                                ${course.originalPrice}
-                              </span>
-                            </div>
-                          )}
+                          <span className="text-sm font-bold text-violet-600">
+                            {getCourseProgress()}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-violet-600 to-purple-600 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${getCourseProgress()}%` }}
+                          />
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  {/* Discount & Countdown Row */}
-                  <div className="h-[60px]">
-                    {course.discount != null && course.discountExpiresAt ? (
-                      <DiscountCountdown
-                        discount={course.discount}
-                        discountExpiresAt={course.discountExpiresAt}
-                      />
-                    ) : (
-                      <div className="h-full"></div>
-                    )}
-                  </div>
 
-                  <div className="space-y-3">
-                    <button className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer">
-                      Enroll Now
-                    </button>
-                    <button
-                      onClick={() => handleToggleCart()}
-                      className={`w-full px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 cursor-pointer ${
-                        isInCart
-                          ? "bg-green-500 text-white hover:bg-green-600"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                      }`}
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      {isInCart ? "In Cart" : "Add to Cart"}
-                    </button>
-                    <button
-                      onClick={() => handleToggleWishlist()}
-                      className={`w-full px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
-                        isWishlisted
-                          ? "bg-red-500 text-white hover:bg-red-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
-                    >
-                      <Heart
-                        className={`w-5 h-5 ${
-                          isWishlisted ? "fill-current" : ""
-                        }`}
-                      />
-                      {isWishlisted ? "Wishlisted" : "Add to Wishlist"}
-                    </button>
-                  </div>
+                      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <CheckCircle className="w-6 h-6 text-green-600" />
+                          <span className="text-lg font-bold text-green-700">
+                            Khóa học đã mua
+                          </span>
+                        </div>
+                        <p className="text-sm text-green-600">
+                          Bạn đã có quyền truy cập đầy đủ vào tất cả các bài học
+                        </p>
+                      </div>
+                      <button
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                        onClick={goToLesson}
+                        disabled={!startLesson}
+                      >
+                        <PlayCircle className="w-5 h-5" />
+                        Đi đến khóa học
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Pricing Section */}
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-baseline gap-3">
+                              <span className="text-5xl font-extrabold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                                {course.price.toLocaleString()}₫
+                              </span>
+                              {course.originalPrice &&
+                                course.discountExpiresAt &&
+                                new Date(course.discountExpiresAt) >
+                                  new Date() && (
+                                  <div className="flex flex-col">
+                                    <span className="text-xl text-gray-400 line-through font-medium">
+                                      {course.originalPrice.toLocaleString()}₫
+                                    </span>
+                                  </div>
+                                )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Discount & Countdown Row */}
+                      <div className="h-[60px]">
+                        {course.discount != null && course.discountExpiresAt ? (
+                          <DiscountCountdown
+                            discount={course.discount}
+                            discountExpiresAt={course.discountExpiresAt}
+                          />
+                        ) : (
+                          <div className="h-full"></div>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => handleCartToggle(course)}
+                          className={`w-full px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 cursor-pointer ${
+                            isInCart
+                              ? "bg-green-500 text-white hover:bg-green-600"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          <ShoppingCart className="w-5 h-5" />
+                          {isInCart ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
+                        </button>
+                        <button
+                          onClick={() => handleWishlistToggle(course)}
+                          className={`w-full px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                            isWishlisted
+                              ? "bg-red-500 text-white hover:bg-red-600"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                        >
+                          <Heart
+                            className={`w-5 h-5 ${
+                              isWishlisted ? "fill-current" : ""
+                            }`}
+                          />
+                          {isWishlisted
+                            ? "Đã thêm vào yêu thích"
+                            : "Thêm vào yêu thích"}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Quick Info */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 space-y-4">
                   <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                    <span className="text-gray-600">Level</span>
+                    <span className="text-gray-600">Trình độ</span>
                     <span className="font-semibold text-gray-800">
                       {course.level}
                     </span>
                   </div>
                   <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                    <span className="text-gray-600">Duration</span>
+                    <span className="text-gray-600">Thời lượng</span>
                     <span className="font-semibold text-gray-800">
-                      {course.duration}
+                      {formatTimeFull(Number(course.duration))}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                    <span className="text-gray-600">Students</span>
-                    <span className="font-semibold text-gray-800">
-                      {course.students.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Rating</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  {course.students != null && (
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                      <span className="text-gray-600">Học viên</span>
                       <span className="font-semibold text-gray-800">
-                        {course.rating}
+                        {course.students.toLocaleString()}
                       </span>
                     </div>
-                  </div>
+                  )}
+                  {course.rating != null && course.ratingCount != null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">
+                        {course.ratingCount} Đánh giá
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="font-semibold text-gray-800">
+                          {course.rating}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Instructor Info */}
                 <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 border border-violet-200">
-                  <h3 className="font-bold text-gray-800 mb-2">Instructor</h3>
+                  <h3 className="font-bold text-gray-800 mb-2">Giảng viên</h3>
                   <p className="text-gray-700 font-semibold">
                     {course.instructor}
                   </p>

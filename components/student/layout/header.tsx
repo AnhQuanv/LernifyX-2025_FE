@@ -70,24 +70,29 @@ const Header = () => {
   const [cartOpen, setCartOpen] = useState(false);
 
   const navItems = [
-    { label: "Home", href: "/homepage" },
-    { label: "Course", href: "/courses" },
-    { label: "Teacher", href: "/teachers" },
-    { label: "About", href: "/about" },
+    { label: "Trang chủ", href: "/homepage" },
+    { label: "Khóa học", href: "/courses" },
+    { label: "Giảng viên", href: "/teachers" },
+    { label: "Giới thiệu", href: "/about" },
   ];
 
   const dropdownItems: DropdownItemType[] = [
-    { type: "item", label: "My learning", icon: Book, path: "/my-learning" },
     {
       type: "item",
-      label: "My cart",
+      label: "Khóa học của tôi",
+      icon: Book,
+      path: "/my-learning",
+    },
+    {
+      type: "item",
+      label: "Giỏ hàng",
       icon: ShoppingCart,
       path: "/cart",
       count: cartItems.length,
     },
     {
       type: "item",
-      label: "Wishlist",
+      label: "Yêu thích",
       icon: Heart,
       path: "/wishlist",
       count: wishlistItems.length,
@@ -95,32 +100,29 @@ const Header = () => {
     { type: "separator" },
     {
       type: "item",
-      label: "Notifications",
-      icon: Bell,
-      path: "/notifications",
-      count: 5,
-    },
-    { type: "separator" },
-    {
-      type: "item",
-      label: "Account settings",
+      label: "Cài đặt tài khoản",
       icon: Settings,
       path: "/account/settings",
     },
     {
       type: "item",
-      label: "Purchase history",
+      label: "Lịch sử mua hàng",
       icon: History,
       path: "/checkout/history",
     },
     { type: "separator" },
-    { type: "item", label: "Language", icon: Globe, right: "English" },
-    { type: "separator" },
-    { type: "item", label: "Edit profile", icon: User, path: "/account/edit" },
+    { type: "item", label: "Ngôn ngữ", icon: Globe, right: "Tiếng Anh" },
     { type: "separator" },
     {
       type: "item",
-      label: "Help and Support",
+      label: "Chỉnh sửa hồ sơ",
+      icon: User,
+      path: "/account/edit",
+    },
+    { type: "separator" },
+    {
+      type: "item",
+      label: "Trợ giúp & Hỗ trợ",
       icon: HelpCircle,
       path: "/support",
     },
@@ -165,14 +167,6 @@ const Header = () => {
 
         {/* Right actions */}
         <div className="flex items-center space-x-2 md:space-x-3">
-          {/* Notifications */}
-          {/* <button className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/10">
-            <Bell className="w-5 h-5" />
-            <Badge className="absolute -top-1 -right-1 bg-red-500 w-5 h-5 flex items-center justify-center rounded-full text-xs">
-              5
-            </Badge>
-          </button> */}
-
           {/* Wishlist */}
           <Popover open={wishlistOpen} onOpenChange={setWishlistOpen}>
             <PopoverTrigger asChild>
@@ -260,7 +254,7 @@ const Header = () => {
                     </Avatar>
                     <div>
                       <p className="font-medium text-sm">
-                        {user?.fullName || "C C"}
+                        {user?.fullName || "Người dùng"}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {user?.email || "unknown@gmail.com"}
@@ -307,7 +301,7 @@ const Header = () => {
                   className="text-red-500 hover:bg-red-50 rounded-lg mt-1 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -317,13 +311,13 @@ const Header = () => {
                 onClick={() => router.push("/auth/login")}
                 className="text-white hover:text-violet-200 px-6 py-2 font-medium cursor-pointer"
               >
-                Sign In
+                Đăng nhập
               </button>
               <button
                 onClick={() => router.push("/auth/register")}
                 className="bg-white text-violet-600 hover:bg-violet-50 px-6 py-2 font-semibold rounded-full cursor-pointer"
               >
-                Sign Up
+                Đăng ký
               </button>
             </div>
           )}
