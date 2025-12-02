@@ -63,7 +63,7 @@ export const WishlistPopover = () => {
               <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={
-                    // Nếu có course.image thì dùng, không thì giữ hình default
+                    course.image ||
                     "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                   }
                   alt={course.title}

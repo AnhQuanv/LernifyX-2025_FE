@@ -23,7 +23,8 @@ const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [selectedRating, setSelectedRating] = useState("All");
-  const [sortBy, setSortBy] = useState("default");
+  type SortOption = (typeof sortOptions)[number]["value"];
+  const [sortBy, setSortBy] = useState<SortOption>("default");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -87,7 +88,13 @@ const CoursesPage = () => {
       category: selectedCategory !== "All" ? selectedCategory : undefined,
       level: selectedLevel !== "All" ? selectedLevel : undefined,
       rating: selectedRating !== "All" ? selectedRating : undefined,
-      sortBy: sortBy !== "default" ? (sortBy as any) : undefined,
+      sortBy:
+        sortBy === "a-z" ||
+        sortBy === "z-a" ||
+        sortBy === "price_asc" ||
+        sortBy === "price_desc"
+          ? sortBy
+          : undefined,
       search: debouncedSearch ? debouncedSearch : undefined,
       page: currentPage,
       limit: 9,
@@ -232,7 +239,7 @@ const CoursesPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-violet-700 via-purple-600 to-indigo-700 text-white py-24 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
         <div className="container mx-auto px-4 md:px-6 relative z-10">

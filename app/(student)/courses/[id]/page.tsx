@@ -245,6 +245,7 @@ export default function LessonPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-violet-900/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <Image
                   src={
+                    course.image ||
                     "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                   }
                   alt={course.title}
@@ -507,17 +508,9 @@ export default function LessonPage() {
                         className="border border-gray-200 rounded-xl p-6 hover:border-violet-300 transition-colors"
                       >
                         <div className="flex items-start gap-4 mb-4">
-                          {/* <Image
-                            src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                            // src={review.user.avatarUrl}
-                            alt={review.user.fullName}
-                            width={100}
-                            height={100}
-                            className="w-12 h-12 rounded-full object-cover"
-                          /> */}
                           <UserAvatar
                             fullName={review.user.fullName || "User"}
-                            avatarUrl={review.user.avatarUrl} // nếu avatarUrl là null/undefined thì sẽ tự fallback
+                            avatarUrl={review.user.avatarUrl}
                             size={64}
                           />
                           <div className="flex-1">
@@ -534,7 +527,7 @@ export default function LessonPage() {
                                 <Star
                                   key={i}
                                   className={`w-4 h-4 ${
-                                    i < review.rating
+                                    i < (review.rating ?? 0)
                                       ? "text-yellow-400 fill-current"
                                       : "text-gray-300"
                                   }`}

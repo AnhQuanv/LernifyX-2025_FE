@@ -17,7 +17,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useWishlistCart } from "@/hooks/commonHooks";
-import { getCartTotal, roundVND } from "@/lib/utils";
+import { formatTimeRounded, getCartTotal, roundVND } from "@/lib/utils";
 
 export default function CartPage() {
   const router = useRouter();
@@ -130,7 +130,10 @@ export default function CartPage() {
                     >
                       <div className="relative w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-gray-200 group-hover:shadow-lg transition-all duration-300">
                         <Image
-                          src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                          src={
+                            course.image ||
+                            "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                          }
                           alt={course.title}
                           fill
                           sizes="(max-width: 640px) 100vw, 160px"
@@ -157,22 +160,30 @@ export default function CartPage() {
                               bởi {course.instructor}
                             </p>
                           </div>
-                          <div className="flex items-center gap-1 ml-4 flex-shrink-0">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="text-sm font-semibold text-gray-700">
-                              {course.rating}
-                            </span>
-                          </div>
+                          {course.rating != null &&
+                            course.ratingCount != null && (
+                              <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                <span className="text-sm font-semibold text-gray-700">
+                                  {course.rating} ({course.ratingCount} đánh
+                                  giá)
+                                </span>
+                              </div>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            <span>{course.students.toLocaleString()}</span>
-                          </div>
+                          {course.students != null && (
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>{course.students.toLocaleString()}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
-                            <span>{course.duration}</span>
+                            <span>
+                              {formatTimeRounded(Number(course.duration))}
+                            </span>
                           </div>
                           <span className="bg-violet-100 text-violet-700 px-2 py-1 rounded-full text-xs font-medium">
                             {course.category}

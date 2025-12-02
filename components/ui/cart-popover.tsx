@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, Trash2, X } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,7 @@ export const CartPopover = () => {
               <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={
+                    course.image ||
                     "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                   }
                   alt={course.title}

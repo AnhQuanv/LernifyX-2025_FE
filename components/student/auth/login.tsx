@@ -51,10 +51,12 @@ export function LoginForm() {
     try {
       const res = await dispatch(loginAsync(values)).unwrap();
 
+      // Lấy token → gán cho axios
       const token = res.accessToken;
       setTokenGetter(() => token);
 
-      router.push("/");
+      router.push("/homepage");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.message;
       const code = err?.errorCode;

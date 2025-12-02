@@ -91,17 +91,14 @@ export function EmailVerificationModal({
     setIsLoading(true);
 
     try {
-      // Gọi API verify
       await verifyEmail(email, numericCode);
-
-      // Thành công → chuyển sang bước success
       setStep("success");
       setTimeout(() => {
         onSuccess();
         handleClose();
       }, 2000);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      // Lấy thông tin từ response của BE
       const errorCode = err?.response?.data?.errorCode;
       const message = err?.response?.data?.message || err?.message;
 
@@ -133,14 +130,13 @@ export function EmailVerificationModal({
   const handleResendCode = async () => {
     setIsLoading(true);
     setCanResend(false);
-    setTimeLeft(300); // Reset timer to 5 minutes
+    setTimeLeft(300);
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       setErrors({ general: "", code: "" });
-      setCode(""); // Clear current code
+      setCode("");
 
       // Show success message
       const successAlert = document.createElement("div");
@@ -152,7 +148,7 @@ export function EmailVerificationModal({
       setTimeout(() => {
         document.body.removeChild(successAlert);
       }, 3000);
-    } catch (error) {
+    } catch {
       setErrors((prev) => ({
         ...prev,
         general: "Không thể gửi lại mã. Vui lòng thử lại.",

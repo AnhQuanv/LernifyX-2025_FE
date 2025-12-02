@@ -1,5 +1,3 @@
-// src/app/checkout/page.tsx
-
 "use client";
 
 import { useDispatch, useSelector } from "react-redux";

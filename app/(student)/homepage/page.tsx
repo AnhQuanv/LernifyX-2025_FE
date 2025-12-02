@@ -191,6 +191,7 @@ const Homepage = () => {
                             <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
                               <Image
                                 src={
+                                  course.image ||
                                   "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                                 }
                                 alt={course.title}

@@ -1,9 +1,10 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import axios, { AxiosRequestHeaders } from "axios";
 
 let getToken: () => string | null = () => null;
 let isRefreshing = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: (error: any) => void;
 }[] = [];
 
@@ -19,21 +20,22 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config) => {
     const token = getToken?.();
+    config.headers = config.headers ?? {};
+
     if (token) {
-      config.headers = {
-        ...(config.headers as AxiosRequestHeaders),
-        Authorization: `Bearer ${token}`,
-      };
-    } else {
-      config.headers = config.headers || {};
+      (config.headers as AxiosRequestHeaders)[
+        "Authorization"
+      ] = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
@@ -96,7 +98,8 @@ axiosClient.interceptors.response.use(
         processQueue(null, newAccessToken);
 
         return axiosClient(originalRequest);
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         processQueue(err, null);
         if (err.response?.status === 401) {
           if (typeof logoutCallback === "function") {

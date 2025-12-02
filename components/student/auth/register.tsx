@@ -49,6 +49,7 @@ export function RegisterForm() {
   const { handleSubmit, setError, formState } = form;
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirm_password, ...submitData } = values;
 
     try {
@@ -58,6 +59,7 @@ export function RegisterForm() {
       setShowVerify(true);
 
       form.reset();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.response?.data?.message || err.message;
 

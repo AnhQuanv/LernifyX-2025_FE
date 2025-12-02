@@ -140,7 +140,10 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
                         {/* Course Image */}
                         <div className="min-w-12 min-h-12 w-12 h-12 relative rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
                           <Image
-                            src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                            src={
+                              item.image ||
+                              "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                            }
                             alt={item.title}
                             fill
                             className="object-cover"

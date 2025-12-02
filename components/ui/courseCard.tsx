@@ -24,6 +24,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
         <div className="relative h-52 overflow-hidden bg-gray-200 cursor-pointer">
           <Image
             src={
+              course.image ||
               "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
             }
             alt={course.title}

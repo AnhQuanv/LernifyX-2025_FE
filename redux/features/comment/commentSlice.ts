@@ -1,4 +1,3 @@
-// src/redux/slice/commentSlice.ts
 import {
   getCommentsByCourse,
   getCommentsByLesson,

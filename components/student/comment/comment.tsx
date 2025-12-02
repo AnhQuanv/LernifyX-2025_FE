@@ -3,10 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Star, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface User {
-  fullName: string;
-}
+import { User } from "@/types/user/user";
 
 interface Review {
   id: string;
@@ -49,24 +46,22 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Review Form */}
+      {/* Form đánh giá */}
       {isPurchased && !hasReviewed && (
         <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200">
-          {" "}
           <h3 className="text-2xl font-bold text-gray-800 mb-4">
-            Share Your Experience{" "}
-          </h3>{" "}
+            Chia sẻ trải nghiệm của bạn
+          </h3>
           <p className="text-gray-600 mb-6">
-            You've purchased this course! Help other students by sharing your
-            feedback.{" "}
-          </p>{" "}
+            Bạn đã mua khóa học này! Hãy giúp các học viên khác bằng cách chia
+            sẻ đánh giá của bạn.
+          </p>
           <form onSubmit={handleSubmitReview} className="space-y-4">
-            {/* Rating Stars */}{" "}
+            {/* Chọn số sao */}
             <div>
-              {" "}
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Your Rating{" "}
-              </label>{" "}
+                Đánh giá của bạn
+              </label>
               <div className="flex items-center gap-3">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <button
@@ -81,61 +76,63 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
                           ? "text-yellow-400 fill-current"
                           : "text-gray-300"
                       }`}
-                    />{" "}
+                    />
                   </button>
-                ))}{" "}
+                ))}
                 <span className="text-sm text-gray-600 ml-2">
-                  {reviewRating} out of 5 stars{" "}
-                </span>{" "}
-              </div>{" "}
+                  {reviewRating} / 5 sao
+                </span>
+              </div>
             </div>
-            ```
-            {/* Review Text */}
+
+            {/* Nội dung đánh giá */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Your Review
+                Nội dung đánh giá
               </label>
               <textarea
                 value={reviewContent}
                 onChange={(e) => setReviewContent(e.target.value)}
-                placeholder="Share what you think about this course..."
+                placeholder="Chia sẻ cảm nhận của bạn về khóa học này..."
                 className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-600 resize-none"
                 rows={4}
                 required
               />
             </div>
+
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
             >
-              Submit Review
+              Gửi đánh giá
             </button>
           </form>
         </div>
       )}
 
-      {/* Thank You Message */}
+      {/* Thông báo cảm ơn */}
       {isPurchased && hasReviewed && (
         <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 shadow-lg">
           <div className="flex items-center gap-3">
             <CheckCircle className="w-6 h-6 text-green-600" />
             <div>
               <p className="font-semibold text-green-800">
-                Thank you for your review!
+                Cảm ơn bạn đã đánh giá!
               </p>
               <p className="text-sm text-green-700">
-                Your feedback helps other students make informed decisions.
+                Đánh giá của bạn giúp các học viên khác đưa ra quyết định đúng
+                đắn.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reviews List */}
+      {/* Danh sách đánh giá */}
       <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
           <Star className="w-8 h-8 text-violet-600" />
-          Student Reviews
+          Đánh giá của học viên
         </h2>
         <div className="space-y-6">
           {comments && comments.length > 0 ? (
@@ -146,7 +143,10 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
               >
                 <div className="flex items-start gap-4 mb-4">
                   <Image
-                    src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                    src={
+                      review.user.avatarUrl ||
+                      "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                    }
                     alt={review.user.fullName}
                     width={100}
                     height={100}
@@ -180,12 +180,12 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
             ))
           ) : (
             <p className="text-gray-600">
-              No reviews yet. Be the first to review this course!
+              Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá khóa học này!
             </p>
           )}
         </div>
 
-        {/* Pagination */}
+        {/* Phân trang */}
         {pagination.totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-12">
             <button

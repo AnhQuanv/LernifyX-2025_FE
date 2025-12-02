@@ -16,7 +16,6 @@ import {
   Heart,
   ShoppingCart,
   User,
-  Bell,
   Book,
   LogOut,
   HelpCircle,
@@ -43,6 +42,7 @@ type DropdownItemType =
   | {
       type: "item";
       label: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       icon: any;
       path?: string;
       count?: number;

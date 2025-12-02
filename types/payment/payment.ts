@@ -32,6 +32,7 @@ export interface PurchaseItem {
   title: string;
   price: number;
   instructor: string;
+  image: string;
 }
 
 export interface Purchase {

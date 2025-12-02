@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { handleGetMyLearningCourses } from "@/services/courseService";
 import { Course } from "@/types/course/course";
+import { formatTimeRounded } from "@/lib/utils";
 
 type StatusFilter = "all" | "in-progress" | "completed" | "not-started";
 
@@ -66,6 +67,7 @@ export default function MyLearningPage() {
 
         setCourses(res.data || []);
         setPagination(res.pagination);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.log(err);
         setError(err?.message || "Đã xảy ra lỗi");
@@ -203,6 +205,7 @@ export default function MyLearningPage() {
                     <div className="relative h-48 overflow-hidden bg-gray-200">
                       <Image
                         src={
+                          course.image ||
                           "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
                         }
                         alt={course.title}
@@ -232,12 +235,15 @@ export default function MyLearningPage() {
                         <span className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
                           {course.category}
                         </span>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                          <span className="text-sm font-semibold text-gray-700">
-                            {course.rating}
-                          </span>
-                        </div>
+                        {course.rating != null &&
+                          course.ratingCount != null && (
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                              <span className="text-sm font-semibold text-gray-700">
+                                {course.rating}({course.ratingCount} đánh giá)
+                              </span>
+                            </div>
+                          )}
                       </div>
 
                       <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors line-clamp-2 mb-2 h-[52px]">
@@ -249,13 +255,18 @@ export default function MyLearningPage() {
                       </p>
 
                       <div className="flex items-center justify-between text-sm text-gray-600 mb-4 pb-4 border-b border-gray-100">
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          <span>{course.students?.toLocaleString()}</span>
-                        </div>
+                        {course.students != null && (
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>{course.students.toLocaleString()}</span>
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span>{course.duration}</span>
+                          <span>
+                            {formatTimeRounded(Number(course.duration))}
+                          </span>
                         </div>
                       </div>
 

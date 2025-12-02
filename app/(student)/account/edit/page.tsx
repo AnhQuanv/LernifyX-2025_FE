@@ -97,6 +97,7 @@ export default function EditProfilePage() {
   const onSubmit = async (data: EditProfileFormValues) => {
     setIsLoading(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { email, ...profileData } = data;
       await dispatch(updateProfile(profileData)).unwrap();
       setSuccessMessage("Cập nhật hồ sơ thành công!");
@@ -471,7 +472,8 @@ export default function EditProfilePage() {
               <li className="flex gap-2">
                 <span className="text-violet-600 font-bold">•</span>
                 <span>
-                  Tất cả thay đổi được lưu ngay sau khi bạn nhấn "Lưu thay đổi"
+                  Tất cả thay đổi được lưu ngay sau khi bạn nhấn &quot;Lưu thay
+                  đổi&quot;
                 </span>
               </li>
             </ul>

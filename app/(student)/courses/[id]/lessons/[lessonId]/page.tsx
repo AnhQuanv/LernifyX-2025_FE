@@ -524,7 +524,10 @@ export default function LessonPage() {
                           >
                             <div className="flex gap-4 mb-3">
                               <Image
-                                src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                                src={
+                                  c.user.avatarUrl ||
+                                  "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                                }
                                 alt={c.user.fullName}
                                 width={100}
                                 height={100}
@@ -558,7 +561,10 @@ export default function LessonPage() {
                                     {c.replies.map((r) => (
                                       <div key={r.id} className="flex gap-2">
                                         <Image
-                                          src="https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                                          src={
+                                            r.user.avatarUrl ||
+                                            "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
+                                          }
                                           alt={r.user.fullName}
                                           width={100}
                                           height={100}
@@ -886,12 +892,16 @@ export default function LessonPage() {
                   <div className="space-y-4">
                     {notes && notes.length > 0 ? (
                       notes
-                        .slice() // tạo bản sao để không mutate state gốc
-                        .sort(
-                          (a, b) =>
-                            new Date(b?.updatedAt).getTime() -
-                            new Date(a?.updatedAt).getTime()
-                        )
+                        .slice()
+                        .sort((a, b) => {
+                          const dateA = a.updatedAt
+                            ? new Date(a.updatedAt).getTime()
+                            : 0;
+                          const dateB = b.updatedAt
+                            ? new Date(b.updatedAt).getTime()
+                            : 0;
+                          return dateB - dateA;
+                        })
                         .map((note) => (
                           <div
                             key={note.id}

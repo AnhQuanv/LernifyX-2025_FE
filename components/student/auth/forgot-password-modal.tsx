@@ -155,8 +155,8 @@ export function ForgotPasswordModal({
       setStep("code");
       setTimeLeft(300);
       setCanResend(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      // Lấy dữ liệu từ response (nếu có)
       const data = err?.response?.data;
 
       let errorMessage = "Gửi mã thất bại"; // default message
@@ -202,6 +202,7 @@ export function ForgotPasswordModal({
       };
       await handleResetPassword(dto);
       setStep("success");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const data = err?.response?.data;
       let errorMessage = "Đặt lại mật khẩu thất bại";
@@ -238,6 +239,7 @@ export function ForgotPasswordModal({
         confirmPassword: "",
       });
       setCode("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setErrors((prev) => ({
         ...prev,

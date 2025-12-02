@@ -25,7 +25,7 @@ import { getUserAllCart } from "@/redux/thunk/cartThunk";
 
 export default function PaymentResultPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { payment, status } = useSelector((state: RootState) => state.payment);
+  const { payment } = useSelector((state: RootState) => state.payment);
   const { user } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const searchParams = useSearchParams();
