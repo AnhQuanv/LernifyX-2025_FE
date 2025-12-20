@@ -80,7 +80,7 @@ export default function MyLearningPage() {
   }, [selectedStatus, currentPage]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -94,9 +94,6 @@ export default function MyLearningPage() {
             </button>
             <div>
               <h1 className="text-3xl font-bold">Khóa học của tôi</h1>
-              <p className="text-gray-500 text-sm">
-                Tiếp tục hành trình học tập với các khóa học đã mua
-              </p>
             </div>
           </div>
 
@@ -129,12 +126,11 @@ export default function MyLearningPage() {
           // Loading State
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <Loader className="w-12 h-12 text-violet-600 animate-spin mx-auto mb-4" />
-              <p className="text-gray-600">Đang tải khóa học...</p>
+              <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
+              <p className="text-black-600">Đang tải dữ liệu...</p>
             </div>
           </div>
         ) : error ? (
-          // Error State
           <div className="max-w-2xl mx-auto">
             <div className="bg-red-50 rounded-2xl shadow-lg p-12 text-center border border-red-200">
               <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -156,7 +152,7 @@ export default function MyLearningPage() {
           // Empty State
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-linear-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <BookOpen className="w-10 h-10 text-violet-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
@@ -172,7 +168,7 @@ export default function MyLearningPage() {
               </p>
               <button
                 onClick={() => router.push("/homepage")}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
               >
                 Xem khóa học
               </button>
@@ -279,7 +275,7 @@ export default function MyLearningPage() {
                           </div>
                           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-blue-600 to-purple-600"
+                              className="h-full bg-linear-to-r from-blue-600 to-purple-600"
                               style={{ width: `${course.progress}%` }}
                             ></div>
                           </div>

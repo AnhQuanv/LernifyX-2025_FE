@@ -50,12 +50,14 @@ export function LoginForm() {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
       const res = await dispatch(loginAsync(values)).unwrap();
-
-      // Lấy token → gán cho axios
       const token = res.accessToken;
       setTokenGetter(() => token);
-
-      router.push("/homepage");
+      console.log("res: ", res);
+      if (res.user.roleName === "student") {
+        router.push("/homepage");
+      } else if (res.user.roleName === "teacher") {
+        router.push("/dashboard");
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.message;

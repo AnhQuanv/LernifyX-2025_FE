@@ -10,7 +10,6 @@ export const useStartLesson = (course: CourseDetail | null) => {
   const startLesson = useMemo<Lesson | null>(() => {
     if (!course) return null;
 
-    // 1. Sort chapters và lessons theo order (phòng trường hợp backend chưa sort)
     const sortedChapters = [...course.chapters].sort(
       (a, b) => a.order - b.order
     );
@@ -20,14 +19,12 @@ export const useStartLesson = (course: CourseDetail | null) => {
         (a, b) => a.order - b.order
       );
 
-      // 2. Tìm lesson chưa hoàn thành đầu tiên
       const lesson = sortedLessons.find(
         (l) => !l.progress?.completed || (l.progress?.lastPosition ?? 0) > 0
       );
       if (lesson) return lesson;
     }
 
-    // 3. Nếu tất cả hoàn thành → trả lesson đầu tiên
     return (
       sortedChapters[0]?.lessons.sort((a, b) => a.order - b.order)[0] || null
     );

@@ -144,7 +144,7 @@ export default function EditProfilePage() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -158,9 +158,6 @@ export default function EditProfilePage() {
             </button>
             <div>
               <h1 className="text-3xl font-bold">Chỉnh sửa hồ sơ</h1>
-              <p className="text-gray-500 text-sm">
-                Cập nhật thông tin cá nhân
-              </p>
             </div>
           </div>
         </div>
@@ -171,8 +168,8 @@ export default function EditProfilePage() {
         <div className="max-w-2xl mx-auto">
           {/* Success Message for Form */}
           {successMessage && (
-            <div className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
                 <Check className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -184,10 +181,9 @@ export default function EditProfilePage() {
             </div>
           )}
 
-          {/* Success Message for Avatar */}
           {successMessageAvatar && (
-            <div className="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
                 <Check className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -204,15 +200,12 @@ export default function EditProfilePage() {
           {/* Avatar Section */}
           <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
               Ảnh đại diện
             </h2>
 
             <div className="flex flex-col sm:flex-row items-center gap-8">
               {/* Avatar Display */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <UserAvatar
                   fullName={user?.fullName || "User"}
                   avatarUrl={avatarPreview} // nếu avatarPreview là null/undefined thì sẽ tự fallback
@@ -229,17 +222,9 @@ export default function EditProfilePage() {
                     onChange={handleAvatarChange}
                     className="hidden"
                   />
-                  <div className="bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-dashed border-violet-300 rounded-2xl p-6 text-center hover:border-violet-500 hover:bg-violet-100/50 transition-all duration-300 group-hover:shadow-lg">
+                  <div className="bg-linear-to-r from-violet-50 to-purple-50 border-2 border-dashed border-violet-300 rounded-2xl p-6 text-center hover:border-violet-500 hover:bg-violet-100/50 transition-all duration-300 group-hover:shadow-lg">
                     <Upload className="w-8 h-8 text-violet-600 mx-auto mb-2" />
                     <p className="font-semibold text-gray-800">Tải ảnh mới</p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      PNG, JPG tối đa 5MB
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Kích thước khuyên dùng:{" "}
-                      <span className="font-medium">256×256px</span> hoặc lớn
-                      hơn
-                    </p>
                   </div>
                 </label>
               </div>
@@ -253,7 +238,7 @@ export default function EditProfilePage() {
                     setAvatarPreview(user?.avatar || "/placeholder.svg");
                     setHasAvatarChanged(false);
                   }}
-                  className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
+                  className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 cursor-pointer"
                 >
                   Hủy
                 </button>
@@ -261,18 +246,15 @@ export default function EditProfilePage() {
                   type="button"
                   onClick={handleSaveAvatar}
                   disabled={isLoadingAvatar}
-                  className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoadingAvatar ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Saving...
+                      Đang lưu...
                     </>
                   ) : (
-                    <>
-                      <Check className="w-5 h-5" />
-                      Lưu ảnh
-                    </>
+                    <>Lưu ảnh</>
                   )}
                 </button>
               </div>
@@ -282,9 +264,6 @@ export default function EditProfilePage() {
           {/* Form Section */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
               Thông tin cá nhân
             </h2>
 
@@ -420,63 +399,27 @@ export default function EditProfilePage() {
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
+                    className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 cursor-pointer"
                   >
-                    Cancel
+                    Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-6 py-3 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {isLoading ? (
                       <>
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Saving...
+                        Đang lưu...
                       </>
                     ) : (
-                      <>
-                        <Check className="w-5 h-5" />
-                        Lưu thay đổi
-                      </>
+                      <>Lưu thay đổi</>
                     )}
                   </button>
                 </div>
               </form>
             </Form>
-          </div>
-
-          {/* Info Section */}
-          <div className="mt-8 bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-6 border border-violet-200">
-            <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center text-white text-xs font-bold">
-                i
-              </div>
-              Thông tin quan trọng
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex gap-2">
-                <span className="text-violet-600 font-bold">•</span>
-                <span>
-                  Địa chỉ email của bạn được sử dụng để khôi phục tài khoản và
-                  nhận thông báo
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-violet-600 font-bold">•</span>
-                <span>
-                  Số điện thoại giúp chúng tôi liên lạc với bạn về các cập nhật
-                  quan trọng
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-violet-600 font-bold">•</span>
-                <span>
-                  Tất cả thay đổi được lưu ngay sau khi bạn nhấn &quot;Lưu thay
-                  đổi&quot;
-                </span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>

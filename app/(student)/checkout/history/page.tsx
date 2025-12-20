@@ -51,7 +51,7 @@ export default function PurchaseHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 sticky top-0 z-50 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -65,9 +65,6 @@ export default function PurchaseHistoryPage() {
             </button>
             <div>
               <h1 className="text-3xl font-bold">Lịch sử Mua hàng</h1>
-              <p className="text-gray-500 text-sm">
-                Xem tất cả các khóa học bạn đã mua
-              </p>
             </div>
           </div>
 
@@ -118,7 +115,7 @@ export default function PurchaseHistoryPage() {
           // Empty State
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-linear-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <Package className="w-10 h-10 text-violet-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
@@ -129,7 +126,7 @@ export default function PurchaseHistoryPage() {
               </p>
               <button
                 onClick={() => router.push("/homepage")}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
               >
                 Khám Phá Khóa Học
               </button>

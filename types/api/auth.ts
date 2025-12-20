@@ -9,7 +9,10 @@ export interface IUser {
   dateOfBirth: string;
   address: string;
   avatar?: string;
-  hasPreferences: boolean;
+  hasPreferences?: boolean;
+  isNewTeacher?: boolean;
+  bio?: string;
+  description?: string;
 }
 
 export interface AuthLoginData {

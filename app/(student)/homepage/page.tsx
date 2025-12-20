@@ -4,20 +4,16 @@ import { useEffect, useState } from "react";
 import {
   BookOpen,
   ChevronRight,
-  Award,
-  TrendingUp,
-  Shield,
-  Globe,
   Search,
   ArrowRight,
   ChevronDown,
   ChevronUp,
   X,
+  Loader,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getAllCategories } from "@/redux/thunk/categoryThunk";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import CourseCard from "@/components/ui/courseCard";
 import Image from "next/image";
 import {
@@ -94,48 +90,57 @@ const Homepage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      await Promise.all([
+      const promises = [
         dispatch(getAllCategories()),
         dispatch(getHomeCourses()),
-        dispatch(getCourseRecommendation()),
-      ]);
+      ];
+      if (auth.isAuthenticated) {
+        promises.push(dispatch(getCourseRecommendation()));
+      }
+      await Promise.all(promises);
       setIsLoading(false);
     };
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, auth.isAuthenticated]);
+
   if (
     categoryStatus === "loading" ||
     isLoading ||
     courseStatus === "loading" ||
     statusRecommendationCourse === "loading"
   ) {
-    return <LoadingSkeleton />;
+    return (
+      <>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
+            <p className="text-black-600">Đang tải dữ liệu...</p>
+          </div>
+        </div>
+        ;
+      </>
+    );
   }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-950 text-white py-32">
+      <section className="relative bg-linear-to-br from-violet-950 via-purple-900 to-indigo-950 text-white py-32">
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="space-y-6">
               <h1 className="text-6xl md:text-8xl font-extrabold leading-tight tracking-tight">
                 <span className="block mb-2">Học tập không</span>
                 <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-gradient">
+                  <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-linear">
                     giới hạn
                   </span>
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-blue-100/90 max-w-3xl mx-auto leading-relaxed font-light">
-                Thăng tiến sự nghiệp với các khóa học từ chuyên gia. Tham gia
-                hàng ngàn học viên làm chủ kỹ năng mới mỗi ngày.
-              </p>
             </div>
 
             {/* Search */}
             <div className="max-w-3xl mx-auto relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
+              <div className="absolute -inset-1 bg-linear-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
               <div className="relative bg-white rounded-2xl p-2 flex items-center shadow-2xl">
                 <div className="flex items-center flex-1 bg-gray-50 rounded-xl px-6 py-5">
                   <Search className="w-6 h-6 text-gray-400" />
@@ -165,7 +170,7 @@ const Homepage = () => {
                     </button>
                   )}
                 </div>
-                <button className="relative bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white px-10 py-5 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group/btn overflow-hidden cursor-pointer">
+                <button className="relative bg-linear-to-r from-violet-600 via-purple-600 to-indigo-600 text-white px-10 py-5 rounded-xl font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 group/btn overflow-hidden cursor-pointer">
                   <span className="relative z-10 flex items-center gap-2">
                     Tìm kiếm
                     <ArrowRight className="w-5 h-5" />
@@ -175,20 +180,17 @@ const Homepage = () => {
                 {/* Dropdown */}
                 {showSearchDropdown && filteredCourses.length > 0 && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-[9999] max-h-96 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-9999 max-h-96 overflow-y-auto"
                     style={{ position: "absolute", zIndex: 9999 }}
                   >
                     <div className="p-4">
-                      <div className="text-sm font-semibold text-gray-600 mb-3 px-2">
-                        Tìm thấy {filteredCourses.length} khóa học
-                      </div>
                       <div className="space-y-2">
                         {filteredCourses.slice(0, 8).map((course) => (
                           <div
                             key={course.id}
                             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group/item"
                           >
-                            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-200">
                               <Image
                                 src={
                                   course.image ||
@@ -220,26 +222,31 @@ const Homepage = () => {
                                   )}
                               </div>
                             </div>
-                            <div className="text-right flex-shrink-0">
+                            <div className="text-right shrink-0">
                               <div className="font-bold text-gray-800">
-                                {course.price.toLocaleString()}₫
+                                {course.price !== null
+                                  ? `${course.price.toLocaleString("vi-VN")}₫`
+                                  : course.originalPrice !== null
+                                  ? `${course.originalPrice.toLocaleString(
+                                      "vi-VN"
+                                    )}₫`
+                                  : "Miễn phí"}
                               </div>
-                              {course.originalPrice && (
-                                <div className="text-xs text-gray-400 line-through">
-                                  {course.originalPrice.toLocaleString()}₫
-                                </div>
-                              )}
+
+                              {course.price !== null &&
+                                course.originalPrice !== null &&
+                                course.price < course.originalPrice && (
+                                  <div className="text-xs text-gray-400 line-through">
+                                    {course.originalPrice.toLocaleString(
+                                      "vi-VN"
+                                    )}
+                                    ₫
+                                  </div>
+                                )}
                             </div>
                           </div>
                         ))}
                       </div>
-                      {filteredCourses.length > 8 && (
-                        <div className="border-t border-gray-200 mt-3 pt-3 ">
-                          <button className="w-full text-center text-violet-600 hover:text-violet-700 font-semibold text-sm py-2 transition-colors cursor-pointer">
-                            Xem tất cả {filteredCourses.length} kết quả →
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
@@ -247,7 +254,7 @@ const Homepage = () => {
                   searchQuery.trim().length > 0 &&
                   filteredCourses.length === 0 && (
                     <div
-                      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-[9999] p-8 text-center"
+                      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-9999 p-8 text-center"
                       style={{ position: "absolute", zIndex: 9999 }}
                     >
                       <div className="text-gray-500">
@@ -272,10 +279,6 @@ const Homepage = () => {
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
               Khám phá các chuyên mục
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Khám phá bộ sưu tập khóa học đa lĩnh vực của chúng tôi và tìm con
-              đường học tập phù hợp với mục tiêu của bạn.
-            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayedCategories.map((category, index) => (
@@ -294,12 +297,12 @@ const Homepage = () => {
                 }}
               >
                 {category.popular && (
-                  <div className="absolute top-4 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
+                  <div className="absolute top-4 right-4 bg-linear-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10">
                     Phổ biến
                   </div>
                 )}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                  className={`absolute inset-0 bg-linear-to-r ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                 ></div>
                 <div className="relative z-10">
                   <div className="text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-500">
@@ -322,7 +325,7 @@ const Homepage = () => {
             <div className="text-center mt-12">
               <button
                 onClick={() => setShowAllCategories(!showAllCategories)}
-                className="group bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center mx-auto space-x-2 cursor-pointer"
+                className="group bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center mx-auto space-x-2 cursor-pointer"
               >
                 <span>
                   {showAllCategories
@@ -341,21 +344,17 @@ const Homepage = () => {
       </section>
 
       {/* Featured Courses */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-20 bg-linear-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex justify-between items-center mb-16">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
                 Khóa học nổi bật
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl">
-                Các khóa học được lựa chọn từ các giảng viên chuyên nghiệp, giúp
-                bạn nắm vững kỹ năng quan trọng
-              </p>
             </div>
             <div className="hidden lg:flex items-center space-x-4">
               <button
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
+                className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
                 onClick={() => router.push("/courses")}
               >
                 <span className="font-semibold">Xem tất cả khóa học</span>
@@ -386,7 +385,7 @@ const Homepage = () => {
                 {Array.from({
                   length: Math.ceil(allCourses.length / coursesPerPage),
                 }).map((_, slideIndex) => (
-                  <div key={slideIndex} className="w-full flex-shrink-0">
+                  <div key={slideIndex} className="w-full shrink-0">
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                       {allCourses
                         .slice(
@@ -425,22 +424,18 @@ const Homepage = () => {
         </div>
       </section>
 
-      {auth?.user?.hasPreferences && (
-        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      {recommendationCourse && recommendationCourse.length > 0 && (
+        <section className="py-20 bg-linear-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex justify-between items-center mb-16">
               <div>
                 <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
                   Gợi ý khóa học
                 </h2>
-                <p className="text-xl text-gray-600 max-w-2xl">
-                  Các khóa học được lựa chọn từ các giảng viên chuyên nghiệp,
-                  giúp bạn nắm vững kỹ năng quan trọng
-                </p>
               </div>
               <div className="hidden lg:flex items-center space-x-4">
                 <button
-                  className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
+                  className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
                   onClick={() => router.push("/courses")}
                 >
                   <span className="font-semibold">Xem tất cả khóa học</span>
@@ -492,7 +487,7 @@ const Homepage = () => {
                       recommendationCourse.length / coursesPerPage
                     ),
                   }).map((_, slideIndex) => (
-                    <div key={slideIndex} className="w-full flex-shrink-0">
+                    <div key={slideIndex} className="w-full shrink-0">
                       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {recommendationCourse
                           .slice(
@@ -533,70 +528,6 @@ const Homepage = () => {
           </div>
         </section>
       )}
-      {/* Why Choose Us */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <div className="mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-              Tại sao chọn LeanrifyX?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Chúng tôi mang đến trải nghiệm học tập tốt nhất với chuyên gia
-              trong ngành, chương trình cập nhật liên tục và cộng đồng hỗ trợ
-              giúp bạn thành công.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: Award,
-                title: "Giảng viên chuyên gia",
-                description:
-                  "Học từ các chuyên gia với nhiều năm kinh nghiệm thực tiễn.",
-                color: "from-blue-500 to-indigo-600",
-              },
-              {
-                icon: TrendingUp,
-                title: "Nội dung cập nhật",
-                description:
-                  "Chương trình luôn theo kịp xu hướng ngành và phương pháp tốt nhất.",
-                color: "from-green-500 to-emerald-600",
-              },
-              {
-                icon: Shield,
-                title: "Truy cập trọn đời",
-                description:
-                  "Học bất cứ lúc nào, ở đâu, không giới hạn thời gian.",
-                color: "from-purple-500 to-violet-600",
-              },
-              {
-                icon: Globe,
-                title: "Cộng đồng toàn cầu",
-                description:
-                  "Kết nối với hàng triệu học viên trên thế giới chia sẻ niềm đam mê học tập.",
-                color: "from-orange-500 to-red-600",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="group text-center hover:transform hover:-translate-y-2 transition-all duration-500"
-              >
-                <div
-                  className={`w-20 h-20 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-500 shadow-lg`}
-                >
-                  <feature.icon className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-4 group-hover:text-violet-600 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed text-lg">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

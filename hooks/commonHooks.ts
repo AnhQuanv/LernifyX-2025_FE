@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export const useWishlistCart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const isAuthenticated = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const wishlistItems = useSelector(
     (state: RootState) => state.wishlist.allCourses

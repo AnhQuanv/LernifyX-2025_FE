@@ -5,19 +5,12 @@ import type { RootState } from "@/redux/store";
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ShoppingCart,
-  ArrowLeft,
-  Trash2,
-  Star,
-  Users,
-  Clock,
-  ArrowRight,
-} from "lucide-react";
+import { ArrowLeft, Trash2, Star, Users, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useWishlistCart } from "@/hooks/commonHooks";
-import { formatTimeRounded, getCartTotal, roundVND } from "@/lib/utils";
+import { formatTimeRounded, getCartTotal } from "@/lib/utils";
+import DiscountCountdown from "@/components/ui/discountCountDown";
 
 export default function CartPage() {
   const router = useRouter();
@@ -26,8 +19,8 @@ export default function CartPage() {
   const { handleCartToggle } = useWishlistCart();
   const totalValue = getCartTotal(cartItems);
 
-  const tax = roundVND(totalValue * 0.1);
-  const total = roundVND(totalValue + tax);
+  const tax = totalValue * 0.1;
+  const total = totalValue + tax;
 
   const handleCheckout = async () => {
     setIsCheckingOut(true);
@@ -37,7 +30,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white text-gray-900 py-8 sticky top-0 z-50 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -51,9 +44,6 @@ export default function CartPage() {
             </button>
             <div>
               <h1 className="text-3xl font-bold">Giỏ Hàng</h1>
-              <p className="text-gray-500 text-sm">
-                Xem lại và thanh toán các khóa học của bạn
-              </p>
             </div>
           </div>
 
@@ -93,9 +83,6 @@ export default function CartPage() {
         {cartItems.length === 0 ? (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <ShoppingCart className="w-10 h-10 text-violet-600" />
-              </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
                 Giỏ hàng trống
               </h2>
@@ -106,10 +93,9 @@ export default function CartPage() {
               </p>
               <button
                 onClick={() => router.push("/courses")}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2 cursor-pointer"
               >
                 Tiếp tục mua sắm
-                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -124,10 +110,7 @@ export default function CartPage() {
                 >
                   <div className="flex flex-col sm:flex-row gap-6 p-6">
                     {/* Course Image */}
-                    <Link
-                      href={`/courses/${course.id}`}
-                      className="flex-shrink-0"
-                    >
+                    <Link href={`/courses/${course.id}`} className="shrink-0">
                       <div className="relative w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-gray-200 group-hover:shadow-lg transition-all duration-300">
                         <Image
                           src={
@@ -162,7 +145,7 @@ export default function CartPage() {
                           </div>
                           {course.rating != null &&
                             course.ratingCount != null && (
-                              <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+                              <div className="flex items-center gap-1 ml-4 shrink-0">
                                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
                                 <span className="text-sm font-semibold text-gray-700">
                                   {course.rating} ({course.ratingCount} đánh
@@ -192,15 +175,44 @@ export default function CartPage() {
                       </div>
 
                       {/* Price and Actions */}
+                      <div className="h-5">
+                        {course.discount != null && course.discountExpiresAt ? (
+                          <DiscountCountdown
+                            discount={course.discount}
+                            discountExpiresAt={course.discountExpiresAt}
+                          />
+                        ) : (
+                          <div className="h-full"></div>
+                        )}
+                      </div>
                       <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl font-bold text-violet-600">
-                            {course.price.toLocaleString()}₫
+                          {/* <span className="text-2xl font-bold text-violet-600">
+                            {(course.price ?? 0).toLocaleString()}₫
                           </span>
                           {course.originalPrice && (
                             <span className="text-sm text-gray-400 line-through">
                               {course.originalPrice.toLocaleString()}₫
                             </span>
+                          )} */}
+                          {course.originalPrice &&
+                          course.discountExpiresAt &&
+                          new Date(course.discountExpiresAt) > new Date() ? (
+                            <>
+                              <span className="text-2xl font-bold text-violet-600">
+                                {(course.price ?? 0).toLocaleString()}₫
+                              </span>
+
+                              <span className="text-gray-400 line-through">
+                                {course.originalPrice.toLocaleString()}₫
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-2xl font-bold text-violet-600">
+                                {course.originalPrice?.toLocaleString()}₫
+                              </span>
+                            </>
                           )}
                         </div>
 
@@ -252,7 +264,7 @@ export default function CartPage() {
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
+                  className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
                 >
                   {isCheckingOut ? (
                     <>
@@ -260,37 +272,9 @@ export default function CartPage() {
                       Đang xử lý...
                     </>
                   ) : (
-                    <>
-                      Tiến hành thanh toán
-                      <ArrowRight className="w-5 h-5" />
-                    </>
+                    <>Tiến hành thanh toán</>
                   )}
                 </button>
-
-                <button
-                  onClick={() => router.push("/homepage")}
-                  className="w-full border-2 border-violet-600 text-violet-600 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-all duration-300"
-                >
-                  Tiếp tục mua sắm
-                </button>
-
-                <div className="mt-6 space-y-3">
-                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-xs text-green-700 font-medium">
-                      ✓ Thanh toán an toàn
-                    </p>
-                  </div>
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <p className="text-xs text-blue-700 font-medium">
-                      📦 Truy cập khóa học trọn đời
-                    </p>
-                  </div>
-                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-xs text-purple-700 font-medium">
-                      💰 Hoàn tiền trong 30 ngày
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

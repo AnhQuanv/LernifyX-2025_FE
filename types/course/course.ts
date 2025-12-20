@@ -8,11 +8,11 @@ export interface Course {
   rating?: number;
   ratingCount?: number;
   students?: number;
-  price: number;
-  originalPrice: number | null;
+  price: number | null;
+  originalPrice: number;
   discount: number | null;
-  level: string;
-  duration?: string;
+  level: "Cơ Bản" | "Trung Cấp" | "Nâng Cao";
+  duration?: number | null;
   category: string;
   discountExpiresAt: string | null;
   learnings?: string[];
@@ -20,6 +20,10 @@ export interface Course {
   image: string;
   isInWishlist?: boolean;
   isInCart?: boolean;
+  status?: "published" | "draft" | "pending" | "rejected";
+  revenue?: string;
+  createdAt?: string;
+  lessons?: number;
   progress?: number;
 }
 
@@ -31,6 +35,14 @@ export interface filterCourseParams {
   page?: number;
   limit?: number;
   search?: string;
+}
+
+export interface filterTeacherCourseParams {
+  status?: string;
+  search?: string;
+  sortBy?: "a-z" | "z-a" | "newest" | "oldest";
+  page?: number;
+  limit?: number;
 }
 
 export interface Lesson_Note {
@@ -49,13 +61,26 @@ export interface Progress_Lesson {
   updatedAt?: string;
 }
 
+export interface QuizOption {
+  id: string;
+  text: string;
+}
+
 export interface QuizQuestion {
   id: string;
   question: string;
-  options: string[];
-  correctAnswer: number;
+  options: QuizOption[];
+  correctOptionId: string;
+  order?: number;
 }
 
+export interface VideoAsset {
+  id: string;
+  originalUrl: string;
+  duration: number;
+  widthOriginal: number;
+  heightOriginal: number;
+}
 export interface Lesson {
   id: string;
   title: string;
@@ -64,7 +89,7 @@ export interface Lesson {
   content: string;
   hasQuiz?: boolean;
   canViewVideo?: boolean;
-  videoUrl?: string | null;
+  videoAsset?: VideoAsset | null;
   progress?: Progress_Lesson;
   quiz?: QuizQuestion[];
 }
@@ -89,4 +114,35 @@ export interface Pagination {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CreateCourseDto {
+  title: string;
+  description: string;
+  requirements: string[];
+  learnings: string[];
+  category: string;
+  level: string;
+  originalPrice: string;
+  hasDiscount: boolean;
+  price: string;
+  discountExpiresAt: string;
+  status: string;
+  image?: string;
+}
+
+export interface UpdateCourseDto extends CreateCourseDto {
+  id: string;
+}
+
+export type ProgressCallback = (progress: number) => void;
+export interface VideoUploadData {
+  id: string;
+  publicId: string;
+  url_720p: string;
+  url_480p: string;
+  url_360p: string;
+  duration: number;
+  widthOriginal: number;
+  heightOriginal: number;
 }

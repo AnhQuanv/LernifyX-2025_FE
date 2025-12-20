@@ -1,273 +1,159 @@
 "use client";
 
-import { useState } from "react";
-import { Star, Mail, Linkedin, Twitter, Search } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+import { ChevronLeft, ChevronRight, Loader, Search } from "lucide-react";
+import { handleGetTeacher } from "@/services/courseService";
+import { Pagination } from "@/types/course/course";
+import { UserAvatar } from "@/components/ui/avatar-cop";
+import Link from "next/link";
+
+interface Teacher {
+  id: string;
+  name: string;
+  bio: string | null;
+  students: number;
+  courses: number;
+  image: string | null;
+  email: string;
+}
 
 const TeachersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const limit = 8;
 
-  const allTeachers = [
-    {
-      id: 1,
-      name: "John Smith",
-      specialty: "Programming",
-      bio: "Expert React developer with 10+ years of experience",
-      rating: 4.8,
-      students: 12500,
-      courses: 5,
-      image: "/placeholder.svg",
-      email: "john@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 2,
-      name: "Sarah Johnson",
-      specialty: "Marketing",
-      bio: "Digital marketing strategist and content creator",
-      rating: 4.9,
-      students: 8900,
-      courses: 3,
-      image: "/placeholder.svg",
-      email: "sarah@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 3,
-      name: "Mike Chen",
-      specialty: "Design",
-      bio: "UI/UX designer with award-winning portfolio",
-      rating: 4.7,
-      students: 15200,
-      courses: 4,
-      image: "/placeholder.svg",
-      email: "mike@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 4,
-      name: "Lisa Wang",
-      specialty: "Data Science",
-      bio: "Data scientist and machine learning specialist",
-      rating: 4.9,
-      students: 20100,
-      courses: 6,
-      image: "/placeholder.svg",
-      email: "lisa@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 5,
-      name: "David Brown",
-      specialty: "Data Science",
-      bio: "ML engineer with expertise in deep learning",
-      rating: 4.8,
-      students: 18400,
-      courses: 5,
-      image: "/placeholder.svg",
-      email: "david@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 6,
-      name: "Emma Wilson",
-      specialty: "Programming",
-      bio: "Full-stack developer and web development mentor",
-      rating: 4.6,
-      students: 9200,
-      courses: 4,
-      image: "/placeholder.svg",
-      email: "emma@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 7,
-      name: "Alex Turner",
-      specialty: "Design",
-      bio: "Creative director and graphic design expert",
-      rating: 4.9,
-      students: 13800,
-      courses: 5,
-      image: "/placeholder.svg",
-      email: "alex@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-    {
-      id: 8,
-      name: "Maria Garcia",
-      specialty: "Programming",
-      bio: "JavaScript specialist and coding instructor",
-      rating: 4.8,
-      students: 16700,
-      courses: 6,
-      image: "/placeholder.svg",
-      email: "maria@example.com",
-      social: { linkedin: "#", twitter: "#" },
-    },
-  ];
+  const fecthData = useCallback(
+    async (search: string, page: number) => {
+      setIsLoading(true);
+      try {
+        const res = await handleGetTeacher({
+          search: search,
+          page: page,
+          limit: limit,
+        });
 
-  const specialties = [
-    "All",
-    "Programming",
-    "Design",
-    "Marketing",
-    "Data Science",
-  ];
+        setTeachers(res.data);
+        setPagination(res.pagination);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách giảng viên:", error);
+        setTeachers([]);
+        setPagination(null);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [limit]
+  );
 
-  const filteredTeachers = allTeachers.filter((teacher) => {
-    const matchesSpecialty =
-      selectedSpecialty === "All" || teacher.specialty === selectedSpecialty;
-    const matchesSearch = teacher.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return matchesSpecialty && matchesSearch;
-  });
+  useEffect(() => {
+    fecthData(searchQuery, currentPage);
+  }, [searchQuery, currentPage, fecthData]);
 
   return (
     <>
       <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-violet-700 to-purple-600 text-white py-16">
+        <section className="bg-linear-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-16">
           <div className="container mx-auto px-4 md:px-6">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Meet Our Expert Instructors
+              Đội Ngũ Giảng Viên
             </h1>
-            <p className="text-xl text-violet-100 max-w-2xl">
-              Learn from industry professionals with years of real-world
-              experience and proven track records.
-            </p>
           </div>
         </section>
 
-        {/* Search and Filter */}
-        <section className="bg-white border-b border-gray-200 sticky top-20 z-40">
+        <section className="bg-white border-b border-gray-200 ">
           <div className="container mx-auto px-4 md:px-6 py-6">
-            {/* Search Bar */}
             <div className="mb-6">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+
                 <input
                   type="text"
-                  placeholder="Search instructors..."
+                  placeholder="Tìm kiếm giảng viên..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                 />
               </div>
             </div>
-
-            {/* Specialty Filter */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Specialty
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {specialties.map((specialty) => (
-                  <button
-                    key={specialty}
-                    onClick={() => setSelectedSpecialty(specialty)}
-                    className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
-                      selectedSpecialty === specialty
-                        ? "bg-violet-600 text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {specialty}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* Teachers Grid */}
         <section className="py-16">
           <div className="container mx-auto px-4 md:px-6">
-            <div className="mb-8">
-              <p className="text-gray-600 text-lg">
-                Showing {filteredTeachers.length} instructors
-              </p>
-            </div>
-
-            {filteredTeachers.length > 0 ? (
+            {isLoading ? (
+              <div className="text-center">
+                <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
+                <p className="text-black-600">Đang tải dữ liệu...</p>
+              </div>
+            ) : teachers.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {filteredTeachers.map((teacher) => (
+                {teachers.map((teacher) => (
                   <div
                     key={teacher.id}
                     className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer border border-gray-100 hover:border-violet-200 transform hover:-translate-y-2"
                   >
                     {/* Image Section */}
-                    <div className="relative h-48 bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 flex items-center justify-center overflow-hidden">
+
+                    <div className="relative h-48 bg-linear-to-br from-violet-700 to-purple-600 flex items-center justify-center overflow-hidden">
                       <div className="absolute inset-0 bg-black/10"></div>
-                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-2xl font-bold text-violet-600 z-10">
-                        {teacher.name.charAt(0)}
-                      </div>
+                      <UserAvatar
+                        fullName={teacher.name || "User"}
+                        avatarUrl={teacher.image}
+                        size={128}
+                      />
                     </div>
 
-                    {/* Content Section */}
                     <div className="p-6 space-y-4">
                       <div>
                         <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300">
                           {teacher.name}
                         </h3>
-                        <p className="text-violet-600 font-medium text-sm">
-                          {teacher.specialty}
+                      </div>
+
+                      <div className="min-h-11">
+                        <p className="text-gray-600 text-sm line-clamp-2">
+                          {teacher.bio
+                            ? `"${teacher.bio}"`
+                            : "Chuyên gia đào tạo tâm huyết tại LearnifyX."}
                         </p>
                       </div>
 
-                      <p className="text-gray-600 text-sm line-clamp-2">
-                        {teacher.bio}
-                      </p>
-
-                      {/* Stats */}
                       <div className="space-y-2 pt-2 border-t border-gray-100">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Rating</span>
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="font-semibold text-gray-700">
-                              {teacher.rating}
-                            </span>
-                          </div>
+                          <span className="text-gray-600">Email</span>
+                          <span className="font-semibold text-gray-700">
+                            {teacher.email}
+                          </span>
                         </div>
+
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Students</span>
+                          <span className="text-gray-600">Học viên</span>
                           <span className="font-semibold text-gray-700">
                             {teacher.students.toLocaleString()}
                           </span>
                         </div>
+
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Courses</span>
+                          <span className="text-gray-600">Khóa học</span>
                           <span className="font-semibold text-gray-700">
-                            {teacher.courses}
+                            {teacher.courses.toLocaleString()}
                           </span>
                         </div>
                       </div>
 
-                      {/* Action Buttons */}
                       <div className="flex gap-2 pt-4">
-                        <button className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl">
-                          View Profile
-                        </button>
-                        <button className="w-10 h-10 bg-gray-100 text-gray-600 rounded-lg hover:bg-violet-100 hover:text-violet-600 transition-all duration-300 flex items-center justify-center">
-                          <Mail className="w-5 h-5" />
-                        </button>
-                      </div>
-
-                      {/* Social Links */}
-                      <div className="flex gap-2 justify-center pt-2">
-                        <a
-                          href={teacher.social.linkedin}
-                          className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full hover:bg-violet-100 hover:text-violet-600 transition-all duration-300 flex items-center justify-center"
+                        <Link
+                          href={`/teachers/${teacher.id}`}
+                          className="flex-1"
                         >
-                          <Linkedin className="w-4 h-4" />
-                        </a>
-                        <a
-                          href={teacher.social.twitter}
-                          className="w-8 h-8 bg-gray-100 text-gray-600 rounded-full hover:bg-violet-100 hover:text-violet-600 transition-all duration-300 flex items-center justify-center"
-                        >
-                          <Twitter className="w-4 h-4" />
-                        </a>
+                          <button className="flex-1 bg-linear-to-r from-violet-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl cursor-pointer w-full">
+                            Xem Hồ Sơ
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -276,8 +162,60 @@ const TeachersPage = () => {
             ) : (
               <div className="text-center py-16">
                 <p className="text-xl text-gray-600">
-                  No instructors found matching your criteria.
+                  Không tìm thấy giảng viên nào phù hợp với tiêu chí tìm kiếm.
                 </p>
+                <p className="text-gray-500 mt-2">Vui lòng thử một tên khác.</p>
+              </div>
+            )}
+
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12">
+                <button
+                  onClick={() =>
+                    setCurrentPage(Math.max(1, pagination.page - 1))
+                  }
+                  disabled={pagination.page === 1}
+                  className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                 hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                 transition-all"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <div className="flex gap-1">
+                  {Array.from(
+                    { length: pagination.totalPages },
+                    (_, i) => i + 1
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+              ${
+                currentPage === page
+                  ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
+              }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() =>
+                    setCurrentPage(
+                      Math.min(pagination.totalPages, pagination.page + 1)
+                    )
+                  }
+                  disabled={currentPage === pagination.totalPages}
+                  className="p-2 rounded-lg border border-gray-300 text-gray-600 
+                 hover:bg-gray-100 hover:scale-105 hover:shadow-md 
+                 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
+                 transition-all"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             )}
           </div>

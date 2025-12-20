@@ -61,7 +61,9 @@ export default function LessonPage() {
   const [editingContent, setEditingContent] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
-  const [quizAnswers, setQuizAnswers] = useState<{ [key: string]: number }>({});
+  const [quizAnswers, setQuizAnswers] = useState<{
+    [questionId: string]: string;
+  }>({});
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [commentTab, setCommentTab] = useState<"comments" | "quiz" | "notes">(
     "comments"
@@ -146,10 +148,10 @@ export default function LessonPage() {
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
-  const handleQuizAnswer = (questionId: string, answerIndex: number) => {
+  const handleQuizAnswer = (questionId: string, optionId: string) => {
     setQuizAnswers((prev) => ({
       ...prev,
-      [questionId]: answerIndex,
+      [questionId]: optionId,
     }));
   };
 
@@ -159,7 +161,7 @@ export default function LessonPage() {
     let correct = 0;
 
     lesson.quiz.forEach((q) => {
-      if (quizAnswers[q.id] === q.correctAnswer) {
+      if (quizAnswers[q.id] === q.correctOptionId) {
         correct++;
       }
     });
@@ -171,7 +173,7 @@ export default function LessonPage() {
     if (!lesson?.quiz) return 0;
     let correct = 0;
     lesson.quiz.forEach((q) => {
-      if (quizAnswers[q.id] === q.correctAnswer) {
+      if (quizAnswers[q.id] === q.correctOptionId) {
         correct++;
       }
     });
@@ -412,7 +414,7 @@ export default function LessonPage() {
             <div className="mb-12 rounded-xl overflow-hidden shadow-lg bg-black">
               <video
                 src={
-                  lesson?.videoUrl ||
+                  lesson?.videoAsset?.originalUrl ||
                   "https://res.cloudinary.com/drc4b7rmj/video/upload/v1763726091/h4ogqnwmsshbvfneixkv.mp4"
                 }
                 width="100%"
@@ -689,9 +691,9 @@ export default function LessonPage() {
                             {q.options.map((opt, optIndex) => (
                               <button
                                 key={optIndex}
-                                onClick={() => handleQuizAnswer(q.id, optIndex)}
+                                onClick={() => handleQuizAnswer(q.id, opt.id)}
                                 className={`w-full text-left p-3 border rounded-lg flex items-center gap-2 ${
-                                  quizAnswers[q.id] === optIndex
+                                  quizAnswers[q.id] === opt.id
                                     ? "border-violet-500 bg-violet-50"
                                     : "border-gray-200 hover:bg-gray-100"
                                 }`}
@@ -699,7 +701,7 @@ export default function LessonPage() {
                                 <span className="font-bold">
                                   {String.fromCharCode(65 + optIndex)}.
                                 </span>
-                                <span>{opt}</span>
+                                <span>{opt.text}</span>
                               </button>
                             ))}
                           </div>
@@ -742,7 +744,7 @@ export default function LessonPage() {
                         {lesson?.quiz?.map((question, idx) => {
                           const userAnswer = quizAnswers[question.id];
                           const isCorrect =
-                            userAnswer === question.correctAnswer;
+                            userAnswer === question.correctOptionId;
                           return (
                             <div
                               key={question.id}
@@ -782,14 +784,14 @@ export default function LessonPage() {
 
                               <div className="space-y-2 ml-9">
                                 {question.options.map((option, optIdx) => {
-                                  const isUserAnswer = userAnswer === optIdx;
-                                  const isCorrectAnswer =
-                                    optIdx === question.correctAnswer;
+                                  const isUserAnswer = userAnswer === option.id;
+                                  const iscorrectOptionId =
+                                    option.id === question.correctOptionId;
                                   return (
                                     <div
                                       key={optIdx}
                                       className={`flex items-center gap-2 p-2 rounded ${
-                                        isCorrectAnswer
+                                        iscorrectOptionId
                                           ? "bg-green-200 text-green-900"
                                           : isUserAnswer && !isCorrect
                                           ? "bg-red-200 text-red-900"
@@ -799,9 +801,9 @@ export default function LessonPage() {
                                       <span className="font-bold">
                                         {String.fromCharCode(65 + optIdx)}.
                                       </span>
-                                      <span>{option}</span>
+                                      <span>{option.text}</span>
 
-                                      {isCorrectAnswer && (
+                                      {iscorrectOptionId && (
                                         <CheckCircle className="w-5 h-5 flex-shrink-0" />
                                       )}
                                       {isUserAnswer && !isCorrect && (

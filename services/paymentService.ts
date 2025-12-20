@@ -30,3 +30,26 @@ export const handleGetPurchaseHistory = async (
   });
   return res.data.data;
 };
+
+export const handelGetTeacherPayments = async () => {
+  const res = await axiosClient.get("payment/teacher-payment");
+  return res.data.data;
+};
+
+export const handleGetSpecificPayments = async (
+  courseId: string,
+  startDate: string,
+  endDate: string
+) => {
+  const params = {
+    courseId: courseId,
+    startDate: startDate,
+    endDate: endDate,
+  };
+
+  const res = await axiosClient.get("payment/teacher-payment-course", {
+    params,
+  });
+
+  return res.data.data;
+};

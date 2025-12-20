@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Lock, Trash2, Eye, EyeOff, Check } from "lucide-react";
+import { ArrowLeft, Trash2, Eye, EyeOff, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleChangePassword } from "@/services/authService";
 import axios from "axios";
@@ -90,7 +90,7 @@ export default function AccountSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -104,9 +104,6 @@ export default function AccountSettingsPage() {
             </button>
             <div>
               <h1 className="text-3xl font-bold">Cài đặt tài khoản</h1>
-              <p className="text-gray-500 text-sm">
-                Quản lý bảo mật và tùy chọn tài khoản của bạn
-              </p>
             </div>
           </div>
         </div>
@@ -117,8 +114,8 @@ export default function AccountSettingsPage() {
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Success Message */}
           {successMessage && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
                 <Check className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -128,8 +125,8 @@ export default function AccountSettingsPage() {
           )}
 
           {errorMessage && (
-            <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+            <div className="bg-linear-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5 text-white" />{" "}
               </div>
               <div>
@@ -141,9 +138,6 @@ export default function AccountSettingsPage() {
           {/* Change Password Section */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
-                <Lock className="w-5 h-5 text-white" />
-              </div>
               Đổi mật khẩu
             </h2>
 
@@ -274,7 +268,7 @@ export default function AccountSettingsPage() {
 
                 {/* Password Requirements */}
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-2">
+                  <p className="text-sm font-semibold text-blue-800 mb-2">
                     Yêu cầu mật khẩu:
                   </p>
                   <ul className="text-sm text-blue-800 space-y-1">
@@ -288,18 +282,15 @@ export default function AccountSettingsPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin " />
                       Đang cập nhật...
                     </>
                   ) : (
-                    <>
-                      <Lock className="w-5 h-5" />
-                      Cập nhật mật khẩu
-                    </>
+                    <>Đổi Mật Khẩu</>
                   )}
                 </button>
               </form>

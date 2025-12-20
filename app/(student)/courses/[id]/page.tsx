@@ -541,7 +541,7 @@ export default function LessonPage() {
                     ))
                   ) : (
                     <p className="text-gray-600">
-                      No reviews yet. Be the first to review this course!
+                      Chưa có đánh giá. Hãy đánh giá khóa học đầu tiên!
                     </p>
                   )}
                 </div>
@@ -651,26 +651,34 @@ export default function LessonPage() {
                         <div className="flex items-center gap-3 mb-4">
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
+                              {/* GIÁ HIỂN THỊ */}
                               <span className="text-5xl font-extrabold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-                                {course.price.toLocaleString()}₫
+                                {course.discount &&
+                                course.discountExpiresAt &&
+                                new Date(course.discountExpiresAt) > new Date()
+                                  ? (course.price ?? 0).toLocaleString() + "₫"
+                                  : course.originalPrice.toLocaleString() + "₫"}
                               </span>
-                              {course.originalPrice &&
+
+                              {/* Giá gốc gạch ngang – chỉ hiển thị khi đang giảm giá */}
+                              {course.discount &&
                                 course.discountExpiresAt &&
                                 new Date(course.discountExpiresAt) >
                                   new Date() && (
-                                  <div className="flex flex-col">
-                                    <span className="text-xl text-gray-400 line-through font-medium">
-                                      {course.originalPrice.toLocaleString()}₫
-                                    </span>
-                                  </div>
+                                  <span className="text-xl text-gray-400 line-through font-medium">
+                                    {course.originalPrice.toLocaleString()}₫
+                                  </span>
                                 )}
                             </div>
                           </div>
                         </div>
                       </div>
-                      {/* Discount & Countdown Row */}
-                      <div className="h-[60px]">
-                        {course.discount != null && course.discountExpiresAt ? (
+
+                      {/* Countdown */}
+                      <div className="h-[60px] flex items-center">
+                        {course.discount &&
+                        course.discountExpiresAt &&
+                        new Date(course.discountExpiresAt) > new Date() ? (
                           <DiscountCountdown
                             discount={course.discount}
                             discountExpiresAt={course.discountExpiresAt}

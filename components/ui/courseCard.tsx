@@ -78,7 +78,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             )}
           </div>
 
-          <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2 h-[52px]">
+          <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors duration-300 line-clamp-2 h-13">
             {course.title}
           </h3>
 
@@ -99,7 +99,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             </div>
           </div>
 
-          <div className="h-[60px]">
+          <div className="h-15">
             {course.discount != null && course.discountExpiresAt ? (
               <DiscountCountdown
                 discount={course.discount}
@@ -113,16 +113,25 @@ const CourseCard: React.FC<CourseCardProps> = ({
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold text-violet-600">
-                  {course.price.toLocaleString()}₫
-                </span>
                 {course.originalPrice &&
-                  course.discountExpiresAt &&
-                  new Date(course.discountExpiresAt) > new Date() && (
+                course.discountExpiresAt &&
+                new Date(course.discountExpiresAt) > new Date() ? (
+                  <>
+                    <span className="text-2xl font-bold text-violet-600">
+                      {(course.price ?? 0).toLocaleString()}₫
+                    </span>
+
                     <span className="text-gray-400 line-through">
                       {course.originalPrice.toLocaleString()}₫
                     </span>
-                  )}
+                  </>
+                ) : (
+                  <>
+                    <span className="text-2xl font-bold text-violet-600">
+                      {course.originalPrice?.toLocaleString()}₫
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -135,7 +144,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             e.stopPropagation();
             onCartToggle(course);
           }}
-          className={`flex-1 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center cursor-pointer bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700`}
+          className={`flex-1 px-4 py-2.5 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center cursor-pointer bg-linear-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700`}
         >
           {course.isInCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
         </button>

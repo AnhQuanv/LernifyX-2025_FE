@@ -4,16 +4,16 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Lock, CreditCard, Gift, ArrowRight } from "lucide-react";
+import { ArrowLeft, Lock, CreditCard } from "lucide-react";
 import { getCartTotal } from "@/lib/utils";
 import { createPayment } from "@/redux/thunk/paymentThunk";
+import toast from "react-hot-toast";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
   const cartItems = useSelector((state: RootState) => state.cart.allCourses);
-  const { user } = useSelector((state: RootState) => state.auth);
   const totalValue = getCartTotal(cartItems);
 
   const taxRate = 0.1;
@@ -21,7 +21,6 @@ export default function CheckoutPage() {
   const total = totalValue + tax;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
 
@@ -43,22 +42,12 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleApplyCoupon = () => {
-    if (coupon.toUpperCase() === "SAVE10") {
-      setDiscount(0.1); // Giảm 10%
-      alert("Mã giảm giá 'SAVE10' đã được áp dụng (10% giảm giá).");
-    } else {
-      setDiscount(0);
-      alert("Mã giảm giá không hợp lệ.");
-    }
-  };
-
   const finalTotal = total * (1 - discount);
   const savings = total * discount;
 
   const handlePlaceOrder = async () => {
     if (!selectedPaymentMethod) {
-      alert("Vui lòng chọn phương thức thanh toán.");
+      toast.error("Vui lòng chọn phương thức thanh toán.", { duration: 4000 });
       return;
     }
 
@@ -74,11 +63,15 @@ export default function CheckoutPage() {
       if (createPayment.fulfilled.match(action)) {
         window.location.href = action.payload;
       } else {
-        alert("Không thể tạo thanh toán. Vui lòng thử lại!");
+        toast.error("Không thể tạo thanh toán. Vui lòng thử lại!", {
+          duration: 4000,
+        });
       }
     } catch (error) {
       console.error("Lỗi khi thanh toán:", error);
-      alert("Đã xảy ra lỗi khi thanh toán.");
+      toast.error("Đã xảy ra lỗi khi thanh toán.. Vui lòng thử lại!", {
+        duration: 4000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -104,32 +97,6 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <ArrowRight className="w-6 h-6 text-violet-600" />
-                Thông tin Tài khoản
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                Bạn đã đăng nhập. Khóa học sẽ được thêm vào tài khoản sau:
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-violet-50 p-4 rounded-lg">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Họ và Tên
-                  </label>
-                  <p className="font-semibold text-gray-800">
-                    {user?.fullName}
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <p className="font-semibold text-gray-800">{user?.email}</p>
-                </div>
-              </div>
-            </div>
-
             {/* Phương thức Thanh toán */}
             <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-3">
@@ -138,21 +105,6 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-3">
-                {/* 1. Thẻ Tín dụng / Ghi nợ */}
-                <label className="flex items-center space-x-3 bg-gray-50 p-4 rounded-lg border border-gray-200 cursor-pointer hover:border-violet-400 transition-colors">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="card"
-                    checked={selectedPaymentMethod === "card"}
-                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                    className="h-4 w-4 text-violet-600 border-gray-300 focus:ring-violet-500"
-                  />
-                  <span className="text-gray-700 font-medium">
-                    Thẻ Tín dụng / Ghi nợ (Visa, Mastercard)
-                  </span>
-                </label>
-
                 {/* 2. Momo */}
                 <label className="flex items-center space-x-3 bg-red-50 p-4 rounded-lg border border-red-200 cursor-pointer hover:border-red-400 transition-colors">
                   <input
@@ -182,51 +134,7 @@ export default function CheckoutPage() {
                     Thanh toán qua **VNPay**
                   </span>
                 </label>
-
-                {/* 4. ZaloPay */}
-                <label className="flex items-center space-x-3 bg-cyan-50 p-4 rounded-lg border border-cyan-200 cursor-pointer hover:border-cyan-400 transition-colors">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="zalopay"
-                    checked={selectedPaymentMethod === "zalopay"}
-                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                    className="h-4 w-4 text-cyan-600 border-cyan-300 focus:ring-cyan-500"
-                  />
-                  <span className="text-gray-700 font-medium">
-                    Ví điện tử **ZaloPay**
-                  </span>
-                </label>
               </div>
-            </div>
-
-            {/* Mã Giảm giá */}
-            <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-3">
-                <Gift className="w-6 h-6 text-violet-600" />
-                Mã Giảm giá
-              </h2>
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  placeholder="Nhập mã giảm giá"
-                  value={coupon}
-                  onChange={(e) => setCoupon(e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-300 p-3 shadow-sm focus:border-violet-500 focus:ring-violet-500"
-                />
-                <button
-                  onClick={handleApplyCoupon}
-                  className="bg-violet-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-violet-600 transition-colors"
-                >
-                  Áp dụng
-                </button>
-              </div>
-              {discount > 0 && (
-                <p className="mt-3 text-sm text-green-600 font-medium">
-                  ✓ Giảm giá {(discount * 100).toFixed(0)}% đã được áp dụng.
-                  Tiết kiệm: ${savings.toFixed(2)}
-                </p>
-              )}
             </div>
           </div>
 
@@ -269,7 +177,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -301,9 +209,26 @@ export default function CheckoutPage() {
                     className="flex justify-between items-center text-sm bg-white p-3 rounded-lg shadow-sm"
                   >
                     <span className="line-clamp-1">{course.title}</span>
-                    <span className="font-semibold text-violet-600">
-                      ${course.price}
-                    </span>
+
+                    {course.originalPrice &&
+                    course.discountExpiresAt &&
+                    new Date(course.discountExpiresAt) > new Date() ? (
+                      <>
+                        <span className="font-semibold text-violet-600">
+                          {(course.price ?? 0).toLocaleString()}₫
+                        </span>
+
+                        <span className="text-gray-400 line-through">
+                          {course.originalPrice.toLocaleString()}₫
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-violet-600">
+                          {course.originalPrice?.toLocaleString()}₫
+                        </span>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>

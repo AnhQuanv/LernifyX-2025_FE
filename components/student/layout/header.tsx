@@ -24,7 +24,7 @@ import {
   ChevronDown,
   Settings,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
 import {
@@ -52,6 +52,8 @@ type DropdownItemType =
 
 const Header = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthPage = pathname.startsWith("/auth/login");
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.auth
@@ -73,7 +75,6 @@ const Header = () => {
     { label: "Trang chủ", href: "/homepage" },
     { label: "Khóa học", href: "/courses" },
     { label: "Giảng viên", href: "/teachers" },
-    { label: "Giới thiệu", href: "/about" },
   ];
 
   const dropdownItems: DropdownItemType[] = [
@@ -97,7 +98,6 @@ const Header = () => {
       path: "/wishlist",
       count: wishlistItems.length,
     },
-    { type: "separator" },
     {
       type: "item",
       label: "Cài đặt tài khoản",
@@ -110,33 +110,23 @@ const Header = () => {
       icon: History,
       path: "/checkout/history",
     },
-    { type: "separator" },
-    { type: "item", label: "Ngôn ngữ", icon: Globe, right: "Tiếng Anh" },
-    { type: "separator" },
     {
       type: "item",
       label: "Chỉnh sửa hồ sơ",
       icon: User,
       path: "/account/edit",
     },
-    { type: "separator" },
-    {
-      type: "item",
-      label: "Trợ giúp & Hỗ trợ",
-      icon: HelpCircle,
-      path: "/support",
-    },
   ];
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user?.roleName === "student") {
       dispatch(getUserAllWishlist({ page: 1, limit: 100 }));
       dispatch(getUserAllCart({ page: 1, limit: 100 }));
     }
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, user, dispatch]);
 
   return (
-    <header className="bg-gradient-to-r from-violet-700 to-purple-600 text-white sticky top-0 w-full z-[1000] py-3">
+    <header className="bg-linear-to-r from-violet-700 to-purple-600 text-white sticky top-0 w-full z-1000 py-3">
       <div className="container mx-auto flex items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <div
@@ -197,7 +187,7 @@ const Header = () => {
           <Popover open={cartOpen} onOpenChange={setCartOpen}>
             <PopoverTrigger asChild>
               <button
-                className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20"
+                className="relative flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20  cursor-pointer"
                 onMouseEnter={() => setCartOpen(true)}
                 onMouseLeave={() => setCartOpen(false)}
               >
@@ -220,16 +210,16 @@ const Header = () => {
           </Popover>
 
           {/* Profile dropdown */}
-          {isAuthenticated ? (
+          {isAuthenticated && !isAuthPage ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center space-x-1 group">
-                  <Avatar className="h-9 w-9 rounded-xl ring-2 ring-violet-100 shadow-md">
+                  <Avatar className="h-9 w-9 rounded-xl ring-2 ring-violet-100 shadow-md  cursor-pointer">
                     <AvatarImage
                       src={user?.avatar}
                       alt={user?.fullName || "User avatar"}
                     />
-                    <AvatarFallback className="bg-gradient-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm rounded-xl">
+                    <AvatarFallback className="bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm rounded-xl">
                       {getInitials(user?.fullName || "User")}
                     </AvatarFallback>
                   </Avatar>
@@ -248,7 +238,7 @@ const Header = () => {
                         src={user?.avatar}
                         alt={user?.fullName || "User avatar"}
                       />
-                      <AvatarFallback className="bg-gradient-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm rounded-xl">
+                      <AvatarFallback className="bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm rounded-xl">
                         {getInitials(user?.fullName || "User")}
                       </AvatarFallback>
                     </Avatar>
@@ -283,7 +273,7 @@ const Header = () => {
                       <div className="flex items-center justify-between w-full">
                         <span>{item.label}</span>
                         {item.count ? (
-                          <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                          <span className="bg-linear-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                             {item.count}
                           </span>
                         ) : item.right ? (

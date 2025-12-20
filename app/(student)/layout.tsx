@@ -13,7 +13,7 @@ export default function StudentLayout({
     <div className="flex flex-col min-h-screen">
       <Header />
       <OfflineBanner />
-      <main className="flex-grow bg-gradient-to-br from-indigo-100 via-white to-indigo-200">
+      <main className="grow bg-linear-to-br from-indigo-100 via-white to-indigo-200">
         {children}
       </main>
       <Footer />

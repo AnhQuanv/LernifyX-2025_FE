@@ -16,7 +16,7 @@ const axiosClient = axios.create({
   baseURL: (
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/v1"
   ).replace(/\/$/, ""),
-  withCredentials: true,
+  withCredentials: false,
 });
 
 axiosClient.interceptors.request.use(

@@ -5,7 +5,6 @@ import type { RootState } from "@/redux/store";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Heart,
   ShoppingCart,
   ArrowLeft,
   Trash2,
@@ -31,7 +30,7 @@ export default function WishlistPage() {
   const allInCart = wishlistItems.every((course) => isInCart(course.id));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 sticky top-0 z-50 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -56,9 +55,6 @@ export default function WishlistPage() {
           // Empty State
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-10 h-10 text-violet-600" />
-              </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
                 Danh sách yêu thích trống
               </h2>
@@ -68,7 +64,7 @@ export default function WishlistPage() {
               </p>
               <button
                 onClick={() => router.push("/homepage")}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2"
+                className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2 cursor-pointer"
               >
                 Xem Khóa Học
               </button>
@@ -88,7 +84,7 @@ export default function WishlistPage() {
                     {/* Course Image */}
                     <Link
                       href={`/courses/${course.id}`}
-                      className="flex-shrink-0"
+                      className="shrink-0"
                     >
                       <div className="relative w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-gray-200 group-hover:shadow-lg transition-all duration-300">
                         <Image
@@ -124,7 +120,7 @@ export default function WishlistPage() {
                           </div>
                           {course.rating != null &&
                             course.ratingCount != null && (
-                              <div className="flex items-center gap-1 ml-4 flex-shrink-0">
+                              <div className="flex items-center gap-1 ml-4 shrink-0">
                                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
                                 <span className="text-sm font-semibold text-gray-700">
                                   {course.rating} ({course.ratingCount} đánh
@@ -177,7 +173,7 @@ export default function WishlistPage() {
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold shadow-lg transition-all duration-300 cursor-pointer ${
                               isInCart(course.id)
                                 ? "bg-gray-300 text-gray-700 hover:bg-gray-400"
-                                : "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
+                                : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
                             }`}
                           >
                             <ShoppingCart className="w-4 h-4" />
@@ -248,7 +244,7 @@ export default function WishlistPage() {
                   className={`w-full px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg mb-3 cursor-pointer ${
                     allInCart
                       ? "bg-gray-300 text-gray-700 cursor-not-allowed"
-                      : "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
+                      : "bg-linear-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
                   }`}
                 >
                   {allInCart

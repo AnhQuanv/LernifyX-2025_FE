@@ -8,8 +8,8 @@ import {
   Filter,
   ChevronUp,
   ChevronDown,
+  Loader,
 } from "lucide-react";
-import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import CourseCard from "@/components/ui/courseCard";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
@@ -119,7 +119,17 @@ const CoursesPage = () => {
   }, [dispatch]);
 
   if (isLoading || categoryStatus === "loading" || categoryStatus === "idle") {
-    return <LoadingSkeleton />;
+    return (
+      <>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
+            <p className="text-black-600">Đang tải dữ liệu...</p>
+          </div>
+        </div>
+        ;
+      </>
+    );
   }
 
   const FilterSection = () => (
@@ -137,7 +147,7 @@ const CoursesPage = () => {
               onClick={() => setSelectedCategory(category)}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 selectedCategory === category
-                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  ? "bg-linear-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -178,7 +188,7 @@ const CoursesPage = () => {
               onClick={() => setSelectedLevel(level)}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 selectedLevel === level
-                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  ? "bg-linear-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -201,7 +211,7 @@ const CoursesPage = () => {
               onClick={() => setSelectedRating(rating.value)}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 cursor-pointer ${
                 selectedRating === rating.value
-                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  ? "bg-linear-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -224,7 +234,7 @@ const CoursesPage = () => {
               onClick={() => setSortBy(option.value)}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 cursor-pointer ${
                 sortBy === option.value
-                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg"
+                  ? "bg-linear-to-r from-violet-600 to-purple-600 text-white shadow-lg"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -237,23 +247,18 @@ const CoursesPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-violet-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-24 relative overflow-hidden">
+      <section className="bg-linear-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20"></div>
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-4xl">
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 drop-shadow-2xl leading-tight">
-              Khám phá{" "}
-              <span className="block text-violet-200 mt-2">
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-6 drop-shadow-2xl leading-tight">
+              <span className="block text-violet-200 mt-1">
                 Hành trình học tập của bạn
               </span>
             </h1>
-            <p className="text-xl md:text-2xl text-violet-50 max-w-2xl drop-shadow-lg leading-relaxed">
-              Hàng ngàn khóa học chất lượng từ các chuyên gia hàng đầu. Học linh
-              hoạt và nâng cao kỹ năng mọi lúc, mọi nơi.
-            </p>
           </div>
         </div>
       </section>
@@ -288,22 +293,13 @@ const CoursesPage = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex gap-8">
             {/* Sidebar Filters - Desktop */}
-            <aside className="hidden lg:block w-80 flex-shrink-0">
+            <aside className="hidden lg:block w-80 shrink-0">
               <div className="sticky top-24">
                 <FilterSection />
               </div>
             </aside>
 
             <div className="flex-1 min-w-0">
-              <div className="mb-8 flex justify-between items-center">
-                <p className="text-gray-600 text-lg">
-                  Hiển thị {filteredCourses.length} khóa học
-                </p>
-                <p className="text-gray-600 text-sm">
-                  Trang {pagination.page} / {pagination.totalPages}
-                </p>
-              </div>
-
               {filteredCourses.length > 0 ? (
                 <div
                   className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 ${
