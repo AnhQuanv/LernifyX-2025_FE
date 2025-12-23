@@ -11,7 +11,7 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-br from-indigo-600 to-violet-700 text-white pt-16 pb-8 relative overflow-hidden">
+    <footer className="bg-linear-to-br from-indigo-600 to-violet-700 text-white pt-16 pb-8 relative overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white" />
@@ -20,14 +20,7 @@ export default function Footer() {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* About */}
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold mb-4 flex items-center">
-              <span className="bg-white text-indigo-600 rounded-lg p-1 mr-2">
-                L
-              </span>
-              LeanrifyX
-            </h3>
             <p className="text-indigo-100 leading-relaxed">
               Giúp người học trên toàn thế giới tiếp cận giáo dục trực tuyến
               chất lượng cao và cơ hội phát triển nghề nghiệp.

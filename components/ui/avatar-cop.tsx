@@ -18,7 +18,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {avatarUrl && avatarUrl.trim() !== "" && (
         <AvatarImage src={avatarUrl} alt={fullName} />
       )}
-      <AvatarFallback className="bg-gradient-to-br from-violet-600 to-purple-600 text-white text-2xl font-bold flex items-center justify-center rounded-2xl">
+      <AvatarFallback className="bg-linear-to-br from-violet-600 to-purple-600 text-white text-2xl font-bold flex items-center justify-center rounded-2xl">
         {initials}
       </AvatarFallback>
     </Avatar>

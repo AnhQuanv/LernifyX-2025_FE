@@ -4,10 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  MessageSquare,
   CheckCircle,
-  BookOpen,
-  FileText,
   Trash2,
   Edit2,
   XCircle,
@@ -17,15 +14,13 @@ import {
   Circle,
   ChevronLeft,
   ChevronRight,
+  Loader,
 } from "lucide-react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { getDetailCourse, getLessonDetail } from "@/redux/thunk/courseThunk";
 import { useParams } from "next/navigation";
-import {
-  CommentSkeleton,
-  LoadingSkeleton,
-} from "@/components/ui/loading-skeleton";
+import { CommentSkeleton } from "@/components/ui/loading-skeleton";
 import { getCommentsByLesson } from "@/redux/thunk/commentThunk";
 import Image from "next/image";
 import { handlePostComment } from "@/services/commentService";
@@ -36,6 +31,8 @@ import {
   updateLessonProgress,
   updateNoteToLesson,
 } from "@/redux/thunk/lessonProgressThunk";
+import toast from "react-hot-toast";
+import { formatDurationVi } from "@/lib/utils";
 
 export default function LessonPage() {
   const params = useParams<{ id: string; lessonId: string }>();
@@ -59,7 +56,6 @@ export default function LessonPage() {
   const [newNoteContent, setNewNoteContent] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState("");
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<string[]>(["1"]);
   const [quizAnswers, setQuizAnswers] = useState<{
     [questionId: string]: string;
@@ -77,9 +73,9 @@ export default function LessonPage() {
   const [isProgressReady, setIsProgressReady] = useState(false);
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
-
   const isLoading =
-    statusCourseDetail === "loading" || statusLessonDetail === "loading";
+    (statusCourseDetail === "loading" && !course) ||
+    (statusLessonDetail === "loading" && !lesson);
 
   const handleAddComment = async () => {
     if (!comment.trim()) return;
@@ -118,34 +114,61 @@ export default function LessonPage() {
   };
 
   const handleSaveNote = async () => {
-    if (!newNoteContent.trim()) return;
-    if (!lesson?.progress?.id) return;
-    dispatch(
-      addNoteToLesson({ progressId: lesson.progress.id, text: newNoteContent })
-    );
-    setNewNoteContent("");
-    setSuccessMessage("Thêm ghi chú thành công!");
-    setTimeout(() => setSuccessMessage(null), 3000);
-  };
-
-  const handleDeleteNote = (noteId: string) => {
-    if (!lesson?.progress?.id) return;
-    dispatch(deleteNoteToLesson({ noteId }));
-    setSuccessMessage("Xóa ghi chú thành công!");
-    setTimeout(() => setSuccessMessage(null), 3000);
-  };
-
-  const handleSaveEditNote = () => {
-    if (!editingContent.trim() || !editingNoteId || !lesson?.progress?.id)
+    if (!newNoteContent.trim()) {
+      toast.error("Nội dung ghi chú không được để trống!");
       return;
+    }
+    if (!lesson?.progress?.id) {
+      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+      return;
+    }
+    try {
+      await dispatch(
+        addNoteToLesson({
+          progressId: lesson.progress.id,
+          text: newNoteContent,
+        })
+      ).unwrap();
+      setNewNoteContent("");
+      toast.success("Thêm ghi chú thành công!");
+    } catch {
+      toast.error("Thêm ghi chú thất bại, vui lòng thử lại!");
+    }
+  };
 
-    dispatch(
-      updateNoteToLesson({ noteId: editingNoteId, text: editingContent })
-    );
-    setEditingNoteId(null);
-    setEditingContent("");
-    setSuccessMessage("Chỉnh sửa ghi chú thành công!");
-    setTimeout(() => setSuccessMessage(null), 3000);
+  const handleDeleteNote = async (noteId: string) => {
+    if (!lesson?.progress?.id) {
+      toast.error("Không tìm thấy thông tin để xóa!");
+      return;
+    }
+
+    try {
+      await dispatch(deleteNoteToLesson({ noteId })).unwrap();
+      toast.success("Xóa ghi chú thành công!");
+    } catch {
+      toast.error("Không thể xóa ghi chú. Vui lòng thử lại!");
+    }
+  };
+
+  const handleSaveEditNote = async () => {
+    if (!editingContent.trim() || !editingNoteId || !lesson?.progress?.id) {
+      toast.error("Thông tin không hợp lệ hoặc nội dung trống!");
+      return;
+    }
+
+    try {
+      await dispatch(
+        updateNoteToLesson({
+          noteId: editingNoteId,
+          text: editingContent,
+        })
+      ).unwrap();
+      setEditingNoteId(null);
+      setEditingContent("");
+      toast.success("Chỉnh sửa ghi chú thành công!");
+    } catch {
+      toast.error("Chỉnh sửa ghi chú thất bại, vui lòng thử lại!");
+    }
   };
 
   const handleQuizAnswer = (questionId: string, optionId: string) => {
@@ -191,38 +214,103 @@ export default function LessonPage() {
 
   const lastUpdateRef = useRef(0);
 
-  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const currentTime = Math.floor(e.currentTarget.currentTime);
+  // const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+  //   const currentTime = Math.floor(e.currentTarget.currentTime);
+
+  //   if (!isProgressReady || !lesson?.progress?.id) return;
+
+  //   const now = Date.now();
+  //   if (now - lastUpdateRef.current < 5000) {
+  //     return;
+  //   }
+
+  //   lastUpdateRef.current = now;
+  //   dispatch(
+  //     updateLessonProgress({
+  //       progressId: lesson.progress.id,
+  //       lastPosition: currentTime,
+  //     })
+  //   );
+  // };
+
+  const isCompletingRef = useRef(false);
+
+  const handleTimeUpdate = async (
+    e: React.SyntheticEvent<HTMLVideoElement>
+  ) => {
+    const video = e.currentTarget;
+    const currentTime = Math.floor(video.currentTime);
+    const duration = video.duration;
 
     if (!isProgressReady || !lesson?.progress?.id) return;
 
+    // 1. Logic lưu vị trí đang xem (5 giây một lần)
     const now = Date.now();
-    if (now - lastUpdateRef.current < 5000) {
-      return;
+    if (now - lastUpdateRef.current > 5000) {
+      lastUpdateRef.current = now;
+      dispatch(
+        updateLessonProgress({
+          progressId: lesson.progress.id,
+          lastPosition: currentTime,
+        })
+      );
     }
 
-    lastUpdateRef.current = now;
+    if (
+      !isCompletingRef.current &&
+      !lesson?.progress?.completed &&
+      duration > 0
+    ) {
+      const progressPercent = (currentTime / duration) * 100;
 
-    dispatch(
-      updateLessonProgress({
-        progressId: lesson.progress.id,
-        lastPosition: currentTime,
-      })
-    );
+      if (progressPercent >= 90) {
+        isCompletingRef.current = true; // Đánh dấu đang xử lý
+        console.log("Đạt ngưỡng 90%, tự động hoàn thành bài học...");
+        await handleCompleteLesson();
+      }
+    }
   };
 
-  const handleCompleteLesson = () => {
+  // const handleCompleteLesson = async () => {
+  //   if (!isProgressReady || !lesson?.progress?.id) return;
+
+  //   await dispatch(
+  //     updateLessonProgress({
+  //       progressId: lesson.progress.id,
+  //       completed: true,
+  //       lastPosition: lesson.duration || 0,
+  //     })
+  //   ).unwrap();
+  //   if (courseId) {
+  //     await dispatch(getDetailCourse(courseId)).unwrap();
+  //   }
+  // };
+
+  const handleCompleteLesson = async () => {
+    if (lesson?.progress?.completed) return;
     if (!isProgressReady || !lesson?.progress?.id) return;
 
-    dispatch(
-      updateLessonProgress({
-        progressId: lesson.progress.id,
-        completed: true,
-        lastPosition: lesson.duration || 0,
-      })
-    );
-  };
+    try {
+      await dispatch(
+        updateLessonProgress({
+          progressId: lesson.progress.id,
+          completed: true,
+          lastPosition: Math.floor(
+            videoRef.current?.duration || lesson.duration || 0
+          ),
+        })
+      ).unwrap();
 
+      if (courseId) {
+        await dispatch(getDetailCourse(courseId)).unwrap();
+      }
+
+      toast.success("Đã mở khóa bài học tiếp theo!", { duration: 4000 });
+    } catch {
+      toast.error("Lỗi mở khóa bài tiếp theo:");
+      isCompletingRef.current = false;
+    }
+  };
   useEffect(() => {
     if (courseId && lessonId) {
       dispatch(getLessonDetail({ courseId, lessonId }));
@@ -240,6 +328,7 @@ export default function LessonPage() {
   }, [courseId, lessonId, dispatch, currentPage]);
 
   useEffect(() => {
+    console.log("Lesson1:", lesson?.id);
     if (lesson && !lesson.progress) {
       dispatch(createLessonProgress({ lessonId: lesson.id }));
     }
@@ -252,7 +341,17 @@ export default function LessonPage() {
   }, [lesson?.progress]);
 
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return (
+      <>
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
+            <p className="text-black-600">Đang tải dữ liệu...</p>
+          </div>
+        </div>
+        ;
+      </>
+    );
   }
 
   const isLessonLocked = (chapterIndex: number, lessonIndex: number) => {
@@ -295,12 +394,10 @@ export default function LessonPage() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-0 flex-1 overflow-hidden">
-        {/* Sidebar - Nội dung khóa học */}
         <div className="bg-white border-r border-gray-200 overflow-y-auto hidden lg:flex flex-col">
           <div className="p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-violet-600" />
                 Nội dung khóa học
               </h2>
             </div>
@@ -316,9 +413,9 @@ export default function LessonPage() {
                       className="w-full border border-gray-200 rounded-lg p-3 hover:border-violet-300 hover:bg-violet-50 transition-all text-left"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer">
                           <ChevronDown
-                            className={`w-4 h-4 text-violet-600 transition-transform duration-300 flex-shrink-0 ${
+                            className={`w-4 h-4 text-violet-600 transition-transform duration-300 shrink-0 ${
                               expandedSections.includes(chapter.id)
                                 ? "rotate-180"
                                 : ""
@@ -331,7 +428,7 @@ export default function LessonPage() {
                             {chapter.title}
                           </h3>
                         </div>
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full whitespace-nowrap ml-2 flex-shrink-0">
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full whitespace-nowrap ml-2 shrink-0">
                           {chapter.lessons.length}
                         </span>
                       </div>
@@ -371,11 +468,11 @@ export default function LessonPage() {
                               >
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
                                   {isLocked ? (
-                                    <Lock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                                    <Lock className="w-4 h-4 text-gray-400 shrink-0" />
                                   ) : completed ? (
-                                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                    <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                                   ) : (
-                                    <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                                    <Circle className="w-4 h-4 text-gray-300 shrink-0" />
                                   )}
                                   <span className="text-xs truncate text-gray-700">
                                     {les.title}
@@ -386,8 +483,8 @@ export default function LessonPage() {
                                     📝 Quiz
                                   </span>
                                 )}
-                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0 whitespace-nowrap">
-                                  {les.duration} phút
+                                <span className="text-xs text-gray-500 ml-2 shrink-0 whitespace-nowrap">
+                                  {formatDurationVi(les.duration)}
                                 </span>
                               </Link>
                             );
@@ -452,13 +549,12 @@ export default function LessonPage() {
                 <div className="flex gap-8 overflow-x-auto">
                   <button
                     onClick={() => setCommentTab("comments")}
-                    className={`pb-4 px-2 font-semibold text-sm whitespace-nowrap transition-colors ${
+                    className={`pb-4 cursor-pointer px-2 font-semibold text-sm whitespace-nowrap transition-colors ${
                       commentTab === "comments"
                         ? "text-violet-600 border-b-2 border-violet-600"
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
-                    <MessageSquare className="w-4 h-4 inline mr-2" />
                     Bình luận
                   </button>
                   {lesson?.hasQuiz && (
@@ -475,13 +571,12 @@ export default function LessonPage() {
                   )}
                   <button
                     onClick={() => setCommentTab("notes")}
-                    className={`pb-4 px-2 font-semibold text-sm whitespace-nowrap transition-colors ${
+                    className={`pb-4 px-2 font-semibold cursor-pointer text-sm whitespace-nowrap transition-colors ${
                       commentTab === "notes"
                         ? "text-violet-600 border-b-2 border-violet-600"
                         : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
-                    <FileText className="w-4 h-4 inline mr-2" />
                     Ghi chú của tôi
                   </button>
                 </div>
@@ -507,7 +602,7 @@ export default function LessonPage() {
                         />
                         <button
                           onClick={handleAddComment}
-                          className="mt-2 bg-violet-600 text-white px-6 py-2 rounded-lg hover:bg-violet-700 transition-all font-semibold"
+                          className="mt-2 bg-violet-600 text-white px-6 py-2 rounded-lg hover:bg-violet-700 transition-all font-semibold cursor-pointer"
                         >
                           Đăng bình luận
                         </button>
@@ -606,7 +701,7 @@ export default function LessonPage() {
                                       />
                                       <button
                                         onClick={() => handleAddReply(c.id)}
-                                        className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-all"
+                                        className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-all cursor-pointer"
                                       >
                                         Trả lời
                                       </button>
@@ -714,14 +809,14 @@ export default function LessonPage() {
                           Object.keys(quizAnswers).length <
                           (lesson?.quiz?.length || 0)
                         }
-                        className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Nộp bài
                       </button>
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 border-blue-200">
+                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 border-blue-200">
                         <div className="mb-4">
                           <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
                         </div>
@@ -756,9 +851,9 @@ export default function LessonPage() {
                             >
                               <div className="flex items-start gap-3 mb-4">
                                 {isCorrect ? (
-                                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                                  <CheckCircle className="w-6 h-6 text-green-600 shrink-0 mt-1" />
                                 ) : (
-                                  <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                                  <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-1" />
                                 )}
                                 <div className="flex-1">
                                   <h5
@@ -804,10 +899,10 @@ export default function LessonPage() {
                                       <span>{option.text}</span>
 
                                       {iscorrectOptionId && (
-                                        <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                                        <CheckCircle className="w-5 h-5 shrink-0" />
                                       )}
                                       {isUserAnswer && !isCorrect && (
-                                        <XCircle className="w-5 h-5 flex-shrink-0" />
+                                        <XCircle className="w-5 h-5 shrink-0" />
                                       )}
                                     </div>
                                   );
@@ -839,13 +934,6 @@ export default function LessonPage() {
                     Ghi chú của tôi
                   </h3>
 
-                  {successMessage && (
-                    <div className="mb-4 bg-green-50 border-2 border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      {successMessage}
-                    </div>
-                  )}
-
                   {/* Add/Edit Note Form */}
                   <div className="mb-8 pb-8 border-b border-gray-200">
                     <h4 className="font-semibold text-gray-900 mb-4">
@@ -867,7 +955,7 @@ export default function LessonPage() {
                         onClick={
                           editingNoteId ? handleSaveEditNote : handleSaveNote
                         }
-                        className="bg-violet-600 text-white px-6 py-2 rounded-lg hover:bg-violet-700 transition-all font-semibold disabled:opacity-50"
+                        className="bg-violet-600 text-white px-6 py-2 rounded-lg hover:bg-violet-700 transition-all font-semibold disabled:opacity-50 cursor-pointer"
                         disabled={
                           editingNoteId
                             ? !editingContent.trim()
@@ -913,20 +1001,20 @@ export default function LessonPage() {
                               <p className="text-gray-800 flex-1 whitespace-pre-wrap">
                                 {note.text}
                               </p>
-                              <div className="flex gap-2 ml-4 flex-shrink-0">
+                              <div className="flex gap-2 ml-4 shrink-0">
                                 <button
                                   onClick={() => {
                                     setEditingNoteId(note.id);
                                     setEditingContent(note.text);
                                   }}
-                                  className="text-violet-600 hover:text-violet-800 p-1 rounded-full hover:bg-violet-100 transition-colors"
+                                  className="cursor-pointer text-violet-600 hover:text-violet-800 p-1 rounded-full hover:bg-violet-100 transition-colors"
                                   title="Chỉnh sửa ghi chú"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteNote(note.id)}
-                                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
+                                  className="cursor-pointer text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-100 transition-colors"
                                   title="Xóa ghi chú"
                                 >
                                   <Trash2 className="w-4 h-4" />

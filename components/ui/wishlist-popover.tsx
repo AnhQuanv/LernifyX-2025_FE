@@ -60,7 +60,7 @@ export const WishlistPopover = () => {
 
             <div className="flex gap-3 items-start">
               {/* Image Container */}
-              <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+              <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={
                     course.image ||
@@ -83,13 +83,20 @@ export const WishlistPopover = () => {
                 </p>
 
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-base font-bold text-gray-900">
-                    {course.price.toLocaleString()}₫
-                  </span>
-
-                  {course.originalPrice && (
-                    <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
-                      {course.originalPrice.toLocaleString()}₫
+                  {course.discountExpiresAt &&
+                  course.originalPrice &&
+                  new Date(course.discountExpiresAt).getTime() > Date.now() ? (
+                    <>
+                      <span className="text-base font-bold text-gray-900">
+                        {(course.price ?? 0).toLocaleString()}₫
+                      </span>
+                      <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                        {course.originalPrice.toLocaleString()}₫
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-base font-bold text-gray-900">
+                      {(course.originalPrice ?? 0).toLocaleString()}₫
                     </span>
                   )}
                 </div>
@@ -97,7 +104,7 @@ export const WishlistPopover = () => {
 
               <button
                 onClick={() => handleRemoveFromWishlist(course.id)}
-                className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex-shrink-0 pt-0.5 cursor-pointer"
+                className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors shrink-0 pt-0.5 cursor-pointer"
                 aria-label="Xóa khỏi danh sách yêu thích"
               >
                 <Trash2 className="w-4 h-4" />

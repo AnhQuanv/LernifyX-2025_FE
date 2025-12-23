@@ -187,14 +187,6 @@ export default function CartPage() {
                       </div>
                       <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
                         <div className="flex items-center gap-3">
-                          {/* <span className="text-2xl font-bold text-violet-600">
-                            {(course.price ?? 0).toLocaleString()}₫
-                          </span>
-                          {course.originalPrice && (
-                            <span className="text-sm text-gray-400 line-through">
-                              {course.originalPrice.toLocaleString()}₫
-                            </span>
-                          )} */}
                           {course.originalPrice &&
                           course.discountExpiresAt &&
                           new Date(course.discountExpiresAt) > new Date() ? (

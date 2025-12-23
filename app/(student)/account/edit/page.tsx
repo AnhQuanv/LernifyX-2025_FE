@@ -23,13 +23,13 @@ import {
   Calendar,
   ArrowLeft,
   Upload,
-  Check,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { updateAvatar, updateProfile } from "@/redux/thunk/authThunk";
 import { UserAvatar } from "@/components/ui/avatar-cop";
+import toast from "react-hot-toast";
 
 const editProfileSchema = z.object({
   fullName: z
@@ -63,8 +63,6 @@ export default function EditProfilePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [successMessageAvatar, setSuccessMessageAvatar] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("/placeholder.svg");
   const [hasAvatarChanged, setHasAvatarChanged] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -100,10 +98,9 @@ export default function EditProfilePage() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { email, ...profileData } = data;
       await dispatch(updateProfile(profileData)).unwrap();
-      setSuccessMessage("Cập nhật hồ sơ thành công!");
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (error) {
-      console.error("Error updating profile:", error);
+      toast.success("Cập nhật hồ sơ thành công!");
+    } catch {
+      toast.error("Cập nhật hồ sơ thất bại. Vui lòng thử lại!");
     } finally {
       setIsLoading(false);
     }
@@ -114,11 +111,10 @@ export default function EditProfilePage() {
     setIsLoadingAvatar(true);
     try {
       await dispatch(updateAvatar(avatarFile)).unwrap();
-      setSuccessMessageAvatar("Cập nhật ảnh đại diện thành công!");
+      toast.success("Cập nhật ảnh đại diện thành công!");
       setHasAvatarChanged(false);
-      setTimeout(() => setSuccessMessageAvatar(""), 3000);
-    } catch (error) {
-      console.error("Error updating avatar:", error);
+    } catch {
+      toast.error("Cập nhật ảnh đại diện thất bại. Vui lòng thử lại!");
     } finally {
       setIsLoadingAvatar(false);
     }
@@ -166,37 +162,6 @@ export default function EditProfilePage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-2xl mx-auto">
-          {/* Success Message for Form */}
-          {successMessage && (
-            <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-green-900">{successMessage}</p>
-                <p className="text-sm text-green-700">
-                  Thay đổi của bạn đã được lưu
-                </p>
-              </div>
-            </div>
-          )}
-
-          {successMessageAvatar && (
-            <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-green-900">
-                  {successMessageAvatar}
-                </p>
-                <p className="text-sm text-green-700">
-                  Ảnh đại diện của bạn đã được cập nhật
-                </p>
-              </div>
-            </div>
-          )}
-
           {/* Avatar Section */}
           <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">

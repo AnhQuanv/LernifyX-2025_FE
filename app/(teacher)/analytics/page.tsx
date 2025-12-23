@@ -111,14 +111,22 @@ export default function AnalyticsPage() {
         const defaultCourseId = courseData[0].id;
         setSelectedCourseId(defaultCourseId);
 
-        const today = new Date().toISOString().split("T")[0];
-        const lastWeek = new Date(new Date().setDate(new Date().getDate() - 7))
-          .toISOString()
-          .split("T")[0];
-        setStartDate(lastWeek);
-        setEndDate(today);
-        fetchChartData(defaultCourseId, lastWeek, today);
-      } else {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - diffToMonday);
+
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+
+        const startDateStr = monday.toLocaleDateString("en-CA");
+        const endDateStr = sunday.toLocaleDateString("en-CA");
+
+        setStartDate(startDateStr);
+        setEndDate(endDateStr);
+        console.log("Tuần này bắt đầu từ:", startDateStr, "đến", endDateStr);
+        fetchChartData(defaultCourseId, startDateStr, endDateStr);
         setIsLoadingChartData(false);
       }
     } catch (error) {
@@ -264,7 +272,6 @@ export default function AnalyticsPage() {
               <CardHeader>
                 <CardTitle>Doanh Thu Hàng Tuần</CardTitle>
                 <CardDescription>
-                  Khóa học:{" "}
                   {courseStats.find((c) => c.id === selectedCourseId)?.name ||
                     "N/A"}{" "}
                   (Từ {formatDateDisplay(startDate)} đến{" "}
@@ -404,7 +411,6 @@ export default function AnalyticsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* 💡 SỬ DỤNG DỮ LIỆU THỰC TẾ (courseStats) */}
                   {courseStats.map((course) => (
                     <div
                       key={course.id} // SỬ DỤNG ID

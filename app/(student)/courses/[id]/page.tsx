@@ -12,7 +12,6 @@ import {
   CheckCircle,
   PlayCircle,
   Award,
-  BookOpen,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -26,7 +25,7 @@ import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import { useStartLesson } from "@/hooks/useStartLesson";
 import { useParams, useRouter } from "next/navigation";
-import { formatTimeFull, formatTimeRounded } from "@/lib/utils";
+import { formatDurationVi, formatTimeRounded } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { handlePostComment } from "@/services/commentService";
@@ -150,7 +149,7 @@ export default function LessonPage() {
   }
   if (!course) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 to-violet-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
             Không tìm thấy khóa học
@@ -171,7 +170,7 @@ export default function LessonPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-violet-50">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-violet-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 md:px-6 py-4">
@@ -186,18 +185,13 @@ export default function LessonPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-16">
+      <section className="bg-linear-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-16">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-2">
               <div className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
                 {course.category}
               </div>
-              {course.isPurchased && (
-                <div className="inline-block ml-2 bg-green-400/20 backdrop-blur-sm text-green-100 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-                  ✓ Already Purchased
-                </div>
-              )}
               <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
                 {course.title}
               </h1>
@@ -242,7 +236,7 @@ export default function LessonPage() {
             <div className="space-y-6">
               {/* Course Image */}
               <div className="rounded-xl overflow-hidden shadow-xl -mx-8 -mt-8 mb-6 relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-900/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-t from-violet-900/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <Image
                   src={
                     course.image ||
@@ -266,13 +260,12 @@ export default function LessonPage() {
             <div className="md:col-span-2 space-y-12">
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                  <BookOpen className="w-8 h-8 text-violet-600" />
                   Những gì bạn sẽ học
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   {course.learnings?.map((learning, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
+                      <CheckCircle className="w-6 h-6 text-green-500 shrink-0 mt-1" />
                       <span className="text-gray-700">{learning}</span>
                     </div>
                   ))}
@@ -290,7 +283,7 @@ export default function LessonPage() {
                         key={index}
                         className="flex items-start gap-3 text-gray-700"
                       >
-                        <div className="w-2 h-2 bg-violet-600 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-violet-600 rounded-full mt-2 shrink-0"></div>
                         {requirement}
                       </li>
                     ))}
@@ -299,7 +292,6 @@ export default function LessonPage() {
               )}
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                  <PlayCircle className="w-8 h-8 text-violet-600" />
                   Nội dung khóa học
                 </h2>
                 <div className="space-y-3">
@@ -370,7 +362,7 @@ export default function LessonPage() {
 
                                     {/* Icon Completed */}
                                     {!isLocked && isCompleted && (
-                                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                      <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                                     )}
 
                                     {/* Lesson Title */}
@@ -400,7 +392,7 @@ export default function LessonPage() {
                                         : "text-gray-500"
                                     }`}
                                   >
-                                    {formatTimeFull(lesson.duration)}
+                                    {formatDurationVi(lesson.duration)}
                                   </span>
                                 </div>
                               );
@@ -415,7 +407,7 @@ export default function LessonPage() {
 
               {/* Student Reviews */}
               {course.isPurchased && !hasReviewed && (
-                <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200 mb-8">
+                <div className="bg-linear-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200 mb-8">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">
                     Chia sẻ trải nghiệm của bạn
                   </h3>
@@ -470,7 +462,7 @@ export default function LessonPage() {
 
                     <button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+                      className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
                     >
                       Gửi đánh giá
                     </button>
@@ -478,26 +470,8 @@ export default function LessonPage() {
                 </div>
               )}
 
-              {course.isPurchased && hasReviewed && (
-                <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 shadow-lg mb-8">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                    <div>
-                      <p className="font-semibold text-green-800">
-                        Thank you for your review!
-                      </p>
-                      <p className="text-sm text-green-700">
-                        Your feedback helps other students make informed
-                        decisions.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                  <Star className="w-8 h-8 text-violet-600" />
                   Đánh giá của học viên
                 </h2>
                 <div className="space-y-6">
@@ -618,25 +592,14 @@ export default function LessonPage() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-violet-600 to-purple-600 h-2 rounded-full transition-all duration-500"
+                            className="bg-linear-to-r from-violet-600 to-purple-600 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${getCourseProgress()}%` }}
                           />
                         </div>
                       </div>
 
-                      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <CheckCircle className="w-6 h-6 text-green-600" />
-                          <span className="text-lg font-bold text-green-700">
-                            Khóa học đã mua
-                          </span>
-                        </div>
-                        <p className="text-sm text-green-600">
-                          Bạn đã có quyền truy cập đầy đủ vào tất cả các bài học
-                        </p>
-                      </div>
                       <button
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full bg-linear-to-r from-violet-600 to-violet-800 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-violet-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
                         onClick={goToLesson}
                         disabled={!startLesson}
                       >
@@ -651,8 +614,7 @@ export default function LessonPage() {
                         <div className="flex items-center gap-3 mb-4">
                           <div className="flex-1">
                             <div className="flex items-baseline gap-3">
-                              {/* GIÁ HIỂN THỊ */}
-                              <span className="text-5xl font-extrabold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                              <span className="text-5xl font-extrabold bg-linear-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                                 {course.discount &&
                                 course.discountExpiresAt &&
                                 new Date(course.discountExpiresAt) > new Date()
@@ -660,7 +622,6 @@ export default function LessonPage() {
                                   : course.originalPrice.toLocaleString() + "₫"}
                               </span>
 
-                              {/* Giá gốc gạch ngang – chỉ hiển thị khi đang giảm giá */}
                               {course.discount &&
                                 course.discountExpiresAt &&
                                 new Date(course.discountExpiresAt) >
@@ -675,7 +636,7 @@ export default function LessonPage() {
                       </div>
 
                       {/* Countdown */}
-                      <div className="h-[60px] flex items-center">
+                      <div className="h-15 flex items-center">
                         {course.discount &&
                         course.discountExpiresAt &&
                         new Date(course.discountExpiresAt) > new Date() ? (
@@ -733,7 +694,7 @@ export default function LessonPage() {
                   <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                     <span className="text-gray-600">Thời lượng</span>
                     <span className="font-semibold text-gray-800">
-                      {formatTimeFull(Number(course.duration))}
+                      {formatTimeRounded(Number(course.duration))}
                     </span>
                   </div>
                   {course.students != null && (
@@ -746,28 +707,15 @@ export default function LessonPage() {
                   )}
                   {course.rating != null && course.ratingCount != null && (
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">
-                        {course.ratingCount} Đánh giá
-                      </span>
+                      <span className="text-gray-600">Đánh giá</span>
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="font-semibold text-gray-800">
-                          {course.rating}
+                          {course.rating} ( {course.ratingCount})
                         </span>
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Instructor Info */}
-                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 border border-violet-200">
-                  <h3 className="font-bold text-gray-800 mb-2">Giảng viên</h3>
-                  <p className="text-gray-700 font-semibold">
-                    {course.instructor}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Expert instructor with years of industry experience
-                  </p>
                 </div>
               </div>
             </div>

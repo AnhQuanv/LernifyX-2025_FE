@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { formatTimeRounded, getCartTotal, roundVND } from "@/lib/utils";
+import DiscountCountdown from "@/components/ui/discountCountDown";
 
 export default function WishlistPage() {
   const router = useRouter();
@@ -82,10 +83,7 @@ export default function WishlistPage() {
                 >
                   <div className="flex flex-col sm:flex-row gap-6 p-6">
                     {/* Course Image */}
-                    <Link
-                      href={`/courses/${course.id}`}
-                      className="shrink-0"
-                    >
+                    <Link href={`/courses/${course.id}`} className="shrink-0">
                       <div className="relative w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-gray-200 group-hover:shadow-lg transition-all duration-300">
                         <Image
                           src={
@@ -148,22 +146,39 @@ export default function WishlistPage() {
                             {course.category}
                           </span>
                         </div>
-
-                        <p className="text-gray-600 text-sm line-clamp-2">
-                          {course.description}
-                        </p>
                       </div>
 
                       {/* Price and Actions */}
+                      <div className="h-5">
+                        {course.discount != null && course.discountExpiresAt ? (
+                          <DiscountCountdown
+                            discount={course.discount}
+                            discountExpiresAt={course.discountExpiresAt}
+                          />
+                        ) : (
+                          <div className="h-full"></div>
+                        )}
+                      </div>
                       <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl font-bold text-violet-600">
-                            {course.price.toLocaleString()}₫
-                          </span>
-                          {course.originalPrice && (
-                            <span className="text-sm text-gray-400 line-through">
-                              {course.originalPrice.toLocaleString()}₫
-                            </span>
+                          {course.originalPrice &&
+                          course.discountExpiresAt &&
+                          new Date(course.discountExpiresAt) > new Date() ? (
+                            <>
+                              <span className="text-2xl font-bold text-violet-600">
+                                {(course.price ?? 0).toLocaleString()}₫
+                              </span>
+
+                              <span className="text-gray-400 line-through">
+                                {course.originalPrice.toLocaleString()}₫
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-2xl font-bold text-violet-600">
+                                {course.originalPrice?.toLocaleString()}₫
+                              </span>
+                            </>
                           )}
                         </div>
 
@@ -258,13 +273,6 @@ export default function WishlistPage() {
                 >
                   Tiếp tục mua sắm
                 </button>
-
-                <div className="mt-6 p-4 bg-violet-50 rounded-lg border border-violet-200">
-                  <p className="text-xs text-violet-700 font-medium">
-                    💡 Lưu ý: Các khóa học trong danh sách yêu thích được lưu
-                    trong 30 ngày. Hãy thêm chúng vào giỏ trước khi hết hạn!
-                  </p>
-                </div>
               </div>
             </div>
           </div>

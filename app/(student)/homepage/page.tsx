@@ -128,14 +128,9 @@ const Homepage = () => {
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
           <div className="max-w-4xl mx-auto space-y-12">
             <div className="space-y-6">
-              <h1 className="text-6xl md:text-8xl font-extrabold leading-tight tracking-tight">
-                <span className="block mb-2">Học tập không</span>
-                <span className="relative inline-block">
-                  <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-linear">
-                    giới hạn
-                  </span>
-                </span>
-              </h1>
+              <h2 className="text-6xl md:text-6xl font-extrabold leading-tight tracking-tight">
+                <span className="block mb-2">Học tập không giới hạn</span>
+              </h2>
             </div>
 
             {/* Search */}

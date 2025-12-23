@@ -8,7 +8,14 @@ import {
 } from "@/types/course/course";
 import * as uuid from "uuid";
 import { io, Socket } from "socket.io-client";
-import axios from "axios";
+import * as UpChunk from "@mux/upchunk";
+
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const socket: Socket = io(SOCKET_URL, {
+  reconnection: true,
+  reconnectionAttempts: 5,
+  autoConnect: false,
+});
 
 export const handleGetHomeCourses = async () => {
   const res = await axiosClient.get("course/home");
@@ -70,76 +77,141 @@ export const handleUpLoadImage = async (
   return res.data.data;
 };
 
+// Direct Upload URL từ Mux Backend, URL này có một thời hạn nhất định (mặc định thường là 24 giờ).
 export const handleUpLoadVideo = (
   file: File,
   lessonId: string,
-  onProgress: ProgressCallback
+  onProgress: (percent: number, stats?: { speed: string; eta: string }) => void,
+  existingUrl?: string
 ) => {
   return new Promise(async (resolve, reject) => {
-    const SOCKET_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-    const socket: Socket = io(SOCKET_URL, {});
-    const uuidv4 = uuid.v4;
-    const taskId = uuidv4();
-    console.log("Task ID được tạo:", taskId, typeof taskId);
+    // 1. Khôi phục taskId cũ hoặc tạo mới
+    let taskId = localStorage.getItem(`upload_taskid_${lessonId}`);
+    if (!taskId) {
+      taskId = uuid.v4();
+    }
+
+    socket.connect();
+    const startTime = Date.now();
+    let lastTime = Date.now();
+    let lastBytes = 0;
+    let smoothedSpeed = 0; // Tốc độ đã được làm mượt (Bytes/s)
+    let lastUiUpdate = 0; // Kiểm soát tần suất cập nhật UI
+    const smoothingFactor = 0.05;
+    const cleanup = () => {
+      socket.off("upload_complete");
+      socket.off("upload_error");
+      socket.off("connect");
+      socket.disconnect();
+    };
+
     socket.on("connect", () => {
       socket.emit("register_upload", taskId);
     });
 
-    const cleanupSocket = () => {
-      socket.off("upload_complete");
-      socket.off("upload_error");
-    };
-
-    // Lắng nghe sự kiện WebSocket (giữ nguyên logic)
-    socket.on("upload_complete", (data) => {
+    // Lắng nghe tín hiệu hoàn thành từ Backend qua Socket
+    socket.once("upload_complete", (data) => {
       if (data.taskId === taskId) {
-        cleanupSocket();
         onProgress(100);
-        console.log("✅ Frontend đã nhận sự kiện hoàn thành:", data);
+        // Dọn dẹp bộ nhớ khi thực sự thành công
+        localStorage.removeItem(`upload_url_${lessonId}`);
+        localStorage.removeItem(`upload_taskid_${lessonId}`);
+        localStorage.removeItem(`upload_filename_${lessonId}`);
+        localStorage.removeItem(`upload_progress_${lessonId}`);
         resolve(data.data);
+        cleanup();
       }
     });
 
-    socket.on("upload_error", (data) => {
+    socket.once("upload_error", (data) => {
       if (data.taskId === taskId) {
-        cleanupSocket();
-        console.error("❌ Lỗi WebSocket:", data.message);
-        reject(new Error(data.message || "Lỗi tải lên từ Server."));
+        reject(new Error(data.message));
+        cleanup();
       }
     });
 
     try {
-      const uploadUrlResponse = await axiosClient.post("mux/upload-url", {
-        taskId,
-        lessonId,
-      });
-      const muxUploadUrl = uploadUrlResponse.data.data.uploadUrl;
-      console.log("🌐 Mux Upload URL nhận được:", muxUploadUrl);
-      const formData = new FormData();
-      formData.append("file", file); // 🚨 Chỉ cần file, không cần api_key, timestamp, signature, eager, etc.
-      await axios.put(muxUploadUrl, file, {
-        headers: {
-          "Content-Type": file.type,
-          Authorization: undefined,
-        },
-        withCredentials: false,
-        onUploadProgress: (progressEvent) => {
-          if (progressEvent.lengthComputable) {
-            const percent = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total!
-            );
-            onProgress(percent);
-          }
-        },
+      let muxUploadUrl = existingUrl;
+      if (!muxUploadUrl) {
+        const res = await axiosClient.post("mux/upload-url", {
+          taskId,
+          lessonId,
+        });
+        muxUploadUrl = res.data.data.uploadUrl;
+
+        // Lưu thông tin để khôi phục khi F5
+        localStorage.setItem(`upload_taskid_${lessonId}`, taskId!);
+        localStorage.setItem(`upload_url_${lessonId}`, muxUploadUrl!);
+        localStorage.setItem(`upload_filename_${lessonId}`, file.name);
+      }
+
+      const upload = UpChunk.createUpload({
+        endpoint: muxUploadUrl!,
+        file: file,
+        chunkSize: 30720,
+        attempts: 10,
       });
 
-      console.log(
-        "File uploaded successfully to Mux, waiting for asset processing webhook..."
-      );
+      upload.on("progress", (ev) => {
+        const percent = ev.detail;
+        const now = Date.now();
+        const bytesUploaded = (file.size * percent) / 100;
+
+        // Tính toán tốc độ tức thời
+        const timeDiff = (now - lastTime) / 1000; // giây
+        const bytesDiff = bytesUploaded - lastBytes;
+
+        if (timeDiff > 0 && bytesDiff > 0) {
+          const instantSpeed = bytesDiff / timeDiff;
+
+          // EMA: Smoothed = (Instant * Alpha) + (PreviousSmoothed * (1 - Alpha))
+          if (smoothedSpeed === 0) smoothedSpeed = instantSpeed;
+          else
+            smoothedSpeed =
+              instantSpeed * smoothingFactor +
+              smoothedSpeed * (1 - smoothingFactor);
+
+          lastTime = now;
+          lastBytes = bytesUploaded;
+        }
+
+        if (now - lastUiUpdate > 5000 || percent === 100 || percent === 0) {
+          lastUiUpdate = now;
+
+          const bytesRemaining = file.size - bytesUploaded;
+          const secondsRemaining =
+            smoothedSpeed > 0 ? Math.round(bytesRemaining / smoothedSpeed) : 0;
+
+          const speedMbps = ((smoothedSpeed * 8) / (1024 * 1024)).toFixed(2);
+
+          const minutes = Math.floor(secondsRemaining / 60);
+          const seconds = secondsRemaining % 60;
+          const etaLabel =
+            minutes > 0 ? `${minutes}p ${seconds}s` : `${seconds}s`;
+
+          onProgress(Math.round(percent), { speed: speedMbps, eta: etaLabel });
+          localStorage.setItem(
+            `upload_progress_${lessonId}`,
+            Math.round(percent).toString()
+          );
+        }
+      });
+
+      upload.on("success", () => {
+        console.log("✅ Byte đã tải lên Mux. Đang đợi Webhook xử lý Asset...");
+      });
+
+      upload.on("error", (err) => {
+        if (err.detail.includes("404") || err.detail.includes("410")) {
+          localStorage.removeItem(`upload_url_${lessonId}`);
+          localStorage.removeItem(`upload_taskid_${lessonId}`);
+        }
+        reject(new Error(err.detail));
+        cleanup();
+      });
     } catch (error) {
-      cleanupSocket();
       reject(error);
+      cleanup();
     }
   });
 };

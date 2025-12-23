@@ -12,10 +12,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Trash2, Eye, EyeOff, Check } from "lucide-react";
+import { ArrowLeft, Trash2, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleChangePassword } from "@/services/authService";
-import axios from "axios";
+import toast from "react-hot-toast";
 
 const passwordSchema = z
   .object({
@@ -41,7 +41,6 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 export default function AccountSettingsPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showPasswords, setShowPasswords] = useState({
     current: false,
@@ -61,29 +60,16 @@ export default function AccountSettingsPage() {
   const onPasswordSubmit = async (data: PasswordFormValues) => {
     setIsLoading(true);
     setErrorMessage("");
-    setSuccessMessage("");
     try {
-      const res = await handleChangePassword({
+      await handleChangePassword({
         oldPassword: data.currentPassword,
         newPassword: data.newPassword,
       });
 
-      setSuccessMessage(res.message || "Đổi mật khẩu thành công!");
+      toast.success("Đổi mật khẩu thành công!");
       form.reset();
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (error: unknown) {
-      console.error("Lỗi khi cập nhật mật khẩu:", error);
-
-      if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.message || "Đã có lỗi xảy ra, vui lòng thử lại";
-        setErrorMessage(message);
-      } else if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Đã có lỗi xảy ra, vui lòng thử lại");
-      }
-      setTimeout(() => setErrorMessage(""), 3000);
+    } catch {
+      toast.error("Đổi mật khẩu thất bại. Vui lòng thử lại!");
     } finally {
       setIsLoading(false);
     }
@@ -112,18 +98,6 @@ export default function AccountSettingsPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="max-w-2xl mx-auto space-y-8">
-          {/* Success Message */}
-          {successMessage && (
-            <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                <Check className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-semibold text-green-900">{successMessage}</p>
-              </div>
-            </div>
-          )}
-
           {errorMessage && (
             <div className="bg-linear-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
               <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shrink-0">

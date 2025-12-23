@@ -5,9 +5,7 @@ import { CoursePerformance } from "@/components/teacher/course-performance";
 import { StatCard } from "@/components/teacher/stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RootState } from "@/redux/store";
 import Link from "next/link";
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { handleGetTeacherCoursesRevenue } from "@/services/courseService";
 import { handelGetTeacherPayments } from "@/services/paymentService";
@@ -25,14 +23,12 @@ export interface CourseRevenueDetail {
 }
 
 export default function TeacherDashboard() {
-  const { user } = useSelector((state: RootState) => state.auth);
   const [revenueData, setRevenueData] = useState<RevenueDataItem[]>([]);
   const [courseData, setCourseData] = useState<CourseRevenueDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCourse, setTotalCourse] = useState<number>(0);
   const [student, setStudent] = useState<number>(0);
   const [totalRevenue, setTotalRevenue] = useState<number>(0);
-  const [revenue, setRevenue] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,12 +36,10 @@ export default function TeacherDashboard() {
         const res = await handleGetTeacherCoursesRevenue();
         let revenueDetails: RevenueDataItem[] = [];
         const totalPublishedCourses = res.totalPublishedCourses || 0;
-        let hasRevenueData = false;
 
         if (totalPublishedCourses > 0) {
           const revenueResponse = await handelGetTeacherPayments();
           revenueDetails = revenueResponse;
-          hasRevenueData = true;
         }
 
         setRevenueData(revenueDetails);
@@ -53,21 +47,14 @@ export default function TeacherDashboard() {
         setTotalCourse(totalPublishedCourses);
         setStudent(res.totalStudents);
         setTotalRevenue(res.totalNetRevenue);
-        setRevenue(hasRevenueData);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu dashboard:", error);
-        setRevenue(false);
       } finally {
         setIsLoading(false);
       }
     };
-
-    if (!user?.isNewTeacher) {
-      fetchData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [user?.isNewTeacher]);
+    fetchData();
+  }, []);
 
   if (isLoading) {
     return (
@@ -83,7 +70,7 @@ export default function TeacherDashboard() {
     );
   }
 
-  if (user?.isNewTeacher || !revenue) {
+  if (!isLoading && revenueData.length === 0 && courseData.length === 0) {
     return (
       <main className="flex-1 overflow-auto bg-background">
         <div className="p-8 space-y-8">

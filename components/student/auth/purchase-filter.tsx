@@ -43,7 +43,6 @@ export default function PurchaseFilter({
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
       <h3 className="flex items-center gap-2 text-lg font-bold text-gray-800 mb-4">
-        <Filter className="w-5 h-5 text-violet-600" />
         Lọc Trạng thái
       </h3>
 

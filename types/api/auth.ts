@@ -10,7 +10,6 @@ export interface IUser {
   address: string;
   avatar?: string;
   hasPreferences?: boolean;
-  isNewTeacher?: boolean;
   bio?: string;
   description?: string;
 }

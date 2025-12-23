@@ -30,6 +30,7 @@ export const handleDeleteNoteToLesson = async (noteId: string) => {
 };
 
 export const handleCreateLessonProgress = async (lessonId: string) => {
+  console.log("lessonId: ", lessonId);
   const res = await axiosClient.post(`lesson-progress/create`, {
     lessonId,
   });

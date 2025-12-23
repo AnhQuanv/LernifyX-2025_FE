@@ -37,7 +37,7 @@ export const CartPopover = () => {
     return (
       <div className="w-73 p-6 text-center">
         <ShoppingCart className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-        <p className="text-gray-500 font-medium">Your cart is empty</p>
+        <p className="text-gray-500 font-medium">Giỏ hàng trống</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export const CartPopover = () => {
             )}
 
             <div className="flex gap-3 items-start">
-              <div className="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+              <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-gray-100">
                 <Image
                   src={
                     course.image ||
@@ -82,23 +82,28 @@ export const CartPopover = () => {
                   {course.instructor}
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-base font-bold text-gray-900">
-                    {course.price.toLocaleString()}₫
-                  </span>
                   {course.discountExpiresAt &&
-                    course.originalPrice &&
-                    new Date(course.discountExpiresAt).getTime() >
-                      Date.now() && (
+                  course.originalPrice &&
+                  new Date(course.discountExpiresAt).getTime() > Date.now() ? (
+                    <>
+                      <span className="text-base font-bold text-gray-900">
+                        {(course.price ?? 0).toLocaleString()}₫
+                      </span>
                       <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
                         {course.originalPrice.toLocaleString()}₫
                       </span>
-                    )}
+                    </>
+                  ) : (
+                    <span className="text-base font-bold text-gray-900">
+                      {(course.originalPrice ?? 0).toLocaleString()}₫
+                    </span>
+                  )}
                 </div>
               </div>
 
               <button
                 onClick={() => handleRemoveFromCart(course.id)}
-                className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex-shrink-0 pt-0.5 cursor-pointer"
+                className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors shrink-0 pt-0.5 cursor-pointer"
                 aria-label="Remove from cart"
               >
                 <Trash2 className="w-4 h-4" />

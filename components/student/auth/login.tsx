@@ -88,7 +88,7 @@ export function LoginForm() {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-white to-indigo-200 px-4 py-10">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-100 via-white to-indigo-200 px-4 py-10">
         <div className="bg-white shadow-2xl rounded-3xl w-full max-w-xl p-10">
           <h1 className="text-3xl font-bold text-center text-indigo-600 mb-2">
             Chào mừng

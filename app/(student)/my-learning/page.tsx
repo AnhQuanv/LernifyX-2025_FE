@@ -152,9 +152,7 @@ export default function MyLearningPage() {
           // Empty State
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
-              <div className="w-20 h-20 bg-linear-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <BookOpen className="w-10 h-10 text-violet-600" />
-              </div>
+              <div className="w-20 h-20 bg-linear-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6"></div>
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
                 Chưa có khóa học
               </h2>
@@ -175,17 +173,7 @@ export default function MyLearningPage() {
             </div>
           </div>
         ) : (
-          // Courses Grid
           <div>
-            <div className="mb-8 flex justify-between items-center">
-              <p className="text-gray-600 text-lg">
-                Hiển thị {courses.length} khóa học
-              </p>
-              <p className="text-gray-600 text-sm">
-                Trang {pagination.page} / {pagination.totalPages}
-              </p>
-            </div>
-
             {/* Courses Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {courses.map((course: Course) => (
@@ -242,7 +230,7 @@ export default function MyLearningPage() {
                           )}
                       </div>
 
-                      <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors line-clamp-2 mb-2 h-[52px]">
+                      <h3 className="font-bold text-gray-800 text-lg group-hover:text-violet-600 transition-colors line-clamp-2 mb-2 h-13">
                         {course.title}
                       </h3>
 

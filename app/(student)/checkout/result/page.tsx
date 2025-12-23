@@ -4,12 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import {
-  CheckCircle,
-  XCircle,
-  ArrowRight,
-  Mail,
-  Home,
-  Package,
   RefreshCw,
   HelpCircle,
   AlertCircle,
@@ -60,21 +54,12 @@ export default function PaymentResultPage() {
   }, [dispatch, paymentId, isSuccess]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-10 pb-20">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 pt-10 pb-20">
       <div className="container mx-auto px-4 md:px-6 max-w-2xl">
         {isSuccess ? (
           <>
             {/* SUCCESS STATE */}
             <div className="text-center mb-12">
-              <div className="flex justify-center mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-                  <div className="relative bg-gradient-to-br from-green-400 to-emerald-500 rounded-full p-6 shadow-2xl">
-                    <CheckCircle className="w-20 h-20 text-white animate-bounce" />
-                  </div>
-                </div>
-              </div>
-
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
                 Thanh toán thành công!
               </h1>
@@ -111,7 +96,6 @@ export default function PaymentResultPage() {
               {/* Payment Details */}
               <div className="space-y-4 mb-8 pb-8 border-b border-gray-200">
                 <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
-                  <Package className="w-5 h-5 text-green-600" />
                   Chi tiết đơn hàng
                 </h3>
                 <div className="space-y-3 pl-7">
@@ -154,25 +138,11 @@ export default function PaymentResultPage() {
                       <span className="text-gray-700 line-clamp-1">
                         {course.course.title}
                       </span>
-                      <span className="font-semibold text-green-600 ml-2 flex-shrink-0">
+                      <span className="font-semibold text-green-600 ml-2 shrink-0">
                         {Math.round(course.price).toLocaleString()}₫
                       </span>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Email Notification */}
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4 flex items-start gap-3 mb-8">
-                <Mail className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-900">
-                    Email xác nhận đã được gửi
-                  </p>
-                  <p className="text-sm text-blue-700">
-                    Chúng tôi đã gửi xác nhận đơn hàng đến{" "}
-                    <span className="font-semibold">{user?.email}</span>
-                  </p>
                 </div>
               </div>
 
@@ -191,9 +161,8 @@ export default function PaymentResultPage() {
             <div className="space-y-3">
               <button
                 onClick={() => router.push("/my-learning")}
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Package className="w-5 h-5" />
                 Xem khóa học của tôi
               </button>
 
@@ -201,61 +170,14 @@ export default function PaymentResultPage() {
                 onClick={() => router.push("/homepage")}
                 className="w-full border-2 border-violet-600 text-violet-600 px-6 py-3 rounded-xl font-semibold hover:bg-violet-50 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Home className="w-5 h-5" />
                 Quay lại trang chủ
               </button>
-            </div>
-
-            {/* Additional Info */}
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                <div className="w-12 h-12 bg-violet-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Package className="w-6 h-6 text-violet-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">
-                  Truy cập Ngay
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Bắt đầu học ngay lập tức
-                </p>
-              </div>
-              <div className="bg-white rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">
-                  Truy cập Suốt đời
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Học mà không giới hạn thời gian
-                </p>
-              </div>
-              <div className="bg-white rounded-xl p-4 text-center border border-gray-100 shadow-sm">
-                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <ArrowRight className="w-6 h-6 text-blue-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">
-                  Hỗ trợ 30 ngày
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  Hoàn tiền nếu không hài lòng
-                </p>
-              </div>
             </div>
           </>
         ) : (
           <>
             {/* FAILURE STATE */}
             <div className="text-center mb-12">
-              <div className="flex justify-center mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-pink-500 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-                  <div className="relative bg-gradient-to-br from-red-400 to-pink-500 rounded-full p-6 shadow-2xl">
-                    <XCircle className="w-20 h-20 text-white" />
-                  </div>
-                </div>
-              </div>
-
               <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
                 Thanh toán thất bại
               </h1>
@@ -271,7 +193,7 @@ export default function PaymentResultPage() {
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
               {/* Error Alert */}
               <div className="bg-red-50 rounded-xl border border-red-200 p-4 mb-8 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-red-900">
                     Giao dịch không thành công
@@ -294,7 +216,7 @@ export default function PaymentResultPage() {
                 </h3>
                 <div className="space-y-3 pl-7">
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-bold text-orange-600">
                         1
                       </span>
@@ -310,7 +232,7 @@ export default function PaymentResultPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-bold text-orange-600">
                         2
                       </span>
@@ -325,7 +247,7 @@ export default function PaymentResultPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-bold text-orange-600">
                         3
                       </span>
@@ -340,7 +262,7 @@ export default function PaymentResultPage() {
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-bold text-orange-600">
                         4
                       </span>
@@ -373,7 +295,7 @@ export default function PaymentResultPage() {
             <div className="space-y-3">
               <button
                 onClick={handleRetryPayment}
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-5 h-5" />
                 Thử thanh toán lại
