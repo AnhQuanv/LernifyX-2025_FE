@@ -220,7 +220,7 @@ export function VideoUploader({
                   </p>
                   {uploadStats && progress < 100 && (
                     <div className="flex flex-col text-[10px] text-slate-500 font-medium italic animate-in fade-in duration-500">
-                      <span>Tốc độ: {uploadStats.speed} Mbps</span>
+                      {/* <span>Tốc độ: {uploadStats.speed} Mbps</span> */}
                       <span>Còn lại khoảng: {uploadStats.eta}</span>
                     </div>
                   )}
@@ -261,7 +261,6 @@ export function VideoUploader({
                 </div>
               </div>
             ) : (
-              /* Giao diện mặc định */
               <div className="flex flex-col items-center space-y-4 text-slate-400 group-hover:text-primary transition-colors">
                 <div className="p-5 bg-slate-100 rounded-full group-hover:bg-primary/10 transition-colors">
                   <Upload className="h-10 w-10" />
@@ -277,7 +276,6 @@ export function VideoUploader({
               </div>
             )}
 
-            {/* Thanh Progress Bar dưới đáy */}
             {uploading && (
               <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-100 rounded-b-xl overflow-hidden">
                 <div

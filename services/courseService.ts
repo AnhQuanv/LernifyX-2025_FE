@@ -10,7 +10,9 @@ import * as uuid from "uuid";
 import { io, Socket } from "socket.io-client";
 import * as UpChunk from "@mux/upchunk";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const SOCKET_URL =
+  `${process.env.NEXT_PUBLIC_API_URL}/v1` || "http://localhost:10000/v1";
+
 const socket: Socket = io(SOCKET_URL, {
   reconnection: true,
   reconnectionAttempts: 5,
@@ -92,11 +94,10 @@ export const handleUpLoadVideo = (
     }
 
     socket.connect();
-    const startTime = Date.now();
     let lastTime = Date.now();
     let lastBytes = 0;
-    let smoothedSpeed = 0; // Tốc độ đã được làm mượt (Bytes/s)
-    let lastUiUpdate = 0; // Kiểm soát tần suất cập nhật UI
+    let smoothedSpeed = 0;
+    let lastUiUpdate = 0;
     const smoothingFactor = 0.05;
     const cleanup = () => {
       socket.off("upload_complete");
@@ -148,8 +149,9 @@ export const handleUpLoadVideo = (
       const upload = UpChunk.createUpload({
         endpoint: muxUploadUrl!,
         file: file,
-        chunkSize: 30720,
-        attempts: 10,
+        chunkSize: 5120,
+        attempts: 5,
+        dynamicChunkSize: true,
       });
 
       upload.on("progress", (ev) => {
@@ -175,7 +177,7 @@ export const handleUpLoadVideo = (
           lastBytes = bytesUploaded;
         }
 
-        if (now - lastUiUpdate > 5000 || percent === 100 || percent === 0) {
+        if (now - lastUiUpdate > 1000 || percent === 100 || percent === 0) {
           lastUiUpdate = now;
 
           const bytesRemaining = file.size - bytesUploaded;

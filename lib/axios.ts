@@ -14,7 +14,7 @@ export const setTokenGetter = (fn: () => string | null) => {
 
 const axiosClient = axios.create({
   baseURL: (
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/v1"
+    `${process.env.NEXT_PUBLIC_API_URL}/v1` || "http://localhost:10000/v1"
   ).replace(/\/$/, ""),
   withCredentials: false,
 });
