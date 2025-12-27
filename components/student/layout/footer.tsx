@@ -60,11 +60,11 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/courses", label: "Tất cả khóa học" },
-                { href: "/teachers", label: "Giáo viên của chúng tôi" },
-                { href: "/pricing", label: "Bảng giá" },
-                { href: "/blog", label: "Blog" },
-                { href: "/contact", label: "Liên hệ" },
+                { href: "", label: "Tất cả khóa học" },
+                { href: "", label: "Giáo viên của chúng tôi" },
+                { href: "", label: "Bảng giá" },
+                { href: "", label: "Blog" },
+                { href: "", label: "Liên hệ" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -86,14 +86,14 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/category/web-development", label: "Phát triển web" },
-                { href: "/category/data-science", label: "Khoa học dữ liệu" },
+                { href: "", label: "Phát triển web" },
+                { href: "", label: "Khoa học dữ liệu" },
                 {
-                  href: "/category/mobile-development",
+                  href: "",
                   label: "Phát triển di động",
                 },
-                { href: "/category/design", label: "Thiết kế" },
-                { href: "/category/business", label: "Kinh doanh" },
+                { href: "", label: "Thiết kế" },
+                { href: "", label: "Kinh doanh" },
               ].map((category) => (
                 <li key={category.href}>
                   <Link
