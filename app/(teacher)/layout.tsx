@@ -14,7 +14,7 @@ export default function LayoutTeacher({
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden ">
         <TopNav />
-        <main className="flex-1 overflow-auto bg-gradient-to-br bg-background">
+        <main className="flex-1 overflow-auto bg-linear-to-br bg-background">
           {children}
         </main>
       </div>

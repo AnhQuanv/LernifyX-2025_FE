@@ -10,15 +10,16 @@ import * as uuid from "uuid";
 import { io, Socket } from "socket.io-client";
 import * as UpChunk from "@mux/upchunk";
 
-const SOCKET_URL =
-  `${process.env.NEXT_PUBLIC_API_URL}/v1` || "http://localhost:10000/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+const SOCKET_URL = BASE_URL ? `${BASE_URL}/v1` : "http://localhost:10000/v1";
 
 const socket: Socket = io(SOCKET_URL, {
   reconnection: true,
   reconnectionAttempts: 5,
   autoConnect: false,
+  transports: ["websocket", "polling"],
 });
-
 export const handleGetHomeCourses = async () => {
   const res = await axiosClient.get("course/home");
   return res.data.data;
@@ -149,9 +150,9 @@ export const handleUpLoadVideo = (
       const upload = UpChunk.createUpload({
         endpoint: muxUploadUrl!,
         file: file,
-        chunkSize: 5120,
+        chunkSize: 51200,
         attempts: 5,
-        dynamicChunkSize: true,
+        dynamicChunkSize: false,
       });
 
       upload.on("progress", (ev) => {

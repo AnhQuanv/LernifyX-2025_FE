@@ -3,7 +3,6 @@
 import { getInitials } from "@/lib/utils";
 import { RootState } from "@/redux/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search } from "lucide-react";
 import { useSelector } from "react-redux";
 
 export function TopNav() {
@@ -11,17 +10,7 @@ export function TopNav() {
 
   return (
     <div className="bg-card border-b border-border h-22 flex items-center justify-between px-8">
-      {/* Search */}
-      <div className="flex-1 max-w-lg">
-        <div className="flex items-center gap-3 bg-input rounded-xl px-5 py-3">
-          <Search size={20} className="text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Tìm kiếm khóa học hoặc học sinh..."
-            className="bg-transparent outline-none text-foreground placeholder-muted-foreground flex-1 text-base"
-          />
-        </div>
-      </div>
+      <div className="flex-1 max-w-lg"></div>
 
       {/* User Info */}
       <div className="flex items-center gap-4 ml-8">
@@ -30,7 +19,7 @@ export function TopNav() {
             src={user?.avatar}
             alt={user?.fullName || "User avatar"}
           />
-          <AvatarFallback className="bg-gradient-to-br from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl">
+          <AvatarFallback className="bg-linear-to-br from-violet-600 to-purple-600 text-white font-bold text-lg rounded-2xl">
             {getInitials(user?.fullName || "Võ Anh Quân")}
           </AvatarFallback>
         </Avatar>

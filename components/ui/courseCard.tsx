@@ -23,10 +23,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
       <a href={`/courses/${course.id}`} className="block">
         <div className="relative h-52 overflow-hidden bg-gray-200 cursor-pointer">
           <Image
-            src={
-              course.image ||
-              "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-            }
+            src={course.image}
             alt={course.title}
             width={400}
             height={250}

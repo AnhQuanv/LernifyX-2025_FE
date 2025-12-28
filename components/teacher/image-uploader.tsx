@@ -26,7 +26,7 @@ export function ImageUploader({
   onUploadComplete,
   title = "Upload Hình Ảnh",
   description = "Chọn hình ảnh đại diện cho khóa học (JPG, PNG)",
-  currentImageUrl, // ✅ Nhận prop
+  currentImageUrl,
 }: ImageUploaderProps) {
   const [uploadedImage, setUploadedImage] = useState<{
     file: File;
@@ -147,7 +147,9 @@ export function ImageUploader({
                 src={displayImageUrl}
                 alt="Preview"
                 fill
-                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                priority
+                sizes="(max-width: 768px) 100vw, 400px"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                 <Button variant="secondary" size="sm" onClick={handleRemove}>

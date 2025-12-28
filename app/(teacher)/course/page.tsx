@@ -74,6 +74,8 @@ const CourseCard = ({
             src={course.image}
             alt={course.title}
             fill
+            priority
+            sizes="(max-width: 768px) 100vw, 400px"
             className="object-cover"
           />
         ) : (
@@ -141,10 +143,10 @@ const CourseCard = ({
       <CardContent className="p-4 pt-4 flex flex-col flex-1 justify-between space-y-4">
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm border-t pt-4">
           <StatBox label="Học sinh" value={course.students ?? 0} />
-          <StatBox label="Danh mục" value={course.category ?? "N/A"} truncate />
+          <StatBox label="Danh mục" value={course.category ?? ""} truncate />
           <StatBox
             label="Đánh giá"
-            value={course.rating ? `${course.rating}` : "N/A"}
+            value={course.rating ? `${course.rating}` : ""}
           />
           <StatBox
             label="Thời lượng"
