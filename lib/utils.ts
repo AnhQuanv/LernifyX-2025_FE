@@ -109,3 +109,10 @@ export function formatDurationVi(seconds: number): string {
 
   return parts.join(" ");
 }
+
+export const extractPlaybackId = (url: string | null | undefined) => {
+  if (!url) return null;
+  const parts = url.split("/");
+  const lastPart = parts[parts.length - 1];
+  return lastPart ? lastPart.replace(".m3u8", "") : null;
+};

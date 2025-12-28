@@ -198,6 +198,7 @@ const CourseCard = ({
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StatBox = ({ label, value, truncate }: any) => (
   <div className="min-w-0">
     <p className="text-[11px] text-muted-foreground uppercase font-medium">
@@ -437,6 +438,7 @@ export default function CoursesPage() {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SummaryCard({ label, value, color = "text-foreground" }: any) {
   return (
     <Card className="p-4">

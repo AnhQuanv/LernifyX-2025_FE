@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Upload,
   Play,
@@ -16,8 +16,9 @@ import {
 } from "@/services/courseService";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { formatDurationVi } from "@/lib/utils";
+import { extractPlaybackId, formatDurationVi } from "@/lib/utils";
 import { VideoAsset } from "@/types/course/course";
+import MuxPlayer from "@mux/mux-player-react";
 
 interface VideoUploaderProps {
   lessonId: string;
@@ -36,16 +37,19 @@ export function VideoUploader({
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [savedFileName, setSavedFileName] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(
-    currentVideoData?.originalUrl || null
-  );
   const [uploadStats, setUploadStats] = useState<{
     speed: string;
     eta: string;
   } | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Khôi phục trạng thái khi trang web load lại (F5)
+  // Sử dụng useMemo để tính toán playbackId từ currentVideoData
+  const playbackId = useMemo(
+    () => extractPlaybackId(currentVideoData?.originalUrl),
+    [currentVideoData?.originalUrl]
+  );
+
   useEffect(() => {
     const url = localStorage.getItem(`upload_url_${lessonId}`);
     const fileName = localStorage.getItem(`upload_filename_${lessonId}`);
@@ -56,10 +60,8 @@ export function VideoUploader({
       setSavedFileName(fileName);
       if (savedProgress) setProgress(parseInt(savedProgress));
     }
-    setVideoUrl(currentVideoData?.originalUrl || null);
   }, [lessonId, currentVideoData]);
 
-  // Hàm dọn dẹp localStorage theo bài học
   const clearUploadStorage = () => {
     localStorage.removeItem(`upload_url_${lessonId}`);
     localStorage.removeItem(`upload_taskid_${lessonId}`);
@@ -67,7 +69,6 @@ export function VideoUploader({
     localStorage.removeItem(`upload_progress_${lessonId}`);
   };
 
-  // 2. Xử lý khi nhấn nút Hủy bỏ tiến trình cũ
   const handleCancelProgress = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -82,21 +83,19 @@ export function VideoUploader({
     }
   };
 
-  // 3. Xử lý Upload chính
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // KIỂM TRA: Nếu đang dừng dở mà chọn file khác file cũ
     if (isPaused && savedFileName && file.name !== savedFileName) {
       const confirmNew = window.confirm(
-        `File đang chọn (${file.name}) khác với file đang tải dở (${savedFileName}). Tải file mới từ đầu?`
+        `File đang chọn khác với file cũ. Tải mới từ đầu?`
       );
       if (!confirmNew) {
         e.target.value = "";
         return;
       }
-      clearUploadStorage(); // Xóa sạch dấu vết file cũ trước khi bắt đầu file mới
+      clearUploadStorage();
       setProgress(0);
     }
 
@@ -119,9 +118,8 @@ export function VideoUploader({
         savedUrl || undefined
       );
 
-      const videoData = response as VideoAsset;
-      setVideoUrl(videoData.originalUrl);
-      onUploadComplete(videoData);
+      // Backend trả về VideoAsset chứa originalUrl
+      onUploadComplete(response as VideoAsset);
       toast.success("Tải video thành công!", { id: tid });
     } catch {
       setIsPaused(true);
@@ -136,60 +134,65 @@ export function VideoUploader({
 
   const handleDelete = async () => {
     if (!window.confirm("Bạn muốn xóa video bài học này?")) return;
-
     try {
       if (currentVideoData?.id) {
         await handleDeleteVideoId(currentVideoData.id);
       }
       clearUploadStorage();
-      setVideoUrl(null);
-      setProgress(0);
       setIsPaused(false);
-      setSavedFileName(null);
+      setProgress(0);
       onDelete();
-      toast.success("Đã xóa video bài học");
-    } catch (e) {
-      console.error("Delete error:", e);
-      toast.error("Lỗi khi xóa video hoặc dọn dẹp tiến trình");
+      toast.success("Đã xóa video");
+    } catch {
+      toast.error("Lỗi khi xóa video");
     }
   };
 
   return (
     <div className="w-full space-y-4">
-      {/* TRƯỜNG HỢP 1: ĐÃ CÓ VIDEO */}
-      {videoUrl && currentVideoData && !uploading && (
+      {/* CASE 1: ĐÃ CÓ VIDEO - DÙNG MUX PLAYER */}
+      {playbackId && !uploading && (
         <div className="overflow-hidden border border-emerald-100 rounded-xl bg-white shadow-sm">
           <div className="flex items-center justify-between p-3 bg-emerald-50/50">
             <span className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
               <Play className="h-3.5 w-3.5 fill-emerald-600" />
-              {formatDurationVi(currentVideoData.duration)}
+              {currentVideoData?.duration
+                ? formatDurationVi(currentVideoData.duration)
+                : "00:00"}
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDelete}
-              className="h-7 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+              className="h-7 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
             >
               <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Xóa video
             </Button>
           </div>
-          <video
-            src={videoUrl}
-            controls
-            className="w-full aspect-video bg-black"
+
+          <MuxPlayer
+            className="w-full aspect-video"
+            playbackId={playbackId}
+            metadata={{
+              player_name: "lms-video-player",
+              video_id: lessonId,
+            }}
+            accentColor="#dc2626"
+            primaryColor="#FFFFFF"
+            streamType="on-demand"
           />
         </div>
       )}
 
-      {/* TRƯỜNG HỢP 2: ĐANG UPLOAD HOẶC CHỜ KHÔI PHỤC */}
-      {(!currentVideoData || uploading || isPaused) && (
+      {/* CASE 2: ĐANG UPLOAD HOẶC TRỐNG */}
+      {(!playbackId || uploading || isPaused) && (
         <div className="relative group">
           <label
             className={`
               relative flex flex-col items-center justify-center min-h-55 border-2 border-dashed rounded-xl transition-all p-8
               ${
                 isPaused
-                  ? "border-black-800 "
+                  ? "border-slate-800 bg-slate-50"
                   : "border-slate-200 bg-slate-50/50 hover:border-primary/50 hover:bg-white"
               }
               ${uploading ? "cursor-wait opacity-90" : "cursor-pointer"}
@@ -205,67 +208,55 @@ export function VideoUploader({
             />
 
             {uploading ? (
-              <div className="flex flex-col items-center w-full max-w-xs space-y-4 animate-in fade-in zoom-in-95">
+              <div className="flex flex-col items-center w-full max-w-xs space-y-4">
                 <div className="relative flex items-center justify-center">
                   <Loader2 className="h-14 w-14 text-primary animate-spin" />
-                  <span className="absolute text-[11px] font-black text-primary">
+                  <span className="absolute text-[11px] font-bold text-primary">
                     {progress}%
                   </span>
                 </div>
-                <div className="text-center space-y-1">
-                  <p className="text-sm font-bold text-slate-700 uppercase tracking-tight">
+                <div className="text-center">
+                  <p className="text-sm font-bold text-slate-700">
                     {progress === 100
                       ? "Đang xử lý dữ liệu..."
                       : "Đang tải video..."}
                   </p>
                   {uploadStats && progress < 100 && (
-                    <div className="flex flex-col text-[10px] text-slate-500 font-medium italic animate-in fade-in duration-500">
-                      {/* <span>Tốc độ: {uploadStats.speed} Mbps</span> */}
-                      <span>Còn lại khoảng: {uploadStats.eta}</span>
-                    </div>
+                    <p className="text-[10px] text-slate-500 italic">
+                      Còn lại: {uploadStats.eta}
+                    </p>
                   )}
-                  <p className="text-[10px] text-slate-500 italic">
-                    Vui lòng không đóng hoặc làm mới tab này
-                  </p>
                 </div>
               </div>
             ) : isPaused ? (
-              <div className="flex flex-col items-center text-center space-y-4 animate-in slide-in-from-bottom-2">
-                <div className="p-4 ">
-                  <RefreshCcw className="h-8 w-8" />
-                </div>
-                <div className="space-y-1">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <RefreshCcw className="h-8 w-8 text-slate-600" />
+                <div>
                   <h3 className="text-sm font-bold uppercase">
-                    Tiến trình chưa xong
+                    Tiến trình chưa hoàn thành
                   </h3>
-                  <p className="text-[11px] px-6 leading-relaxed">
-                    Video{" "}
-                    <span className="font-bold underline">
-                      &quot;{savedFileName}&quot;
-                    </span>{" "}
-                    đã tải được {progress}%.
-                    <br />
-                    Chọn lại file này để tiếp tục tải lên.
+                  <p className="text-[11px] text-slate-500">
+                    File: <strong>{savedFileName}</strong> ({progress}%)
                   </p>
                 </div>
-                <div className="flex flex-col gap-3">
-                  <span className="inline-flex items-center px-4 py-2 bg-black text-white text-[11px] font-bold rounded-lg shadow-md group-hover:bg-black-700">
-                    CHỌN LẠI FILE KHÔI PHỤC
+                <div className="flex flex-col gap-2">
+                  <span className="px-4 py-2 bg-black text-white text-[11px] font-bold rounded-lg">
+                    CHỌN LẠI FILE ĐỂ TIẾP TỤC
                   </span>
                   <button
                     onClick={handleCancelProgress}
-                    className="flex items-center justify-center gap-1 text-[15px] text-slate-400 hover:text-slate-500 underline transition-colors cursor-pointer"
+                    className="flex items-center justify-center gap-1 text-xs text-slate-400 underline"
                   >
-                    <XCircle className="h-8 w-8" /> Hủy bỏ tiến trình này
+                    <XCircle className="h-4 w-4" /> Hủy bỏ tiến trình này
                   </button>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center space-y-4 text-slate-400 group-hover:text-primary transition-colors">
-                <div className="p-5 bg-slate-100 rounded-full group-hover:bg-primary/10 transition-colors">
+                <div className="p-5 bg-slate-100 rounded-full group-hover:bg-primary/10">
                   <Upload className="h-10 w-10" />
                 </div>
-                <div className="text-center space-y-1">
+                <div className="text-center">
                   <p className="text-sm font-bold text-slate-600 group-hover:text-primary">
                     Tải lên video bài học
                   </p>
@@ -279,7 +270,7 @@ export function VideoUploader({
             {uploading && (
               <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-100 rounded-b-xl overflow-hidden">
                 <div
-                  className="h-full bg-primary transition-all duration-300 ease-out"
+                  className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>

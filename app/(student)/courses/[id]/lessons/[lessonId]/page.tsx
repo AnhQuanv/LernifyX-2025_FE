@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -32,7 +32,8 @@ import {
   updateNoteToLesson,
 } from "@/redux/thunk/lessonProgressThunk";
 import toast from "react-hot-toast";
-import { formatDurationVi } from "@/lib/utils";
+import { extractPlaybackId, formatDurationVi } from "@/lib/utils";
+import MuxPlayer from "@mux/mux-player-react";
 
 export default function LessonPage() {
   const params = useParams<{ id: string; lessonId: string }>();
@@ -295,6 +296,12 @@ export default function LessonPage() {
       isCompletingRef.current = false;
     }
   };
+
+  const playbackId = useMemo(
+    () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined, // Đổi null thành undefined
+    [lesson?.videoAsset?.originalUrl]
+  );
+
   useEffect(() => {
     if (courseId && lessonId) {
       dispatch(getLessonDetail({ courseId, lessonId }));
@@ -485,46 +492,50 @@ export default function LessonPage() {
           <div className="max-w-4xl mx-auto px-4 md:px-6 py-8">
             {/* Lesson Header */}
             <div className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">
                 {lesson?.title}
               </h1>
             </div>
 
             {/* Video Player */}
             <div className="mb-12 rounded-xl overflow-hidden shadow-lg bg-black">
-              <video
-                src={
-                  lesson?.videoAsset?.originalUrl ||
-                  "https://res.cloudinary.com/drc4b7rmj/video/upload/v1763726091/h4ogqnwmsshbvfneixkv.mp4"
-                }
-                width="100%"
-                height="500"
-                controls
-                disablePictureInPicture
-                controlsList="nodownload noplaybackrate"
-                onTimeUpdate={handleTimeUpdate}
+              <MuxPlayer
+                className="w-full aspect-video bg-black"
+                playbackId={playbackId}
+                metadata={{
+                  player_name: "lms-video-player",
+                  video_id: lesson?.id,
+                }}
+                accentColor="#dc2626"
+                primaryColor="#FFFFFF"
+                streamType="on-demand"
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onTimeUpdate={(e: any) => {
+                  handleTimeUpdate(e);
+                }}
                 onEnded={handleCompleteLesson}
-                ref={videoRef}
-                onLoadedMetadata={() => {
+                onLoadedMetadata={(e) => {
+                  const player = e.target as HTMLVideoElement; // Ép kiểu ở đây
                   const lastPosition = lesson?.progress?.lastPosition;
-                  if (videoRef.current && lastPosition !== undefined) {
-                    videoRef.current.currentTime = lastPosition;
+                  if (player && lastPosition !== undefined) {
+                    player.currentTime = lastPosition;
                   }
                 }}
-                className="w-full h-auto bg-black"
-                style={{ maxWidth: "100%", display: "block" }}
+                nohotkeys={true}
               />
             </div>
 
             {/* Lesson Content */}
-            <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Giới thiệu bài học
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                {lesson?.content}
-              </p>
-            </div>
+            {lesson?.content && (
+              <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-slate-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Giới thiệu bài học
+                </h2>
+                <div className="text-gray-700 leading-relaxed prose prose-slate max-w-none">
+                  {lesson.content}
+                </div>
+              </div>
+            )}
 
             {/* Tabs Comments/Quiz/Notes */}
             <div className="space-y-6">
