@@ -3,13 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import {
-  RefreshCw,
-  HelpCircle,
-  AlertCircle,
-  Phone,
-  ArrowLeft,
-} from "lucide-react";
+import { RefreshCw, HelpCircle, AlertCircle, ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { findByPayment } from "@/redux/thunk/paymentThunk";
 import { resetPayment } from "@/redux/features/payment/paymentSlice";
@@ -20,7 +14,6 @@ import { getUserAllCart } from "@/redux/thunk/cartThunk";
 export default function PaymentResultPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { payment } = useSelector((state: RootState) => state.payment);
-  const { user } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("id");
@@ -33,10 +26,6 @@ export default function PaymentResultPage() {
 
   const handleRetryPayment = () => {
     router.push("/checkout");
-  };
-
-  const handleContactSupport = () => {
-    console.log("Contacting support...");
   };
 
   useEffect(() => {
@@ -299,14 +288,6 @@ export default function PaymentResultPage() {
               >
                 <RefreshCw className="w-5 h-5" />
                 Thử thanh toán lại
-              </button>
-
-              <button
-                onClick={handleContactSupport}
-                className="w-full bg-white border-2 border-blue-600 text-blue-600 px-6 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 flex items-center justify-center gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                Liên hệ Hỗ trợ
               </button>
 
               <button

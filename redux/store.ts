@@ -49,9 +49,9 @@ const appReducer = combineReducers({
   payment: paymentReducer,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const rootReducer = (state: any, action: any) => {
   if (action.type === logout.type) {
-    // ✅ Reset toàn bộ state
     state = undefined;
   }
   return appReducer(state, action);
@@ -79,10 +79,6 @@ export const store = configureStore({
 
 // --- Persistor ---
 export const persistor = persistStore(store);
-
-persistor.subscribe(() => {
-  console.log("Persistor state:", persistor.getState());
-});
 
 setTokenGetter(() => store.getState().auth.token);
 

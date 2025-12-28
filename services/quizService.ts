@@ -11,7 +11,6 @@ export const handleCreateQuizQuestion = async (
   };
 
   const res = await axiosClient.post("quiz-question/create", payload);
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -19,7 +18,6 @@ export const handleUpdateQuizQuestion = async (
   updateData: Partial<QuizQuestion>
 ) => {
   const res = await axiosClient.put("quiz-question/update", updateData);
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -33,6 +31,5 @@ export const handleDeleteQuizQuestion = async (
       lessonId,
     },
   });
-  console.log("res: ", res);
   return res.data;
 };

@@ -18,7 +18,6 @@ export const handleCreateLesson = async (
     videoUrl,
     order,
   });
-  console.log("res lesson create: ", res);
   return res.data.data;
 };
 
@@ -36,7 +35,6 @@ export const handleUpdateLesson = async (
     duration,
     order,
   });
-  console.log("res lesson update: ", res);
   return res.data.data;
 };
 
@@ -46,6 +44,5 @@ export const handleDeleteLesson = async (lessonId: string) => {
       lessonId: lessonId,
     },
   });
-  console.log("res lesson delete: ", res);
   return res.data.data;
 };

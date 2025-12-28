@@ -13,7 +13,6 @@ export const createLessonProgress = createAsyncThunk(
   "lessonProgress/createLessonProgress",
   async ({ lessonId }: { lessonId: string }, { rejectWithValue }) => {
     try {
-      console.log("lessonId: ", lessonId);
       const res = await handleCreateLessonProgress(lessonId);
       return res;
     } catch (err: unknown) {

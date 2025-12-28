@@ -9,69 +9,74 @@ import {
   Phone,
 } from "lucide-react";
 
+// Tách dữ liệu ra mảng để quản lý key dễ dàng và code gọn hơn
+const FOOTER_LINKS = {
+  quickLinks: [
+    { label: "Tất cả khóa học", href: "#" },
+    { label: "Giáo viên của chúng tôi", href: "#" },
+    { label: "Bảng giá", href: "#" },
+    { label: "Blog", href: "#" },
+    { label: "Liên hệ", href: "#" },
+  ],
+  categories: [
+    { label: "Phát triển web", href: "#" },
+    { label: "Khoa học dữ liệu", href: "#" },
+    { label: "Phát triển di động", href: "#" },
+    { label: "Thiết kế", href: "#" },
+    { label: "Kinh doanh", href: "#" },
+  ],
+  socials: [
+    { Icon: Facebook, href: "#" },
+    { Icon: Twitter, href: "#" },
+    { Icon: Instagram, href: "#" },
+    { Icon: Linkedin, href: "#" },
+  ],
+};
+
 export default function Footer() {
   return (
-    <footer className="bg-linear-to-br from-indigo-600 to-violet-700 text-white pt-16 pb-8 relative overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-white" />
+    <footer className="bg-indigo-700 text-white pt-16 pb-8 relative overflow-hidden">
+      {/* Lớp trang trí nền */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-white/20" />
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-white/20" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Cột 1: Giới thiệu & Social */}
           <div className="space-y-6">
-            <p className="text-indigo-100 leading-relaxed">
+            <h2 className="text-2xl font-bold tracking-tight">LearnifyX</h2>
+            <p className="text-indigo-100 leading-relaxed text-sm">
               Giúp người học trên toàn thế giới tiếp cận giáo dục trực tuyến
-              chất lượng cao và cơ hội phát triển nghề nghiệp.
+              chất lượng cao và cơ hội phát triển nghề nghiệp bền vững.
             </p>
-            <div className="flex space-x-4 pt-2">
-              <Link
-                href="#"
-                className="bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all duration-200 hover:scale-110"
-              >
-                <Facebook className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                className="bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all duration-200 hover:scale-110"
-              >
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                className="bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all duration-200 hover:scale-110"
-              >
-                <Instagram className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                className="bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all duration-200 hover:scale-110"
-              >
-                <Linkedin className="h-5 w-5" />
-              </Link>
+            <div className="flex space-x-3">
+              {FOOTER_LINKS.socials.map((social, index) => (
+                <Link
+                  key={`social-${index}`}
+                  href={social.href}
+                  className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all hover:scale-110"
+                >
+                  <social.Icon className="h-5 w-5" />
+                </Link>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
+          {/* Cột 2: Quick Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2">
               Liên kết nhanh
             </h3>
-            <ul className="space-y-3">
-              {[
-                { href: "", label: "Tất cả khóa học" },
-                { href: "", label: "Giáo viên của chúng tôi" },
-                { href: "", label: "Bảng giá" },
-                { href: "", label: "Blog" },
-                { href: "", label: "Liên hệ" },
-              ].map((link) => (
-                <li key={link.href}>
+            <ul className="space-y-2">
+              {FOOTER_LINKS.quickLinks.map((link) => (
+                <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-indigo-100 hover:text-white transition-colors duration-200 flex items-center group"
+                    className="text-indigo-100 hover:text-white transition-colors flex items-center group text-sm"
                   >
-                    <span className="w-2 h-2 bg-indigo-300 rounded-full mr-2 group-hover:bg-white transition-colors duration-200"></span>
+                    <span className="w-1.5 h-1.5 bg-indigo-300 rounded-full mr-2 group-hover:bg-white transition-colors" />
                     {link.label}
                   </Link>
                 </li>
@@ -79,69 +84,55 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
+          {/* Cột 3: Categories */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2">
               Danh mục
             </h3>
-            <ul className="space-y-3">
-              {[
-                { href: "", label: "Phát triển web" },
-                { href: "", label: "Khoa học dữ liệu" },
-                {
-                  href: "",
-                  label: "Phát triển di động",
-                },
-                { href: "", label: "Thiết kế" },
-                { href: "", label: "Kinh doanh" },
-              ].map((category) => (
-                <li key={category.href}>
+            <ul className="space-y-2">
+              {FOOTER_LINKS.categories.map((item) => (
+                <li key={item.label}>
                   <Link
-                    href={category.href}
-                    className="text-indigo-100 hover:text-white transition-colors duration-200 flex items-center group"
+                    href={item.href}
+                    className="text-indigo-100 hover:text-white transition-colors flex items-center group text-sm"
                   >
-                    <span className="w-2 h-2 bg-indigo-300 rounded-full mr-2 group-hover:bg-white transition-colors duration-200"></span>
-                    {category.label}
+                    <span className="w-1.5 h-1.5 bg-indigo-300 rounded-full mr-2 group-hover:bg-white transition-colors" />
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold mb-4 pb-2 border-b border-indigo-400/30">
+          {/* Cột 4: Contact */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold border-b border-white/20 pb-2">
               Liên hệ
             </h3>
-            <ul className="space-y-4 text-indigo-100">
+            <ul className="space-y-4 text-sm text-indigo-100">
               <li className="flex items-start">
-                <MapPin className="h-5 w-5 mr-3 mt-0.5 text-indigo-200" />
-                <span>123 Phố Giáo dục, Thành phố Học tập, NY 10001</span>
+                <MapPin className="h-5 w-5 mr-3 shrink-0 text-indigo-200" />
+                <span>123 Phố Giáo dục, Thành phố Đà Nẵng, Việt Nam</span>
               </li>
               <li className="flex items-center">
-                <Mail className="h-5 w-5 mr-3 text-indigo-200" />
-                <a
-                  href="mailto:contact@leanrifyx.com"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  contact@leanrifyx.com
+                <Mail className="h-5 w-5 mr-3 shrink-0 text-indigo-200" />
+                <a href="#" className="hover:text-white transition-colors">
+                  contact@learnifyx.com
                 </a>
               </li>
               <li className="flex items-center">
-                <Phone className="h-5 w-5 mr-3 text-indigo-200" />
-                <a
-                  href="tel:+15551234567"
-                  className="hover:text-white transition-colors duration-200"
-                >
-                  +1 (555) 123-4567
+                <Phone className="h-5 w-5 mr-3 shrink-0 text-indigo-200" />
+                <a href="#" className="hover:text-white transition-colors">
+                  +84 (555) 123-4567
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-indigo-400/30 mt-8 pt-8 text-center text-indigo-100">
-          <p>&copy; {new Date().getFullYear()} LeanrifyX. Bảo lưu mọi quyền.</p>
+        {/* Bản quyền */}
+        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-indigo-200">
+          <p>&copy; {new Date().getFullYear()} LearnifyX. Bảo lưu mọi quyền.</p>
         </div>
       </div>
     </footer>

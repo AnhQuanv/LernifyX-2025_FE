@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { handleGetTeacherCoursesRevenuePage } from "@/services/courseService";
 import { handleGetSpecificPayments } from "@/services/paymentService";
+import toast from "react-hot-toast";
 
 interface CourseRevenueDetail {
   id: string;
@@ -84,14 +85,15 @@ export default function AnalyticsPage() {
   const fetchChartData = useCallback(
     async (courseId: string, start: string, end: string) => {
       if (!courseId) return;
-
       setIsLoadingChartData(true);
       try {
         const raw = await handleGetSpecificPayments(courseId, start, end);
-        console.log(raw);
         setCurrentRawData(raw || []);
       } catch (error) {
         console.error("Error fetching chart data:", error);
+        toast.error("Đã xảy ra lỗi . Vui lòng thử lại!", {
+          duration: 4000,
+        });
         setCurrentRawData([]);
       } finally {
         setIsLoadingChartData(false);
@@ -104,7 +106,6 @@ export default function AnalyticsPage() {
     setIsLoadingInitialData(true);
     try {
       const courseData = await handleGetTeacherCoursesRevenuePage();
-      console.log("course: ", courseData);
       setCourseStats(courseData || []);
 
       if (courseData && courseData.length > 0) {
@@ -125,7 +126,6 @@ export default function AnalyticsPage() {
 
         setStartDate(startDateStr);
         setEndDate(endDateStr);
-        console.log("Tuần này bắt đầu từ:", startDateStr, "đến", endDateStr);
         fetchChartData(defaultCourseId, startDateStr, endDateStr);
         setIsLoadingChartData(false);
       }
@@ -433,7 +433,7 @@ export default function AnalyticsPage() {
                         <span className="text-foreground font-semibold">
                           {/* Chuyển đổi rating từ string sang float */}
                           {parseFloat(course.rating) > 0
-                            ? `${parseFloat(course.rating).toFixed(2)}★`
+                            ? `${parseFloat(course.rating).toFixed(2)}`
                             : "N/A"}
                         </span>
                       </div>

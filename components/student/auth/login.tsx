@@ -52,7 +52,6 @@ export function LoginForm() {
       const res = await dispatch(loginAsync(values)).unwrap();
       const token = res.accessToken;
       setTokenGetter(() => token);
-      console.log("res: ", res);
       if (res.user.roleName === "student") {
         router.push("/homepage");
       } else if (res.user.roleName === "teacher") {

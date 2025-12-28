@@ -12,7 +12,6 @@ export const handleCreateChapter = async (
     title,
     order,
   });
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -26,7 +25,6 @@ export const handleUpdateChapter = async (
     title,
     order,
   });
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -36,6 +34,5 @@ export const handleDeleteChapter = async (chapterId: string) => {
       chapterId: chapterId,
     },
   });
-  console.log("res: ", res);
   return res.data.data;
 };

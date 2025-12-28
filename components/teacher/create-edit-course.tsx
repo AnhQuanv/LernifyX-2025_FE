@@ -450,10 +450,8 @@ export default function CreateEditCoursePage({
         quiz: quizArray,
       });
 
-      console.log(questions);
       toast.success("Đã cập nhật Quiz thành công!", { id: loadingToastId });
-    } catch (error) {
-      console.error("Lỗi khi cập nhật Quiz:", error);
+    } catch {
       toast.error("Lỗi: Không thể lưu Quiz. Vui lòng kiểm tra và thử lại.", {
         id: loadingToastId,
       });
@@ -546,7 +544,6 @@ export default function CreateEditCoursePage({
 
         if (isEditMode && id) {
           const res = await handleGetTeacherCourseEdit(id);
-          console.log("res: ", res);
           const foundCategory = catData.find(
             (c) => c.categoryName === res.category
           );

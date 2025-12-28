@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { handleGetMyLearningCourses } from "@/services/courseService";
 import { Course } from "@/types/course/course";
 import { formatTimeRounded } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 type StatusFilter = "all" | "in-progress" | "completed" | "not-started";
 
@@ -35,7 +36,6 @@ export default function MyLearningPage() {
     total: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const statusOptions = [
     { value: "all" as StatusFilter, label: "Tất cả khóa học", icon: BookOpen },
@@ -57,7 +57,6 @@ export default function MyLearningPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        setError(null);
 
         const res = await handleGetMyLearningCourses({
           progressStatus: selectedStatus,
@@ -67,10 +66,13 @@ export default function MyLearningPage() {
 
         setCourses(res.data || []);
         setPagination(res.pagination);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.log(err);
-        setError(err?.message || "Đã xảy ra lỗi");
+      } catch {
+        toast.error(
+          "Đã xảy ra lỗi khi tải khóa học của bạn. Vui lòng thử lại!",
+          {
+            duration: 4000,
+          }
+        );
       } finally {
         setIsLoading(false);
       }
@@ -130,24 +132,6 @@ export default function MyLearningPage() {
               <p className="text-black-600">Đang tải dữ liệu...</p>
             </div>
           </div>
-        ) : error ? (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-red-50 rounded-2xl shadow-lg p-12 text-center border border-red-200">
-              <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <BookOpen className="w-10 h-10 text-red-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-red-800 mb-3">
-                Đã xảy ra lỗi
-              </h2>
-              <p className="text-red-600 mb-8 text-lg">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-red-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-red-700 transition-all duration-300 shadow-lg"
-              >
-                Thử lại
-              </button>
-            </div>
-          </div>
         ) : courses.length === 0 ? (
           // Empty State
           <div className="max-w-2xl mx-auto">
@@ -188,10 +172,7 @@ export default function MyLearningPage() {
                     {/* Course Image */}
                     <div className="relative h-48 overflow-hidden bg-gray-200">
                       <Image
-                        src={
-                          course.image ||
-                          "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                        }
+                        src={course.image}
                         alt={course.title}
                         width={400}
                         height={250}

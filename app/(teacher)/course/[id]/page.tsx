@@ -42,6 +42,7 @@ import { useParams } from "next/navigation";
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import { Comment } from "@/types/comment/comment";
 import { handleGetCommentsByCourse } from "@/services/commentService";
+import toast from "react-hot-toast";
 
 export interface UserProgressInfo {
   userId: string;
@@ -81,7 +82,6 @@ export default function CourseDetailPage() {
       try {
         const res = await handleGetTeacherCourseDetail(id);
         setCourse(res);
-        console.log("Dữ liệu khóa học đã tải:", res);
         if (res.status === "published") {
           const res1: ProgressData =
             await handleGetTeacherCourseStudentProgress({
@@ -94,10 +94,14 @@ export default function CourseDetailPage() {
           const res2 = await handleGetCommentsByCourse(id, currentPageC, 6);
           setCommentCourse(res2.data);
           setPaginationC(res2.pagination);
-          console.log("Dữ liệu tiến độ học sinh đã tải:", res1.data);
         }
-      } catch (error) {
-        console.error("Lỗi khi tải chi tiết khóa học:", error);
+      } catch {
+        toast.error(
+          "Đã xảy ra lỗi khi tải khóa học của bạn. Vui lòng thử lại!",
+          {
+            duration: 4000,
+          }
+        );
       }
     };
     fetchCourseDetail();

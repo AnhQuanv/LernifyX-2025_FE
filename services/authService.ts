@@ -61,7 +61,6 @@ export const handleSendVerifyMail = async (email: string) => {
 };
 
 export const handlecreatePreference = async (dto: CreateUserPreferenceDto) => {
-  console.log("dto", dto);
   const res = await axiosClient.post("/user-preferences/create", dto);
   return res.data;
 };

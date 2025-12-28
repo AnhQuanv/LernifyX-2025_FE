@@ -67,11 +67,10 @@ export default function AccountSettingsPage() {
     },
   });
 
-  const onPasswordSubmit = async (data: PasswordFormValues) => {
+  const onPasswordSubmit = async () => {
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Password updated:", data);
       setSuccessMessage("Password changed successfully!");
       form.reset();
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -111,7 +110,7 @@ export default function AccountSettingsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}
       <div className="bg-white text-gray-900 py-8 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
@@ -138,8 +137,8 @@ export default function AccountSettingsPage() {
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Success Message */}
           {successMessage && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
                 <Check className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -151,7 +150,7 @@ export default function AccountSettingsPage() {
           {/* Change Password Section */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <Lock className="w-5 h-5 text-white" />
               </div>
               Change Password
@@ -297,7 +296,7 @@ export default function AccountSettingsPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>
@@ -318,7 +317,7 @@ export default function AccountSettingsPage() {
           {/* Notification Settings */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <Bell className="w-5 h-5 text-white" />
               </div>
               Notification Preferences
@@ -392,7 +391,7 @@ export default function AccountSettingsPage() {
           {/* Privacy & Security */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-600 to-purple-600 flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
               Privacy & Security
@@ -434,7 +433,7 @@ export default function AccountSettingsPage() {
           </div>
 
           {/* Danger Zone */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-red-200 bg-gradient-to-br from-red-50 to-orange-50">
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-red-200 bg-linear-to-br from-red-50 to-orange-50">
             <h2 className="text-2xl font-bold text-red-900 mb-8 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-white" />

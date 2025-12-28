@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, Check, Eye, EyeOff, Save, Upload } from "lucide-react";
+import { Check, Eye, EyeOff, Save, Upload } from "lucide-react";
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import { updateAvatar, updateProfile } from "@/redux/thunk/authThunk";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { handleChangePassword } from "@/services/authService";
+import toast from "react-hot-toast";
 
 const editProfileSchema = z.object({
   fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
@@ -63,13 +64,6 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [hasAvatarChanged, setHasAvatarChanged] = useState(false);
   const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
-  const [successMessageAvatar, setSuccessMessageAvatar] = useState("");
-  const [errorMessageAvatar, setErrorMessageAvatar] = useState("");
-
-  const [successMessageProfile, setSuccessMessageProfile] = useState("");
-  const [errorMessageProfile, setErrorMessageProfile] = useState("");
-  const [successMessagePassword, setSuccessMessagePassword] = useState("");
-  const [errorMessagePassword, setErrorMessagePassword] = useState("");
 
   const defaultProfileValues: EditProfileFormValues = {
     fullName: "",
@@ -121,8 +115,6 @@ export default function SettingsPage() {
   }, [user, profileForm]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSuccessMessageAvatar("");
-    setErrorMessageAvatar("");
     const file = e.target.files?.[0];
     if (file) {
       setAvatarFile(file);
@@ -138,19 +130,22 @@ export default function SettingsPage() {
   const handleSaveAvatar = async () => {
     if (!avatarFile) return;
     setIsLoadingAvatar(true);
-    setSuccessMessageAvatar("");
-    setErrorMessageAvatar("");
 
     try {
       await dispatch(updateAvatar(avatarFile)).unwrap();
-      setSuccessMessageAvatar("Cập nhật ảnh đại diện thành công!");
+      toast.success("Cập nhật ảnh đại diện thành công!", {
+        duration: 4000,
+      });
       setHasAvatarChanged(false);
       setAvatarFile(null);
-      setTimeout(() => setSuccessMessageAvatar(""), 4000);
     } catch (error) {
       console.error("Error updating avatar:", error);
-      setErrorMessageAvatar("Đã xảy ra lỗi khi cập nhật ảnh đại diện.");
-      setTimeout(() => setErrorMessageAvatar(""), 4000);
+      toast.error(
+        "Đã xảy ra lỗi khi cập nhật ảnh đại diện. Vui lòng thử lại!",
+        {
+          duration: 4000,
+        }
+      );
     } finally {
       setIsLoadingAvatar(false);
     }
@@ -160,46 +155,37 @@ export default function SettingsPage() {
     setAvatarPreview(user?.avatar || "/placeholder.svg");
     setAvatarFile(null);
     setHasAvatarChanged(false);
-    setErrorMessageAvatar("");
   };
 
   const onSubmitProfile = async (values: EditProfileFormValues) => {
-    setSuccessMessageProfile("");
-    setErrorMessageProfile("");
-    console.log("Profile submitted:", values);
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { email, ...profileData } = values;
       await dispatch(updateProfile(profileData)).unwrap();
-      setSuccessMessageProfile("Cập nhật hồ sơ thành công!");
+      toast.success("Cập nhật hồ sơ thành công!", {
+        duration: 4000,
+      });
       profileForm.reset(values);
-      setTimeout(() => setSuccessMessageProfile(""), 3000);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      setErrorMessageProfile("Đã xảy ra lỗi khi cập nhật hồ sơ.");
-      setTimeout(() => setErrorMessageProfile(""), 3000);
+    } catch {
+      toast.error("Đã xảy ra lỗi khi cập nhật hồ sơ. Vui lòng thử lại!", {
+        duration: 4000,
+      });
     }
   };
 
   const onSubmitPassword = async (values: ChangePasswordFormValues) => {
-    setSuccessMessagePassword("");
-    setErrorMessagePassword("");
-    console.log("Password submitted:", values);
-
     try {
       await handleChangePassword({
         oldPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
-
-      setSuccessMessagePassword("Mật khẩu đã được đổi thành công!");
+      toast.success("Mật khẩu đã được đổi thành công!", { duration: 4000 });
       passwordForm.reset();
-
-      setTimeout(() => setSuccessMessagePassword(""), 4000);
     } catch (error) {
       console.error("Error changing password:", error);
-      setErrorMessagePassword("Đã xảy ra lỗi khi đổi mật khẩu.");
-      setTimeout(() => setErrorMessagePassword(""), 4000);
+      toast.error("Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại!", {
+        duration: 4000,
+      });
     }
   };
 
@@ -229,38 +215,6 @@ export default function SettingsPage() {
                 <CardTitle>Thông tin hồ sơ</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {successMessageAvatar && (
-                  <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
-                      <Check className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-green-900">
-                        {successMessageAvatar}
-                      </p>
-                      <p className="text-sm text-green-700">
-                        Ảnh đại diện của bạn đã được cập nhật
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {/* Message lỗi Avatar */}
-                {errorMessageAvatar && (
-                  <div className="mb-6 bg-linear-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shrink-0">
-                      <AlertCircle className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-red-900">
-                        Lỗi: {errorMessageAvatar}
-                      </p>
-                      <p className="text-sm text-red-700">
-                        Vui lòng thử lại với một ảnh khác.
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 {/* Avatar Section */}
                 <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
                   <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
@@ -328,25 +282,6 @@ export default function SettingsPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Message khi cập nhật Profile thành công */}
-                {successMessageProfile && (
-                  <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <Check className="w-5 h-5 text-green-600 shrink-0" />
-                    <p className="font-semibold text-green-900">
-                      {successMessageProfile}
-                    </p>
-                  </div>
-                )}
-                {/* Message lỗi Profile */}
-                {errorMessageProfile && (
-                  <div className="mb-6 bg-linear-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                    <p className="font-semibold text-red-900">
-                      Lỗi: {errorMessageProfile}
-                    </p>
-                  </div>
-                )}
 
                 {/* Profile Form */}
                 <form
@@ -496,23 +431,6 @@ export default function SettingsPage() {
                 <CardTitle>Đổi Mật Khẩu</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {successMessagePassword && (
-                  <div className="mb-6 bg-linear-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <Check className="w-5 h-5 text-green-600 shrink-0" />
-                    <p className="font-semibold text-green-900">
-                      {successMessagePassword}
-                    </p>
-                  </div>
-                )}
-                {errorMessagePassword && (
-                  <div className="mb-6 bg-linear-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                    <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
-                    <p className="font-semibold text-red-900">
-                      Lỗi: {errorMessagePassword}
-                    </p>
-                  </div>
-                )}
-
                 <form
                   onSubmit={passwordForm.handleSubmit(onSubmitPassword)}
                   className="space-y-4"

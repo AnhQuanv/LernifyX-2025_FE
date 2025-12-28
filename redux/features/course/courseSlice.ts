@@ -156,7 +156,6 @@ const courseSlice = createSlice({
       .addCase(getCourseRecommendation.fulfilled, (state, action) => {
         state.statusRecommendationCourse = "succeeded";
         state.recommendationCourse = action.payload || [];
-        console.log("course: ", state.recommendationCourse);
       })
       .addCase(getCourseRecommendation.rejected, (state, action) => {
         state.statusRecommendationCourse = "failed";

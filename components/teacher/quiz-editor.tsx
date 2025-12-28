@@ -193,7 +193,6 @@ export function QuizEditor({
         {questions.length > 0 && (
           <Button
             onClick={() => {
-              console.log("Dữ liệu quiz chuẩn bị lưu:", questions);
               onSave?.(questions);
             }}
             className="w-full"

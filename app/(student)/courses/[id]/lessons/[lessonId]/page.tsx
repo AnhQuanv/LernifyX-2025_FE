@@ -264,27 +264,11 @@ export default function LessonPage() {
       const progressPercent = (currentTime / duration) * 100;
 
       if (progressPercent >= 90) {
-        isCompletingRef.current = true; // Đánh dấu đang xử lý
-        console.log("Đạt ngưỡng 90%, tự động hoàn thành bài học...");
+        isCompletingRef.current = true;
         await handleCompleteLesson();
       }
     }
   };
-
-  // const handleCompleteLesson = async () => {
-  //   if (!isProgressReady || !lesson?.progress?.id) return;
-
-  //   await dispatch(
-  //     updateLessonProgress({
-  //       progressId: lesson.progress.id,
-  //       completed: true,
-  //       lastPosition: lesson.duration || 0,
-  //     })
-  //   ).unwrap();
-  //   if (courseId) {
-  //     await dispatch(getDetailCourse(courseId)).unwrap();
-  //   }
-  // };
 
   const handleCompleteLesson = async () => {
     if (lesson?.progress?.completed) return;
@@ -328,7 +312,6 @@ export default function LessonPage() {
   }, [courseId, lessonId, dispatch, currentPage]);
 
   useEffect(() => {
-    console.log("Lesson1:", lesson?.id);
     if (lesson && !lesson.progress) {
       dispatch(createLessonProgress({ lessonId: lesson.id }));
     }

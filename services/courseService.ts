@@ -200,7 +200,7 @@ export const handleUpLoadVideo = (
       });
 
       upload.on("success", () => {
-        console.log("✅ Byte đã tải lên Mux. Đang đợi Webhook xử lý Asset...");
+        console.log(" Byte đã tải lên Mux. Đang đợi Webhook xử lý Asset...");
       });
 
       upload.on("error", (err) => {
@@ -229,16 +229,12 @@ export const handleDeleteVideoId = async (lessonVideoId: string) => {
 };
 
 export const handleCreateCourse = async (dto: CreateCourseDto) => {
-  console.log("dto: ", dto);
   const res = await axiosClient.post("course/create", dto);
-  console.log("res: ", res);
   return res.data.data;
 };
 
 export const handleUpdateCourse = async (dto: UpdateCourseDto) => {
-  console.log("dto: ", dto);
   const res = await axiosClient.put("course/update", dto);
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -246,7 +242,6 @@ export const handleDeleteCourse = async (courseId: string) => {
   const res = await axiosClient.delete("course/delete", {
     data: { courseId: courseId },
   });
-  console.log("res: ", res);
   return res.data.data;
 };
 
@@ -291,7 +286,6 @@ export const handleGetTeacherCourseCounts = async () => {
 };
 
 export const handleGetTeacherCourseDetail = async (courseId: string) => {
-  console.log("id: ", courseId);
   const res = await axiosClient.get("course/teacher-detail", {
     params: { courseId },
   });
@@ -314,7 +308,6 @@ export const handleGetTeacherCourseStudentProgress = async ({
 };
 
 export const handleGetTeacherCourseEdit = async (courseId: string) => {
-  console.log("id: ", courseId);
   const res = await axiosClient.get("course/teacher-edit", {
     params: { courseId },
   });
