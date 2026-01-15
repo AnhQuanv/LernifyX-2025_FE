@@ -1,6 +1,6 @@
 "use client";
 
-import { CourseRevenueDetail } from "@/app/(teacher)/dashboard/page";
+import { CourseRevenueDetail } from "@/app/teacher/dashboard/page";
 import {
   PieChart,
   Pie,
@@ -59,41 +59,59 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     const dataEntry = payload[0].payload;
-    const netRevenueString = dataEntry.netRevenue
-      ? dataEntry.netRevenue.toLocaleString("vi-VN", {
-          style: "currency",
-          currency: "VND",
-        })
-      : "";
 
     return (
-      <div
-        className="p-3 shadow-md border rounded-lg"
-        style={{
-          backgroundColor: "var(--color-card)",
-          border: `1px solid var(--color-border)`,
-          color: "var(--color-foreground)",
-        }}
-      >
-        <p className="font-semibold text-sm mb-1">
+      <div className="bg-card border border-border p-3 rounded-lg shadow-md min-w-55">
+        <p className="text-sm font-bold mb-2 border-b border-border pb-1 text-black">
           {dataEntry.uniqueName || dataEntry.name}
         </p>
 
-        {dataEntry.netRevenue && (
-          <p className="text-muted-foreground text-xs mt-1">
-            Doanh thu:
-            <span className="font-bold text-primary ml-1">
-              {netRevenueString}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between gap-4 text-xs">
+            <span className="text-black font-medium text-[11px]">
+              Trạng thái:
             </span>
-          </p>
-        )}
+            <span className="font-bold text-black">
+              {dataEntry.status === "published"
+                ? "Đã xuất bản"
+                : dataEntry.status === "archived"
+                ? "Đã gỡ xuống"
+                : dataEntry.status}
+            </span>
+          </div>
 
-        <p className="text-muted-foreground text-xs mt-1">
-          Tỷ lệ Doanh thu:
-          <span className="font-bold text-primary ml-1">
-            {dataEntry.value}%
-          </span>
-        </p>
+          <div className="flex justify-between gap-4 text-xs">
+            <span className="text-black text-[11px] font-medium">
+              Tổng doanh thu:
+            </span>
+            <span className="font-medium text-black">
+              {Math.round(dataEntry.gmv || 0).toLocaleString("vi-VN")} đ
+            </span>
+          </div>
+
+          <div className="flex justify-between gap-4 text-xs">
+            <span className="text-black text-[11px] font-medium">
+              Giáo viên nhận:
+            </span>
+            <span className="font-medium text-black">
+              {Math.round(dataEntry.netRevenue || 0).toLocaleString("vi-VN")} đ
+            </span>
+          </div>
+
+          <div className="flex justify-between gap-4 text-xs">
+            <span className="text-black text-[11px] font-medium">
+              Tỷ lệ doanh thu:
+            </span>
+            <span className="font-medium text-black">{dataEntry.value}%</span>
+          </div>
+
+          <div className="flex justify-between gap-4 text-xs pt-1 border-t border-dashed border-border mt-1">
+            <span className="font-bold text-black">Lợi nhuận sàn:</span>
+            <span className="font-bold text-black">
+              {Math.round((dataEntry.gmv || 0) * 0.2).toLocaleString("vi-VN")} đ
+            </span>
+          </div>
+        </div>
       </div>
     );
   }

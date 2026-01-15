@@ -3,14 +3,12 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft, Trash2, Star, Users, Clock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useWishlistCart } from "@/hooks/commonHooks";
-import { formatTimeRounded, getCartTotal } from "@/lib/utils";
-import DiscountCountdown from "@/components/ui/discountCountDown";
+import { getCartTotal } from "@/lib/utils";
+import { CourseHorizontalCard } from "@/components/student/popover/CourseHorizontalCard";
 
 export default function CartPage() {
   const router = useRouter();
@@ -32,7 +30,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="bg-white text-gray-900 py-8 sticky top-0 z-50 shadow-md">
+      <div className="bg-white text-gray-900 py-8 z-50 shadow-md">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center gap-4 mb-6">
             <button
@@ -46,35 +44,6 @@ export default function CartPage() {
               <h1 className="text-3xl font-bold">Giỏ Hàng</h1>
             </div>
           </div>
-
-          {cartItems.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Số lượng</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {cartItems.length}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Tạm tính</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {totalValue.toLocaleString()}₫
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Thuế (10%)</p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {tax.toLocaleString()}₫
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Tổng cộng</p>
-                <p className="text-3xl font-extrabold text-purple-700">
-                  {total.toLocaleString()}₫
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -104,124 +73,12 @@ export default function CartPage() {
             {/* Items List */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((course) => (
-                <div
+                <CourseHorizontalCard
                   key={course.id}
-                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 group"
-                >
-                  <div className="flex flex-col sm:flex-row gap-6 p-6">
-                    {/* Course Image */}
-                    <Link href={`/courses/${course.id}`} className="shrink-0">
-                      <div className="relative w-full sm:w-40 h-40 rounded-xl overflow-hidden bg-gray-200 group-hover:shadow-lg transition-all duration-300">
-                        <Image
-                          src={
-                            course.image ||
-                            "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                          }
-                          alt={course.title}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 160px"
-                          priority
-                          className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-violet-600 px-3 py-1 rounded-full text-xs font-semibold">
-                          {course.level}
-                        </div>
-                      </div>
-                    </Link>
-
-                    {/* Course Info */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <Link href={`/courses/${course.id}`}>
-                              <h3 className="text-lg font-bold text-gray-800 hover:text-violet-600 transition-colors line-clamp-2">
-                                {course.title}
-                              </h3>
-                            </Link>
-                            <p className="text-sm text-gray-600 mt-1">
-                              bởi {course.instructor}
-                            </p>
-                          </div>
-                          {course.rating != null &&
-                            course.ratingCount != null && (
-                              <div className="flex items-center gap-1 ml-4 shrink-0">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-sm font-semibold text-gray-700">
-                                  {course.rating} ({course.ratingCount} đánh
-                                  giá)
-                                </span>
-                              </div>
-                            )}
-                        </div>
-
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                          {course.students != null && (
-                            <div className="flex items-center gap-1">
-                              <Users className="w-4 h-4" />
-                              <span>{course.students.toLocaleString()}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>
-                              {formatTimeRounded(Number(course.duration))}
-                            </span>
-                          </div>
-                          <span className="bg-violet-100 text-violet-700 px-2 py-1 rounded-full text-xs font-medium">
-                            {course.category}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Price and Actions */}
-                      <div className="h-5">
-                        {course.discount != null && course.discountExpiresAt ? (
-                          <DiscountCountdown
-                            discount={course.discount}
-                            discountExpiresAt={course.discountExpiresAt}
-                          />
-                        ) : (
-                          <div className="h-full"></div>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
-                        <div className="flex items-center gap-3">
-                          {course.originalPrice &&
-                          course.discountExpiresAt &&
-                          new Date(course.discountExpiresAt) > new Date() ? (
-                            <>
-                              <span className="text-2xl font-bold text-violet-600">
-                                {(course.price ?? 0).toLocaleString()}₫
-                              </span>
-
-                              <span className="text-gray-400 line-through">
-                                {course.originalPrice.toLocaleString()}₫
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="text-2xl font-bold text-violet-600">
-                                {course.originalPrice?.toLocaleString()}₫
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          {/* Remove Button */}
-                          <button
-                            onClick={() => handleCartToggle(course)}
-                            className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
-                            aria-label="Xóa khỏi giỏ hàng"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  course={course}
+                  type="cart"
+                  onAction={handleCartToggle}
+                />
               ))}
             </div>
 
@@ -256,7 +113,7 @@ export default function CartPage() {
                 <button
                   onClick={handleCheckout}
                   disabled={isCheckingOut}
-                  className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
+                  className="cursor-pointer w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-3"
                 >
                   {isCheckingOut ? (
                     <>

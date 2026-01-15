@@ -1,7 +1,6 @@
 "use client";
 
-import { ShoppingCart, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -9,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { removeFromCart } from "@/redux/thunk/cartThunk";
 import { updateCourseCart } from "@/redux/features/course/courseSlice";
 import { getCartTotal } from "@/lib/utils";
+import { CoursePopoverItem } from "../student/popover/CoursePopoverItem";
 
 export const CartPopover = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -52,64 +52,12 @@ export const CartPopover = () => {
 
       <div className="max-h-72 overflow-y-auto">
         {items.map((course, index) => (
-          <div
+          <CoursePopoverItem
             key={course.id}
-            className="px-4 py-3 relative hover:bg-gray-50 transition-colors"
-          >
-            {index < items.length - 1 && (
-              <div className="absolute left-4 right-4 bottom-0 h-px bg-gray-200" />
-            )}
-
-            <div className="flex gap-3 items-start">
-              <div className="w-14 h-14 shrink-0 rounded-md overflow-hidden bg-gray-100">
-                <Image
-                  src={
-                    course.image ||
-                    "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                  }
-                  alt={course.title}
-                  width={56}
-                  height={56}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="flex-1 min-w-0 pr-1">
-                <h4 className="text-sm font-semibold text-gray-900 line-clamp-2 leading-snug">
-                  {course.title}
-                </h4>
-                <p className="text-xs text-gray-500 mt-0.5 truncate">
-                  {course.instructor}
-                </p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  {course.discountExpiresAt &&
-                  course.originalPrice &&
-                  new Date(course.discountExpiresAt).getTime() > Date.now() ? (
-                    <>
-                      <span className="text-base font-bold text-gray-900">
-                        {(course.price ?? 0).toLocaleString()}₫
-                      </span>
-                      <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
-                        {course.originalPrice.toLocaleString()}₫
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-base font-bold text-gray-900">
-                      {(course.originalPrice ?? 0).toLocaleString()}₫
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={() => handleRemoveFromCart(course.id)}
-                className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors shrink-0 pt-0.5 cursor-pointer"
-                aria-label="Remove from cart"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+            course={course}
+            isLast={index === items.length - 1}
+            onRemove={handleRemoveFromCart}
+          />
         ))}
       </div>
 

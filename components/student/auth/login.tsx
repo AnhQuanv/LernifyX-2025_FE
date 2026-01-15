@@ -52,11 +52,8 @@ export function LoginForm() {
       const res = await dispatch(loginAsync(values)).unwrap();
       const token = res.accessToken;
       setTokenGetter(() => token);
-      if (res.user.roleName === "student") {
-        router.push("/homepage");
-      } else if (res.user.roleName === "teacher") {
-        router.push("/dashboard");
-      }
+
+      router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.message;
@@ -145,7 +142,7 @@ export function LoginForm() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((p) => !p)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -160,7 +157,7 @@ export function LoginForm() {
                 <Button
                   type="button"
                   variant="link"
-                  className="p-0 text-indigo-500"
+                  className="p-0 text-indigo-500 cursor-pointer"
                   onClick={() => setShowForgotPasswordModal(true)}
                 >
                   Quên mật khẩu?
@@ -170,7 +167,7 @@ export function LoginForm() {
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white"
+                className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white cursor-pointer"
                 disabled={formState.isSubmitting}
               >
                 {formState.isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
@@ -180,8 +177,9 @@ export function LoginForm() {
               <p className="text-center text-sm text-gray-500 mt-4">
                 Chưa có tài khoản?{" "}
                 <Button
+                  type="button"
                   variant="link"
-                  className="text-indigo-600 p-0"
+                  className="text-indigo-600 p-0 cursor-pointer"
                   onClick={() => router.push("/auth/register")}
                 >
                   Đăng ký

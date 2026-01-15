@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  BookOpen,
   ChevronRight,
   Search,
   ArrowRight,
@@ -33,7 +32,6 @@ const Homepage = () => {
     homeCourse: allCourses,
     recommendationCourse,
     status: courseStatus,
-    statusRecommendationCourse,
   } = useSelector((state: RootState) => state.course);
   const auth = useSelector((state: RootState) => state.auth);
   const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
@@ -45,6 +43,9 @@ const Homepage = () => {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
+  const [showRecommendation, setShowRecommendation] = useState(false);
+  const [isRecommending, setIsRecommending] = useState(false);
 
   const coursesPerPage = 4;
   const maxSlides = Math.ceil(allCourses.length / coursesPerPage) - 1;
@@ -68,11 +69,21 @@ const Homepage = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : maxSlides));
   };
 
+  const handleToggleRecommendation = async () => {
+    const nextState = !showRecommendation;
+    setShowRecommendation(nextState);
+
+    if (nextState && recommendationCourse.length === 0) {
+      setIsRecommending(true);
+      await dispatch(getCourseRecommendation());
+      setIsRecommending(false);
+    }
+  };
+
   const categoriesToDisplay = categories.map((dbCat) => {
     return {
       id: dbCat.categoryId,
       name: dbCat.categoryName,
-      icon: "📚",
       color: "from-gray-500 to-gray-600",
       popular: false,
     };
@@ -90,37 +101,26 @@ const Homepage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const promises = [
+      await Promise.all([
         dispatch(getAllCategories()),
         dispatch(getHomeCourses()),
-      ];
-      if (auth.isAuthenticated) {
-        promises.push(dispatch(getCourseRecommendation()));
-      }
-      await Promise.all(promises);
+      ]);
       setIsLoading(false);
     };
     fetchData();
-  }, [dispatch, auth.isAuthenticated]);
+  }, [dispatch]);
 
-  if (
-    categoryStatus === "loading" ||
-    isLoading ||
-    courseStatus === "loading" ||
-    statusRecommendationCourse === "loading"
-  ) {
+  if (categoryStatus === "loading" || isLoading || courseStatus === "loading") {
     return (
-      <>
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
-            <p className="text-black-600">Đang tải dữ liệu...</p>
-          </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-black-600">Đang tải dữ liệu...</p>
         </div>
-        ;
-      </>
+      </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -172,25 +172,23 @@ const Homepage = () => {
                   </span>
                 </button>
 
-                {/* Dropdown */}
                 {showSearchDropdown && filteredCourses.length > 0 && (
-                  <div
-                    className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-9999 max-h-96 overflow-y-auto"
-                    style={{ position: "absolute", zIndex: 9999 }}
-                  >
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-9999 max-h-96 overflow-y-auto">
                     <div className="p-4">
                       <div className="space-y-2">
                         {filteredCourses.slice(0, 8).map((course) => (
                           <div
+                            onClick={() => {
+                              router.push(`/courses/${course.id}`);
+                              setShowSearchDropdown(false);
+                              setSearchQuery("");
+                            }}
                             key={course.id}
                             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group/item"
                           >
                             <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-200">
                               <Image
-                                src={
-                                  course.image ||
-                                  "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                                }
+                                src={course.image}
                                 alt={course.title}
                                 width={100}
                                 height={100}
@@ -245,22 +243,6 @@ const Homepage = () => {
                     </div>
                   </div>
                 )}
-                {showSearchDropdown &&
-                  searchQuery.trim().length > 0 &&
-                  filteredCourses.length === 0 && (
-                    <div
-                      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl z-9999 p-8 text-center"
-                      style={{ position: "absolute", zIndex: 9999 }}
-                    >
-                      <div className="text-gray-500">
-                        <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p className="font-semibold text-gray-700 mb-1">
-                          Không tìm thấy khóa học
-                        </p>
-                        <p className="text-sm">Hãy thử tìm với từ khóa khác</p>
-                      </div>
-                    </div>
-                  )}
               </div>
             </div>
           </div>
@@ -300,9 +282,6 @@ const Homepage = () => {
                   className={`absolute inset-0 bg-linear-to-r ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                 ></div>
                 <div className="relative z-10">
-                  <div className="text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-500">
-                    {category.icon}
-                  </div>
                   <h3 className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-white transition-colors duration-500">
                     {category.name}
                   </h3>
@@ -402,7 +381,6 @@ const Homepage = () => {
             </div>
           </div>
 
-          {/* Indicators */}
           <div className="flex justify-center mt-12 space-x-3">
             {Array.from({ length: maxSlides + 1 }).map((_, index) => (
               <button
@@ -419,110 +397,121 @@ const Homepage = () => {
         </div>
       </section>
 
-      {recommendationCourse && recommendationCourse.length > 0 && (
-        <section className="py-20 bg-linear-to-b from-gray-50 to-white">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="flex justify-between items-center mb-16">
-              <div>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
-                  Gợi ý khóa học
-                </h2>
-              </div>
-              <div className="hidden lg:flex items-center space-x-4">
-                <button
-                  className="bg-linear-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all duration-300 flex items-center space-x-2 shadow-lg cursor-pointer"
-                  onClick={() => router.push("/courses")}
-                >
-                  <span className="font-semibold">Xem tất cả khóa học</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Slider */}
-            <div className="relative">
-              <button
-                onClick={() =>
-                  setCurrentSlideRecommendation((prev) =>
-                    prev > 0
-                      ? prev - 1
-                      : Math.ceil(
-                          recommendationCourse.length / coursesPerPage
-                        ) - 1
-                  )
-                }
-                className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
-              >
-                <ChevronRight className="w-6 h-6 rotate-180 group-hover:scale-110 transition-transform" />
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentSlideRecommendation((prev) =>
-                    prev <
-                    Math.ceil(recommendationCourse.length / coursesPerPage) - 1
-                      ? prev + 1
-                      : 0
-                  )
-                }
-                className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
-              >
-                <ChevronRight className="w-6 h-6 group-hover:scale-110 transition-transform" />
-              </button>
-              <div className="overflow-hidden rounded-2xl">
-                <div
-                  className="flex transition-transform duration-700 ease-out"
-                  style={{
-                    transform: `translateX(-${
-                      currentSlideRecommendation * 100
-                    }%)`,
-                  }}
-                >
-                  {Array.from({
-                    length: Math.ceil(
-                      recommendationCourse.length / coursesPerPage
-                    ),
-                  }).map((_, slideIndex) => (
-                    <div key={slideIndex} className="w-full shrink-0">
-                      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {recommendationCourse
-                          .slice(
-                            slideIndex * coursesPerPage,
-                            (slideIndex + 1) * coursesPerPage
-                          )
-                          .map((course) => (
-                            <CourseCard
-                              key={course.id}
-                              course={course}
-                              onWishlistToggle={handleWishlistToggle}
-                              onCartToggle={handleCartToggle}
-                            />
-                          ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Indicators */}
-            <div className="flex justify-center mt-12 space-x-3">
-              {Array.from({ length: maxSlidesRecommend + 1 }).map(
-                (_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlideRecommendation(index)}
-                    className={`h-3 rounded-full transition-all duration-300 ${
-                      currentSlideRecommendation === index
-                        ? "bg-violet-600 w-8"
-                        : "bg-gray-300 hover:bg-gray-400 w-3"
-                    }`}
-                  />
-                )
+      {auth.isAuthenticated && (
+        <section className="py-10 bg-gray-50">
+          <div className="text-center mt-12">
+            <button
+              onClick={handleToggleRecommendation}
+              disabled={isRecommending}
+              className="group bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center mx-auto space-x-2 cursor-pointer"
+            >
+              {isRecommending && (
+                <Loader className="w-5 h-5 animate-spin text-violet-600 group-hover:text-white" />
               )}
-            </div>
+              {isRecommending
+                ? "Đang phân tích gợi ý..."
+                : showRecommendation
+                ? "Ẩn bớt gợi ý"
+                : "Xem gợi ý dành riêng cho bạn"}
+              {!isRecommending &&
+                (showRecommendation ? (
+                  <ChevronUp className="w-5 h-5" />
+                ) : (
+                  <ChevronDown className="w-5 h-5" />
+                ))}
+            </button>
           </div>
         </section>
       )}
+
+      {showRecommendation &&
+        !isRecommending &&
+        recommendationCourse.length > 0 && (
+          <section className="py-20 bg-linear-to-b from-gray-50 to-white animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="container mx-auto px-4 md:px-6">
+              <div className="flex justify-between items-center mb-16">
+                <div>
+                  <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+                    Gợi ý khóa học
+                  </h2>
+                </div>
+              </div>
+
+              <div className="relative">
+                <button
+                  onClick={() =>
+                    setCurrentSlideRecommendation((prev) =>
+                      prev > 0 ? prev - 1 : maxSlidesRecommend
+                    )
+                  }
+                  className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
+                >
+                  <ChevronRight className="w-6 h-6 rotate-180 group-hover:scale-110 transition-transform" />
+                </button>
+                <button
+                  onClick={() =>
+                    setCurrentSlideRecommendation((prev) =>
+                      prev < maxSlidesRecommend ? prev + 1 : 0
+                    )
+                  }
+                  className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
+                >
+                  <ChevronRight className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                </button>
+                <div className="overflow-hidden rounded-2xl">
+                  <div
+                    className="flex transition-transform duration-700 ease-out"
+                    style={{
+                      transform: `translateX(-${
+                        currentSlideRecommendation * 100
+                      }%)`,
+                    }}
+                  >
+                    {Array.from({
+                      length: Math.ceil(
+                        recommendationCourse.length / coursesPerPage
+                      ),
+                    }).map((_, slideIndex) => (
+                      <div key={slideIndex} className="w-full shrink-0">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                          {recommendationCourse
+                            .slice(
+                              slideIndex * coursesPerPage,
+                              (slideIndex + 1) * coursesPerPage
+                            )
+                            .map((course) => (
+                              <CourseCard
+                                key={course.id}
+                                course={course}
+                                onWishlistToggle={handleWishlistToggle}
+                                onCartToggle={handleCartToggle}
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center mt-12 space-x-3">
+                {Array.from({ length: maxSlidesRecommend + 1 }).map(
+                  (_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentSlideRecommendation(index)}
+                      className={`h-3 rounded-full transition-all duration-300 ${
+                        currentSlideRecommendation === index
+                          ? "bg-violet-600 w-8"
+                          : "bg-gray-300 hover:bg-gray-400 w-3"
+                      }`}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+          </section>
+        )}
     </div>
   );
 };

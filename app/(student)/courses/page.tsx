@@ -18,6 +18,7 @@ import { getFilterCourses } from "@/redux/thunk/courseThunk";
 import type { Course, filterCourseParams } from "@/types/course/course";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { useDebounce } from "@/hooks/useDebounce";
+import { getPaginationRange } from "@/lib/utils";
 
 const CoursesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -346,44 +347,52 @@ const CoursesPage = () => {
                       setCurrentPage(Math.max(1, pagination.page - 1))
                     }
                     disabled={pagination.page === 1}
-                    className="p-2 rounded-lg border border-gray-300 text-gray-600 
-                              hover:bg-gray-100 hover:scale-105 hover:shadow-md 
-                              cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
-                              transition-all"
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-all cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
 
                   <div className="flex gap-1">
-                    {Array.from(
-                      { length: pagination.totalPages },
-                      (_, i) => i + 1
-                    ).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
-                             ${
-                               currentPage === page
-                                 ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
-                                 : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
-                             }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
+                    {getPaginationRange(
+                      pagination.page,
+                      pagination.totalPages
+                    ).map((page, index) => {
+                      if (page === "...") {
+                        return (
+                          <span
+                            key={`dots-${index}`}
+                            className="w-10 h-10 flex items-center justify-center text-gray-400"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentPage(Number(page))}
+                          className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+              ${
+                pagination.page === page
+                  ? "bg-violet-600 text-white shadow-lg"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+              }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    })}
                   </div>
+
                   <button
                     onClick={() =>
                       setCurrentPage(
                         Math.min(pagination.totalPages, pagination.page + 1)
                       )
                     }
-                    disabled={currentPage === pagination.totalPages}
-                    className="p-2 rounded-lg border border-gray-300 text-gray-600 
-                              hover:bg-gray-100 hover:scale-105 hover:shadow-md 
-                              cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed 
-                              transition-all"
+                    disabled={pagination.page === pagination.totalPages}
+                    className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 transition-all cursor-pointer"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Lock, CreditCard } from "lucide-react";
+import { ArrowLeft, CreditCard } from "lucide-react";
 import { getCartTotal } from "@/lib/utils";
 import { createPayment } from "@/redux/thunk/paymentThunk";
 import toast from "react-hot-toast";
@@ -22,7 +22,7 @@ export default function CheckoutPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [discount, setDiscount] = useState(0);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
 
   if (cartItems.length === 0) {
     return (
@@ -50,7 +50,6 @@ export default function CheckoutPage() {
       toast.error("Vui lòng chọn phương thức thanh toán.", { duration: 4000 });
       return;
     }
-
     setIsLoading(true);
     try {
       const action = await dispatch(
@@ -67,8 +66,7 @@ export default function CheckoutPage() {
           duration: 4000,
         });
       }
-    } catch (error) {
-      console.error("Lỗi khi thanh toán:", error);
+    } catch {
       toast.error("Đã xảy ra lỗi khi thanh toán.. Vui lòng thử lại!", {
         duration: 4000,
       });
@@ -177,7 +175,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isLoading}
-                className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="cursor-pointer w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
@@ -185,10 +183,7 @@ export default function CheckoutPage() {
                     Đang xử lý...
                   </>
                 ) : (
-                  <>
-                    <Lock className="w-5 h-5" />
-                    Đặt Hàng và Thanh Toán
-                  </>
+                  <>Đặt Hàng và Thanh Toán</>
                 )}
               </button>
 

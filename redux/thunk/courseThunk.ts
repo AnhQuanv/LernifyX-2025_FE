@@ -4,6 +4,7 @@ import {
   handleGetFilteredCourses,
   handleGetHomeCourses,
   handleGetLessonDetail,
+  handleGetLessonDetailForTeacher,
 } from "@/services/courseService";
 import { ApiError } from "@/types/api/apiResponse";
 import { filterCourseParams } from "@/types/course/course";
@@ -86,6 +87,29 @@ export const getLessonDetail = createAsyncThunk(
   ) => {
     try {
       const res = await handleGetLessonDetail(params.courseId, params.lessonId);
+      return res;
+    } catch (err: unknown) {
+      const error = err as AxiosError<ApiError>;
+      return rejectWithValue({
+        message:
+          error.response?.data?.message || "Lấy chi tiết bài học thất bại",
+        errorCode: error.response?.data?.errorCode,
+      });
+    }
+  }
+);
+
+export const getLessonDetailForTeacher = createAsyncThunk(
+  "courses/getLessonDetail",
+  async (
+    params: { courseId: string; lessonId: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await handleGetLessonDetailForTeacher(
+        params.courseId,
+        params.lessonId
+      );
       return res;
     } catch (err: unknown) {
       const error = err as AxiosError<ApiError>;

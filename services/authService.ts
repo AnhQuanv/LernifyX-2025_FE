@@ -64,3 +64,30 @@ export const handlecreatePreference = async (dto: CreateUserPreferenceDto) => {
   const res = await axiosClient.post("/user-preferences/create", dto);
   return res.data;
 };
+
+export const handleGetStudentsCourseProgress = async ({
+  limit,
+  page,
+  search,
+  role,
+}: {
+  limit?: number;
+  page?: number;
+  search?: string;
+  role?: string;
+}) => {
+  const res = await axiosClient.get("/profile/admin-student", {
+    params: { limit, page, search, role },
+  });
+  return res.data.data;
+};
+
+export const handleDeleteUser = async (userId: string) => {
+  const res = await axiosClient.delete("/profile/delete", {
+    params: {
+      userId,
+    },
+  });
+
+  return res.data;
+};

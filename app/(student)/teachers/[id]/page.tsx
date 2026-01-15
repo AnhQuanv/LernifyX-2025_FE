@@ -2,13 +2,14 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react"; // 👈 Thêm useEffect
+import { useCallback, useEffect, useState } from "react";
 import CourseCard from "@/components/ui/courseCard";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { handleGetTeacherDetail } from "@/services/courseService";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Loader } from "lucide-react";
 import { Course } from "@/types/course/course";
 import { UserAvatar } from "@/components/ui/avatar-cop";
+import toast from "react-hot-toast";
 
 interface TeacherDetail {
   id: string;
@@ -29,7 +30,6 @@ export default function TeacherDetailPage() {
   const [teacher, setTeacher] = useState<TeacherDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // States cho Slider
   const [currentSlide, setCurrentSlide] = useState(0);
   const coursesPerPage = 4;
 
@@ -43,8 +43,8 @@ export default function TeacherDetailPage() {
       const res = await handleGetTeacherDetail(id);
 
       setTeacher(res);
-    } catch (error) {
-      console.error("Lỗi khi tải chi tiết giảng viên:", error);
+    } catch {
+      toast.error("Lỗi khi tải chi tiết giảng viên. Vui lòng thử lại!");
       setTeacher(null);
     } finally {
       setIsLoading(false);
@@ -68,10 +68,7 @@ export default function TeacherDetailPage() {
     setCurrentSlide((prev) => Math.max(prev - 1, 0));
   };
   const handleCartToggleWithLocalUpdate = async (course: Course) => {
-    // Chạy logic gốc (gửi API, cập nhật Redux)
     await handleCartToggle(course);
-
-    // 2. Ép Local State cập nhật theo
     setTeacher((prev) => {
       if (!prev) return null;
       return {
@@ -99,8 +96,11 @@ export default function TeacherDetailPage() {
 
   if (isLoading && !teacher) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-xl text-violet-600">Đang tải hồ sơ giảng viên...</p>
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-black-600">Đang tải dữ liệu...</p>
+        </div>
       </div>
     );
   }
@@ -157,7 +157,9 @@ export default function TeacherDetailPage() {
 
                 <div className="bg-linear-to-br from-indigo-50 to-blue-50 p-4 rounded-xl border border-indigo-100">
                   <div className="flex items-center gap-2 text-indigo-600 mb-2">
-                    <span className="text-sm font-medium">Khóa học</span>
+                    <span className="text-sm font-medium">
+                      Khóa học của giảng viên
+                    </span>
                   </div>
                   <p className="text-2xl font-bold text-gray-800">
                     {teacher.courses}
@@ -181,7 +183,7 @@ export default function TeacherDetailPage() {
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-            Khóa học ({allCourses.length})
+            Khóa học của giảng viên
           </h2>
 
           {allCourses.length > 0 ? (
@@ -215,7 +217,7 @@ export default function TeacherDetailPage() {
                     <div
                       key={slideIndex}
                       className="shrink-0"
-                      style={{ width: `${100 / totalSlides}%` }} // Chiều rộng từng slide
+                      style={{ width: `${100 / totalSlides}%` }}
                     >
                       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 p-1">
                         {" "}

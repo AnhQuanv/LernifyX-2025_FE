@@ -1,10 +1,11 @@
 "use client";
 
-import { RevenueDataItem } from "@/app/(teacher)/dashboard/page";
-import { useCallback } from "react";
+import { RevenueDataItem } from "@/app/teacher/dashboard/page";
+import { useCallback, useMemo } from "react";
+import { Loader2 } from "lucide-react";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,79 +22,152 @@ const generateTicks = (max: number, step: number) => {
   return ticks;
 };
 
-export function RevenueChart({ data }: { data: RevenueDataItem[] }) {
+interface RevenueChartProps {
+  data: RevenueDataItem[];
+  isLoading?: boolean;
+}
+
+export function RevenueChart({ data, isLoading }: RevenueChartProps) {
   const formatYAxis = useCallback((value: number) => {
     if (value === 0) return "0";
-    if (value >= 1000000) {
-      return `${value / 1000000}M`;
-    }
+    if (value >= 1000000) return `${value / 1000000}M`;
     return `${value / 1000}K`;
   }, []);
 
-  if (!data || data.length === 0) {
+  const isAllZero = useMemo(() => {
+    if (!data || data.length === 0) return true;
+    return data.every((item) => item.revenue === 0 && item.gmv === 0);
+  }, [data]);
+
+  if (isLoading) {
     return (
-      <div className="bg-card rounded-lg p-6 border border-border h-87.5 flex items-center justify-center">
-        <p className="text-muted-foreground">Chưa có dữ liệu doanh thu.</p>
+      <div className="bg-card rounded-lg p-6 border border-border h-120 flex flex-col items-center justify-center space-y-4">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
+        <p className="text-muted-foreground animate-pulse font-medium">
+          Đang cập nhật dữ liệu...
+        </p>
       </div>
     );
   }
 
-  const maxRevenue = Math.max(...data.map((item) => item.revenue));
+  if (isAllZero) {
+    return (
+      <div className="bg-card rounded-lg p-6 border border-border h-120 flex flex-col items-center justify-center text-center space-y-3">
+        <div className="bg-muted p-4 rounded-full"></div>
+        <div className="space-y-1">
+          <p className="text-foreground ">Chưa có doanh thu</p>
+        </div>
+      </div>
+    );
+  }
+
+  const maxRevenue = Math.max(...data.map((item) => item.revenue), 1000000);
   const step = 500000;
   const domainMax = Math.ceil(maxRevenue / step) * step;
   const customTicks = generateTicks(domainMax, step);
 
   return (
-    <div className="bg-card rounded-lg p-6 border border-border">
-      <h3 className="text-lg font-semibold text-foreground mb-4">
-        Doanh Thu Hàng Tháng (Đơn vị: Ngàn đồng)
+    <div className="bg-card rounded-lg p-6 border border-border shadow-sm">
+      <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+        Doanh Thu Hàng Tháng (Đơn vị: VNĐ)
       </h3>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
 
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={data}
+          margin={{ top: 10, right: 10, left: 10, bottom: 40 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            stroke="rgba(var(--color-border), 0.5)"
+          />
           <XAxis
             dataKey="name"
-            stroke="var(--color-muted-foreground)"
-            interval={0} // Yêu cầu hiển thị tất cả
+            stroke="#888888"
+            tick={{ fontSize: 11 }}
+            axisLine={true}
+            tickLine={true}
             angle={-45}
             textAnchor="end"
-            height={60} // Tăng chiều cao trục X để chứa nhãn xoay
+            height={60}
           />
-
           <YAxis
-            stroke="var(--color-muted-foreground)"
+            stroke="#888888"
             tickFormatter={formatYAxis}
             domain={[0, domainMax]}
-            interval={0}
             ticks={customTicks}
+            tick={{ fontSize: 11 }}
+            axisLine={true}
+            tickLine={true}
           />
-
           <Tooltip
-            contentStyle={{
-              backgroundColor: "var(--color-card)",
-              border: `1px solid var(--color-border)`,
-              borderRadius: "8px",
-              color: "var(--color-foreground)",
+            cursor={{ fill: "rgba(0,0,0,0.04)" }}
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0].payload;
+                const gmv = item.gmv || 0;
+                const revenue = item.revenue || 0;
+                const platformProfit = gmv * 0.2;
+
+                return (
+                  <div className="bg-white border border-border p-4 rounded-xl shadow-xl min-w-60">
+                    <p className="text-sm font-bold mb-3 border-b border-slate-200 pb-2 text-black">
+                      Tháng {item.name}
+                    </p>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-black font-medium">
+                          Tổng doanh thu:
+                        </span>
+                        <span className="font-bold text-black">
+                          {gmv.toLocaleString("vi-VN")} đ
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-black font-medium">
+                          Giáo viên nhận:
+                        </span>
+                        <span className="font-bold text-black">
+                          {revenue.toLocaleString("vi-VN")} đ
+                        </span>
+                      </div>
+
+                      <div className="pt-2 border-t border-dashed border-slate-300 mt-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-black font-bold">
+                            Lợi nhuận sàn:
+                          </span>
+                          <span className="font-bold text-black">
+                            {platformProfit.toLocaleString("vi-VN")} đ
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
             }}
-            formatter={(value) => [
-              `${value.toLocaleString("vi-VN")} đ`,
-              "Doanh thu",
-            ]}
           />
-
-          <Legend wrapperStyle={{ paddingTop: 10 }} />
-
-          <Line
-            type="monotone"
-            dataKey="revenue"
-            name="Doanh Thu"
-            stroke="var(--color-primary)"
-            strokeWidth={2}
-            dot={{ fill: "var(--color-primary)", r: 4 }}
+          <Legend
+            verticalAlign="top"
+            align="right"
+            iconType="circle"
+            wrapperStyle={{ paddingBottom: 25, fontSize: "12px" }}
+          />
+          <Bar
             isAnimationActive={false}
+            dataKey="revenue"
+            name="Doanh Thu Nhận"
+            fill="#3b82f6"
+            radius={[6, 6, 0, 0]}
+            barSize={32}
+            animationDuration={1500}
           />
-        </LineChart>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );

@@ -20,11 +20,21 @@ export interface Course {
   image: string;
   isInWishlist?: boolean;
   isInCart?: boolean;
-  status?: "published" | "draft" | "pending" | "rejected";
+  status?: "published" | "draft" | "pending" | "rejected" | "archived";
   revenue?: string;
+  netRevenue?: string;
   createdAt?: string;
   lessons?: number;
   progress?: number;
+  platformProfit?: number;
+  childCourseId?: string;
+  hasDraft?: boolean;
+  parentId?: string;
+  childCourseStatus?: string;
+  childDrafts?: Course[];
+  submissionNote?: string;
+  archiveReason?: string;
+  rejectionReason?: string;
 }
 
 export interface filterCourseParams {
@@ -133,6 +143,10 @@ export interface CreateCourseDto {
 
 export interface UpdateCourseDto extends CreateCourseDto {
   id: string;
+  rejectionReason?: string;
+  archiveReason?: string;
+  submissionNote?: string;
+  isLive?: boolean;
 }
 
 export type ProgressCallback = (progress: number) => void;

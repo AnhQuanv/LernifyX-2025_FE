@@ -10,11 +10,13 @@ import {
   Menu,
   X,
   Book,
+  Users,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import { logout } from "@/redux/features/auth/authSlice";
 
 export function Sidebar() {
@@ -22,13 +24,27 @@ export function Sidebar() {
   const dispatch = useDispatch<AppDispatch>();
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const role = user?.roleName;
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: BookOpen, label: "Khóa Học", href: "/course" },
-    { icon: BarChart3, label: "Thống Kê", href: "/analytics" },
-    { icon: Settings, label: "Cài Đặt", href: "/setting" },
+  const teacherMenuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", href: "/teacher/dashboard" },
+    { icon: BookOpen, label: "Khóa Học", href: "/teacher/course" },
+    { icon: BarChart3, label: "Thống Kê", href: "/teacher/analytics" },
+    { icon: User, label: "Chỉnh sửa hồ sơ", href: "/teacher/profile" },
+    { icon: Settings, label: "Cài Đặt", href: "/teacher/setting" },
   ];
+
+  const adminMenuItems = [
+    { icon: LayoutDashboard, label: "Dashboard", href: "/admin/dashboard" },
+    { icon: Users, label: "Quản lý tài khoản", href: "/admin/students" },
+    { icon: BookOpen, label: "Quản lý khóa học", href: "/admin/courses" },
+    { icon: BarChart3, label: "Thống Kê", href: "/admin/analytics" },
+    { icon: User, label: "Chỉnh sửa hồ sơ", href: "/admin/profile" },
+    { icon: Settings, label: "Cài Đặt", href: "/admin/setting" },
+  ];
+
+  const menuItems = role === "admin" ? adminMenuItems : teacherMenuItems;
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");

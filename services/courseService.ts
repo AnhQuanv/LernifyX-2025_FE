@@ -41,7 +41,11 @@ export const handleGetMyLearningCourses = async ({
   progressStatus,
   page,
   limit,
-}: { progressStatus?: string; page?: number; limit?: number } = {}) => {
+}: {
+  progressStatus?: string;
+  page?: number;
+  limit?: number;
+}) => {
   const res = await axiosClient.get("course/my-learning", {
     params: { progressStatus, page, limit },
   });
@@ -53,6 +57,16 @@ export const handleGetLessonDetail = async (
   lessonId: string
 ) => {
   const res = await axiosClient.get(`course/${courseId}/lesson/${lessonId}`, {
+    params: { courseId, lessonId },
+  });
+  return res.data.data;
+};
+
+export const handleGetLessonDetailForTeacher = async (
+  courseId: string,
+  lessonId: string
+) => {
+  const res = await axiosClient.get(`course/${courseId}/lessons/${lessonId}`, {
     params: { courseId, lessonId },
   });
   return res.data.data;
@@ -80,147 +94,6 @@ export const handleUpLoadImage = async (
   return res.data.data;
 };
 
-// Direct Upload URL từ Mux Backend, URL này có một thời hạn nhất định (mặc định thường là 24 giờ).
-// export const handleUpLoadVideo = (
-//   file: File,
-//   lessonId: string,
-//   onProgress: (percent: number, stats?: { speed: string; eta: string }) => void,
-//   existingUrl?: string
-// ) => {
-//   return new Promise(async (resolve, reject) => {
-//     // 1. Khôi phục taskId cũ hoặc tạo mới
-//     let taskId = localStorage.getItem(`upload_taskid_${lessonId}`);
-//     if (!taskId) {
-//       taskId = uuid.v4();
-//     }
-
-//     socket.connect();
-//     let lastTime = Date.now();
-//     let lastBytes = 0;
-//     let smoothedSpeed = 0;
-//     let lastUiUpdate = 0;
-//     const smoothingFactor = 0.05;
-//     const cleanup = () => {
-//       socket.off("upload_complete");
-//       socket.off("upload_error");
-//       socket.off("connect");
-//       socket.disconnect();
-//     };
-
-//     socket.on("connect", () => {
-//       socket.emit("register_upload", taskId);
-//     });
-
-//     // Lắng nghe tín hiệu hoàn thành từ Backend qua Socket
-//     socket.once("upload_complete", (data) => {
-//       if (data.taskId === taskId) {
-//         onProgress(100);
-//         // Dọn dẹp bộ nhớ khi thực sự thành công
-//         localStorage.removeItem(`upload_url_${lessonId}`);
-//         localStorage.removeItem(`upload_taskid_${lessonId}`);
-//         localStorage.removeItem(`upload_filename_${lessonId}`);
-//         localStorage.removeItem(`upload_progress_${lessonId}`);
-//         resolve(data.data);
-//         cleanup();
-//       }
-//     });
-
-//     socket.once("upload_error", (data) => {
-//       if (data.taskId === taskId) {
-//         reject(new Error(data.message));
-//         cleanup();
-//       }
-//     });
-
-//     try {
-//       let muxUploadUrl = existingUrl;
-//       if (!muxUploadUrl) {
-//         const res = await axiosClient.post("mux/upload-url", {
-//           taskId,
-//           lessonId,
-//         });
-//         muxUploadUrl = res.data.data.uploadUrl;
-
-//         // Lưu thông tin để khôi phục khi F5
-//         localStorage.setItem(`upload_taskid_${lessonId}`, taskId!);
-//         localStorage.setItem(`upload_url_${lessonId}`, muxUploadUrl!);
-//         localStorage.setItem(`upload_filename_${lessonId}`, file.name);
-//       }
-
-//       const upload = UpChunk.createUpload({
-//         endpoint: muxUploadUrl!,
-//         file: file,
-//         chunkSize: 51200,
-//         attempts: 5,
-//         dynamicChunkSize: false,
-//       });
-
-//       upload.on("progress", (ev) => {
-//         const percent = ev.detail;
-//         const now = Date.now();
-//         const bytesUploaded = (file.size * percent) / 100;
-
-//         // Tính toán tốc độ tức thời
-//         const timeDiff = (now - lastTime) / 1000; // giây
-//         const bytesDiff = bytesUploaded - lastBytes;
-
-//         if (timeDiff > 0 && bytesDiff > 0) {
-//           const instantSpeed = bytesDiff / timeDiff;
-
-//           // EMA: Smoothed = (Instant * Alpha) + (PreviousSmoothed * (1 - Alpha))
-//           if (smoothedSpeed === 0) smoothedSpeed = instantSpeed;
-//           else
-//             smoothedSpeed =
-//               instantSpeed * smoothingFactor +
-//               smoothedSpeed * (1 - smoothingFactor);
-
-//           lastTime = now;
-//           lastBytes = bytesUploaded;
-//         }
-
-//         if (now - lastUiUpdate > 1000 || percent === 100 || percent === 0) {
-//           lastUiUpdate = now;
-
-//           const bytesRemaining = file.size - bytesUploaded;
-//           const secondsRemaining =
-//             smoothedSpeed > 0 ? Math.round(bytesRemaining / smoothedSpeed) : 0;
-
-//           const speedMbps = ((smoothedSpeed * 8) / (1024 * 1024)).toFixed(2);
-
-//           const minutes = Math.floor(secondsRemaining / 60);
-//           const seconds = secondsRemaining % 60;
-//           const etaLabel =
-//             minutes > 0 ? `${minutes}p ${seconds}s` : `${seconds}s`;
-
-//           onProgress(Math.round(percent), { speed: speedMbps, eta: etaLabel });
-//           localStorage.setItem(
-//             `upload_progress_${lessonId}`,
-//             Math.round(percent).toString()
-//           );
-//         }
-//       });
-
-//       upload.on("success", () => {
-//         console.log(" Byte đã tải lên Mux. Đang đợi Webhook xử lý Asset...");
-//       });
-
-//       upload.on("error", (err) => {
-//         if (err.detail.includes("404") || err.detail.includes("410")) {
-//           localStorage.removeItem(`upload_url_${lessonId}`);
-//           localStorage.removeItem(`upload_taskid_${lessonId}`);
-//         }
-//         reject(new Error(err.detail));
-//         cleanup();
-//       });
-//     } catch (error) {
-//       reject(error);
-//       cleanup();
-//     }
-//   });
-// };
-
-// Đảm bảo bạn đã import axiosClient và socket instance của mình
-
 export const handleUpLoadVideo = (
   file: File,
   lessonId: string,
@@ -234,9 +107,8 @@ export const handleUpLoadVideo = (
     let lastBytes = 0;
     let smoothedSpeed = 0;
     let lastUiUpdate = 0;
-    const smoothingFactor = 0.05; // Giúp con số tốc độ không bị nhảy quá nhanh
+    const smoothingFactor = 0.05;
 
-    // 2. Thiết lập Socket Room
     const register = () => {
       console.log("[WS] Đang đăng ký taskId vào Room:", taskId);
       socket.emit("register_upload", taskId);
@@ -263,7 +135,7 @@ export const handleUpLoadVideo = (
         localStorage.removeItem(`upload_filename_${lessonId}`);
         localStorage.removeItem(`upload_progress_${lessonId}`);
 
-        console.log("✅ Video đã sẵn sàng trên Mux!");
+        console.log("Video đã sẵn sàng trên Mux!");
         resolve(data.data);
         cleanup();
       }
@@ -295,7 +167,7 @@ export const handleUpLoadVideo = (
       const upload = UpChunk.createUpload({
         endpoint: muxUploadUrl!,
         file: file,
-        chunkSize: 51200, // 512 KB
+        chunkSize: 51200,
         attempts: 5,
         dynamicChunkSize: false,
       });
@@ -306,13 +178,11 @@ export const handleUpLoadVideo = (
         const now = Date.now();
         const bytesUploaded = (file.size * percent) / 100;
 
-        // Tính toán tốc độ và ETA
         const timeDiff = (now - lastTime) / 1000; // giây
         const bytesDiff = bytesUploaded - lastBytes;
 
         if (timeDiff > 0 && bytesDiff > 0) {
           const instantSpeed = bytesDiff / timeDiff;
-          // Áp dụng EMA (Exponential Moving Average) để mượt số liệu
           smoothedSpeed =
             smoothedSpeed === 0
               ? instantSpeed
@@ -346,11 +216,10 @@ export const handleUpLoadVideo = (
       });
 
       upload.on("success", () => {
-        console.log("📤 Tải lên Mux hoàn tất. Đang chờ xử lý video...");
+        console.log("Tải lên Mux hoàn tất. Đang chờ xử lý video...");
       });
 
       upload.on("error", (err) => {
-        // Nếu lỗi 404/410 là do URL Mux hết hạn, xóa lưu trữ để lần sau lấy URL mới
         if (err.detail.status === 404 || err.detail.status === 410) {
           localStorage.removeItem(`upload_url_${lessonId}`);
           localStorage.removeItem(`upload_taskid_${lessonId}`);
@@ -382,13 +251,29 @@ export const handleCreateCourse = async (dto: CreateCourseDto) => {
   return res.data.data;
 };
 
-export const handleUpdateCourse = async (dto: UpdateCourseDto) => {
+export const handleApproveChildCourse = async (childCourseId: string) => {
+  console.log("childCourseId: ", childCourseId);
+  const res = await axiosClient.put("course/update-child-course", {
+    childCourseId,
+  });
+  return res.data.data;
+};
+
+export const handleUpdateCourse = async (dto: Partial<UpdateCourseDto>) => {
+  console.log("dto: ", dto);
   const res = await axiosClient.put("course/update", dto);
   return res.data.data;
 };
 
 export const handleDeleteCourse = async (courseId: string) => {
   const res = await axiosClient.delete("course/delete", {
+    data: { courseId: courseId },
+  });
+  return res.data.data;
+};
+
+export const handleDeletePublishedCourse = async (courseId: string) => {
+  const res = await axiosClient.delete("course/delete-published-course", {
     data: { courseId: courseId },
   });
   return res.data.data;
@@ -470,5 +355,33 @@ export const handleGetTeacherCoursesRevenue = async () => {
 
 export const handleGetTeacherCoursesRevenuePage = async () => {
   const res = await axiosClient.get("course/teacher-revenue-page");
+  return res.data.data;
+};
+
+export const handleGetAdminCourseCounts = async () => {
+  const res = await axiosClient.get("course/admin-counts");
+  return res.data.data;
+};
+
+export const handleGetAdminFilteredCourses = async ({
+  params,
+}: { params?: filterTeacherCourseParams } = {}) => {
+  const res = await axiosClient.get("course/admin-filter", { params });
+  return res.data.data;
+};
+
+export const handleCreateCourseDraft = async (courseId: string) => {
+  const res = await axiosClient.post(
+    "course/edit-logic",
+    {},
+    {
+      params: { courseId },
+    }
+  );
+  return res.data.data;
+};
+
+export const handleGetTeacherCourseTree = async () => {
+  const res = await axiosClient.get("course/admin-teacher-course-tree");
   return res.data.data;
 };

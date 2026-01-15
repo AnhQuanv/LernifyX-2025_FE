@@ -32,9 +32,8 @@ export default function PurchaseHistoryPage() {
       setPurchases(res.data);
       setFilteredPurchases(res.data);
       setPagination(res.pagination);
-    } catch (err) {
+    } catch {
       setError("Failed to load purchase history");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +111,6 @@ export default function PurchaseHistoryPage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 md:px-6 py-12">
         {purchases.length === 0 ? (
-          // Empty State
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-lg p-12 text-center border border-gray-100">
               <div className="w-20 h-20 bg-linear-to-br from-violet-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">

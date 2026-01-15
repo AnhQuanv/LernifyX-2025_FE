@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Star, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/types/user/user";
+import { getPaginationRange } from "@/lib/utils";
 
 interface Review {
   id: string;
@@ -48,7 +49,7 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
     <div className="space-y-8">
       {/* Form đánh giá */}
       {isPurchased && !hasReviewed && (
-        <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200">
+        <div className="bg-linear-to-r from-violet-50 to-purple-50 rounded-2xl p-8 shadow-lg border-2 border-violet-200">
           <h3 className="text-2xl font-bold text-gray-800 mb-4">
             Chia sẻ trải nghiệm của bạn
           </h3>
@@ -102,7 +103,7 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+              className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
             >
               Gửi đánh giá
             </button>
@@ -197,22 +198,35 @@ const CourseReviews: React.FC<CourseReviewsProps> = ({
             </button>
 
             <div className="flex gap-1">
-              {Array.from(
-                { length: pagination.totalPages },
-                (_, i) => i + 1
-              ).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer ${
-                    currentPage === page
-                      ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
-                      : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {getPaginationRange(pagination.page, pagination.totalPages).map(
+                (page, index) => {
+                  if (page === "...") {
+                    return (
+                      <span
+                        key={`dots-${index}`}
+                        className="w-10 h-10 flex items-center justify-center text-gray-400"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(Number(page))}
+                      className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                         ${
+                           pagination.page === page
+                             ? "bg-violet-600 text-white shadow-lg"
+                             : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                         }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                }
+              )}
             </div>
 
             <button

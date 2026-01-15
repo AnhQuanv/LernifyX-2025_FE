@@ -7,6 +7,8 @@ import { handleGetTeacher } from "@/services/courseService";
 import { Pagination } from "@/types/course/course";
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import Link from "next/link";
+import { getPaginationRange } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface Teacher {
   id: string;
@@ -38,8 +40,8 @@ const TeachersPage = () => {
 
         setTeachers(res.data);
         setPagination(res.pagination);
-      } catch (error) {
-        console.error("Lỗi khi tải danh sách giảng viên:", error);
+      } catch {
+        toast.error("Lỗi khi tải danh sách giảng viên.Vui lòng thử lại!");
         setTeachers([]);
         setPagination(null);
       } finally {
@@ -184,23 +186,36 @@ const TeachersPage = () => {
                 </button>
 
                 <div className="flex gap-1">
-                  {Array.from(
-                    { length: pagination.totalPages },
-                    (_, i) => i + 1
-                  ).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                  {getPaginationRange(
+                    pagination.page,
+                    pagination.totalPages
+                  ).map((page, index) => {
+                    if (page === "...") {
+                      return (
+                        <span
+                          key={`dots-${index}`}
+                          className="w-10 h-10 flex items-center justify-center text-gray-400"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPage(Number(page))}
+                        className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
               ${
                 currentPage === page
                   ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
                   : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
               }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={() =>

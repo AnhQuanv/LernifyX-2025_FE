@@ -75,7 +75,7 @@ export function RegisterForm() {
 
   return (
     <>
-      <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-100 via-white to-indigo-100 px-4 py-10">
+      <div className="min-h-screen flex justify-center items-center bg-linear-to-br from-pink-100 via-white to-indigo-100 px-4 py-10">
         <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl">
           <h1 className="text-3xl font-bold text-center text-indigo-600 mb-2">
             Tạo tài khoản
@@ -156,7 +156,7 @@ export function RegisterForm() {
                         <button
                           type="button"
                           onClick={() => setShowPassword((p) => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                         >
                           {showPassword ? <EyeOff /> : <Eye />}
                         </button>
@@ -185,7 +185,7 @@ export function RegisterForm() {
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword((p) => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
                         >
                           {showConfirmPassword ? <EyeOff /> : <Eye />}
                         </button>
@@ -291,19 +291,18 @@ export function RegisterForm() {
               {/* Nút đăng ký */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white"
+                className="w-full h-12 bg-indigo-500 hover:bg-indigo-600 text-white cursor-pointer"
               >
                 {formState.isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
               </Button>
             </form>
           </Form>
 
-          {/* Chuyển sang đăng nhập */}
           <div className="text-center text-sm text-gray-500 mt-6">
             Đã có tài khoản?{" "}
             <Button
               variant="link"
-              className="text-indigo-600 p-0"
+              className="text-indigo-600 p-0 cursor-pointer"
               onClick={() => router.push("/auth/login")}
             >
               Đăng nhập

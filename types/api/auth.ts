@@ -10,8 +10,11 @@ export interface IUser {
   address: string;
   avatar?: string;
   hasPreferences?: boolean;
+  isActive?: boolean;
   bio?: string;
   description?: string;
+  password?: string;
+  createdAt?: string;
 }
 
 export interface AuthLoginData {
@@ -27,6 +30,8 @@ export interface RegisterData {
   phone: string;
   dateOfBirth: string;
   roleName: string;
+  bio?: string;
+  description?: string;
 }
 
 export interface UpdateProfileDto {
@@ -37,6 +42,7 @@ export interface UpdateProfileDto {
   dateOfBirth?: string;
   address?: string;
   avatar?: string;
+  adminPassword?: string;
 }
 
 export interface UpdatePasswordDto {

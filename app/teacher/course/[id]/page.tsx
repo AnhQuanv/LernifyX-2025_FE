@@ -14,7 +14,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Edit,
-  Play,
   Clock,
   Star,
   BookOpen,
@@ -27,7 +26,7 @@ import {
 import Image from "next/image";
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import { useEffect, useState } from "react";
-import { formatDurationVi } from "@/lib/utils";
+import { formatDurationVi, getInitials } from "@/lib/utils";
 import {
   Chapter,
   CourseDetail,
@@ -39,7 +38,6 @@ import {
   handleGetTeacherCourseStudentProgress,
 } from "@/services/courseService";
 import { useParams } from "next/navigation";
-import { UserAvatar } from "@/components/ui/avatar-cop";
 import { Comment } from "@/types/comment/comment";
 import { handleGetCommentsByCourse } from "@/services/commentService";
 import toast from "react-hot-toast";
@@ -58,13 +56,6 @@ export interface ProgressData {
   data: StudentProgressItem[];
   pagination: Pagination;
 }
-
-const mockStats = {
-  rating: 4.8,
-  reviews: 42,
-  completionRate: 72,
-  revenue: "$7,644",
-};
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -117,7 +108,6 @@ export default function CourseDetailPage() {
     );
   }
 
-  // Logic tính toán và format hiển thị
   let totalLessons = 0;
   course.chapters.forEach((chapter) => {
     totalLessons += chapter.lessons.length;
@@ -125,7 +115,7 @@ export default function CourseDetailPage() {
 
   const formattedDuration = course.duration
     ? formatDurationVi(course.duration)
-    : "0 phút"; // Đặt giá trị mặc định tốt hơn
+    : "0 phút";
 
   const courseDisplayData = {
     ...course,
@@ -133,8 +123,6 @@ export default function CourseDetailPage() {
     duration: formattedDuration,
     rating: course.rating ? Number(course.rating).toFixed(2) : "0.00",
     students: course.students,
-    reviews: mockStats.reviews,
-    revenue: mockStats.revenue,
   };
 
   const isPublished = courseDisplayData.status === "published";
@@ -194,7 +182,6 @@ export default function CourseDetailPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 mt-4 items-end">
-              {/* PRICE BLOCK */}
               <div className="relative">
                 <div className="flex items-baseline gap-3 mb-4">
                   <div className="flex-1">
@@ -214,7 +201,6 @@ export default function CourseDetailPage() {
                           </span>
                         </>
                       ) : (
-                        // Hiển thị giá gốc nếu không có discount hoặc discount hết hạn
                         <span className="text-5xl font-extrabold text-black bg-clip-text">
                           {courseDisplayData.originalPrice?.toLocaleString() ??
                             "N/A"}
@@ -241,13 +227,13 @@ export default function CourseDetailPage() {
 
             {/* ACTION BUTTONS */}
             <div className="flex gap-2 mt-4">
-              <Link href="/course">
+              <Link href="/teacher/course">
                 <Button variant="ghost" className="cursor-pointer">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Quay Lại
                 </Button>
               </Link>
-              <Link href={`/course/${id}/edit`}>
+              <Link href={`/teacher/course/${id}/edit`}>
                 <Button className="cursor-pointer">
                   <Edit className="mr-2 h-4 w-4" />
                   Chỉnh Sửa
@@ -257,7 +243,6 @@ export default function CourseDetailPage() {
           </div>
         </div>
 
-        {/* Stats Row */}
         {isPublished && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card>
@@ -305,24 +290,35 @@ export default function CourseDetailPage() {
           </div>
         )}
 
-        {/* Tabs */}
         <Tabs
           defaultValue={isPublished ? "lessons" : "lessons"}
           className="space-y-4"
         >
           <TabsList>
-            <TabsTrigger value="lessons">Bài Học</TabsTrigger>
-            <TabsTrigger value="description">Mô tả/Yêu cầu</TabsTrigger>
-            <TabsTrigger value="students" disabled={!isPublished}>
+            <TabsTrigger className="cursor-pointer" value="lessons">
+              Bài Học
+            </TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="description">
+              Mô tả/Yêu cầu
+            </TabsTrigger>
+            <TabsTrigger
+              className="cursor-pointer"
+              value="students"
+              disabled={!isPublished}
+            >
               Học Sinh
             </TabsTrigger>
-            <TabsTrigger value="reviews" disabled={!isPublished}>
+            <TabsTrigger
+              className="cursor-pointer"
+              value="reviews"
+              disabled={!isPublished}
+            >
               Đánh Giá
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="lessons" className="space-y-4">
-            <CourseCurriculum chapters={course.chapters} />
+            <CourseCurriculum courseId={id} chapters={course.chapters} />
           </TabsContent>
 
           {/* Tab Mô tả/Yêu cầu */}
@@ -380,12 +376,19 @@ export default function CourseDetailPage() {
                           className="flex items-center justify-between p-4 rounded-lg border"
                         >
                           <div className="flex items-center gap-3 flex-1">
-                            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
-                              <UserAvatar
-                                fullName={item.user.fullName || "User"}
-                                avatarUrl={item.user.avatar}
-                                size={64}
-                              />
+                            <div className="w-12 h-12 rounded-full overflow-hidden relative">
+                              {item.user.avatar ? (
+                                <Image
+                                  src={item.user.avatar}
+                                  alt={item.user.fullName || "User"}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
+                                  {getInitials(item.user.fullName || "User")}
+                                </div>
+                              )}
                             </div>
                             <div>
                               <p className="font-semibold text-foreground">
@@ -470,15 +473,11 @@ export default function CourseDetailPage() {
             </TabsContent>
           )}
 
-          {/* Tab Đánh Giá (Reviews) - Giữ nguyên mock data */}
           {isPublished && (
             <TabsContent value="reviews" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Đánh giá khóa học</CardTitle>
-                  <CardDescription>
-                    {courseDisplayData.reviews} đánh giá từ học sinh
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {commentCourse && commentCourse.length > 0 ? (
@@ -488,11 +487,20 @@ export default function CourseDetailPage() {
                         className="border border-gray-200 rounded-xl p-6 hover:border-violet-300 transition-colors"
                       >
                         <div className="flex items-start gap-4 mb-4">
-                          <UserAvatar
-                            fullName={review.user.fullName || "User"}
-                            avatarUrl={review.user.avatarUrl}
-                            size={64}
-                          />
+                          <div className="w-12 h-12 rounded-full overflow-hidden relative">
+                            {review.user.avatarUrl ? (
+                              <Image
+                                src={review.user.avatarUrl}
+                                alt={review.user.fullName || "User"}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
+                                {getInitials(review.user.fullName || "User")}
+                              </div>
+                            )}
+                          </div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-2">
                               <h3 className="font-semibold text-gray-800">
@@ -585,8 +593,13 @@ export default function CourseDetailPage() {
   );
 }
 
-// Component CourseCurriculum (Giữ nguyên)
-const CourseCurriculum = ({ chapters }: { chapters: Chapter[] }) => {
+const CourseCurriculum = ({
+  chapters,
+  courseId,
+}: {
+  chapters: Chapter[];
+  courseId: string;
+}) => {
   const sortedChapters = [...chapters].sort((a, b) => a.order - b.order);
 
   const [openChapterIds, setOpenChapterIds] = useState<string[]>([]);
@@ -612,9 +625,6 @@ const CourseCurriculum = ({ chapters }: { chapters: Chapter[] }) => {
     <Card>
       <CardHeader>
         <CardTitle>Nội dung khóa học</CardTitle>
-        <CardDescription>
-          Tổng cộng {sortedChapters.length} Chương
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {sortedChapters.map((chapter) => (
@@ -643,14 +653,12 @@ const CourseCurriculum = ({ chapters }: { chapters: Chapter[] }) => {
                 {chapter.lessons
                   .sort((a, b) => a.order - b.order)
                   .map((lesson) => (
-                    <div
+                    <Link
                       key={lesson.id}
-                      className="flex items-center justify-between p-4 pl-12 hover:bg-accent/50 transition-colors border-b last:border-b-0"
+                      href={`/teacher/course/${courseId}/lessons/${lesson.id}`}
+                      className="flex items-center justify-between p-4 pl-12 hover:bg-accent/50 transition-colors border-b last:border-b-0 cursor-pointer group"
                     >
                       <div className="flex items-center gap-4 flex-1">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Play className="h-4 w-4 text-primary fill-primary" />
-                        </div>
                         <div className="flex-1">
                           <h4 className="font-normal text-foreground">
                             {lesson.title}
@@ -662,7 +670,6 @@ const CourseCurriculum = ({ chapters }: { chapters: Chapter[] }) => {
                         </div>
                       </div>
                       <div className="text-right">
-                        {/* Kiểm tra các thuộc tính mới của Lesson */}
                         {lesson.canViewVideo && (
                           <Badge variant="secondary" className="mr-2">
                             <Video className="h-3 w-3" />
@@ -678,7 +685,7 @@ const CourseCurriculum = ({ chapters }: { chapters: Chapter[] }) => {
                           {getLessonDuration(lesson)}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
               </div>
             )}

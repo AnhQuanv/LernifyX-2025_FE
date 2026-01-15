@@ -25,7 +25,11 @@ import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import { useStartLesson } from "@/hooks/useStartLesson";
 import { useParams, useRouter } from "next/navigation";
-import { formatDurationVi, formatTimeRounded } from "@/lib/utils";
+import {
+  formatDurationVi,
+  formatTimeRounded,
+  getPaginationRange,
+} from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { handlePostComment } from "@/services/commentService";
@@ -171,19 +175,6 @@ export default function LessonPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-violet-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 md:px-6 py-4">
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Quay lại khóa học
-          </Link>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="bg-linear-to-r from-violet-950 via-purple-900 to-indigo-950 text-white py-16">
         <div className="container mx-auto px-4 md:px-6">
@@ -238,10 +229,7 @@ export default function LessonPage() {
               <div className="rounded-xl overflow-hidden shadow-xl -mx-8 -mt-8 mb-6 relative group">
                 <div className="absolute inset-0 bg-linear-to-t from-violet-900/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <Image
-                  src={
-                    course.image ||
-                    "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                  }
+                  src={course.image}
                   alt={course.title}
                   width={400}
                   height={250}
@@ -348,19 +336,9 @@ export default function LessonPage() {
                                   }`}
                                 >
                                   <div className="flex items-center gap-3 flex-1">
-                                    {/* STT */}
                                     <span className="text-sm font-medium text-gray-500 w-6">
                                       {lessonIndex + 1}
                                     </span>
-
-                                    {/* Icon Locked */}
-                                    {isLocked && (
-                                      <div className="w-5 h-5 text-gray-400">
-                                        🔒
-                                      </div>
-                                    )}
-
-                                    {/* Icon Completed */}
                                     {!isLocked && isCompleted && (
                                       <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                                     )}
@@ -537,23 +515,36 @@ export default function LessonPage() {
                     </button>
 
                     <div className="flex gap-1">
-                      {Array.from(
-                        { length: pagination.totalPages },
-                        (_, i) => i + 1
-                      ).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                      {getPaginationRange(
+                        pagination.page,
+                        pagination.totalPages
+                      ).map((page, index) => {
+                        if (page === "...") {
+                          return (
+                            <span
+                              key={`dots-${index}`}
+                              className="w-10 h-10 flex items-center justify-center text-gray-400"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentPage(Number(page))}
+                            className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
               ${
                 currentPage === page
                   ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
                   : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
               }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
+                          >
+                            {page}
+                          </button>
+                        );
+                      })}
                     </div>
                     <button
                       onClick={() =>
@@ -709,7 +700,6 @@ export default function LessonPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Đánh giá</span>
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
                         <span className="font-semibold text-gray-800">
                           {course.rating} ( {course.ratingCount})
                         </span>

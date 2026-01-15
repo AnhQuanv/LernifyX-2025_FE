@@ -159,14 +159,13 @@ export function ForgotPasswordModal({
     } catch (err: any) {
       const data = err?.response?.data;
 
-      let errorMessage = "Gửi mã thất bại"; // default message
+      let errorMessage = "Gửi mã thất bại";
 
       if (data?.errorCode === "INVALID_CODE") {
         errorMessage = "Mã xác thực không đúng. Vui lòng kiểm tra lại.";
       } else if (data?.errorCode === "RESOURCE_NOT_FOUND") {
         errorMessage = "Email không tồn tại. Vui lòng kiểm tra lại.";
       } else if (data?.message) {
-        // fallback: lấy message từ backend
         errorMessage = data.message;
       }
 
@@ -361,7 +360,7 @@ export function ForgotPasswordModal({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -377,7 +376,7 @@ export function ForgotPasswordModal({
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                className="w-full"
+                className="w-full cursor-pointer"
               >
                 Hủy
               </Button>
@@ -491,7 +490,7 @@ export function ForgotPasswordModal({
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -507,7 +506,7 @@ export function ForgotPasswordModal({
                 type="button"
                 variant="outline"
                 onClick={() => setStep("email")}
-                className="w-full"
+                className="w-full cursor-pointer"
               >
                 Quay lại
               </Button>
@@ -517,14 +516,9 @@ export function ForgotPasswordModal({
 
         {step === "success" && (
           <div className="space-y-4">
-            <div className="text-center text-sm text-gray-600">
-              Mật khẩu của bạn đã được đặt lại thành công. Bạn có thể đăng nhập
-              với mật khẩu mới.
-            </div>
-
             <Button
               onClick={handleClose}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
             >
               Đóng
             </Button>
@@ -532,11 +526,10 @@ export function ForgotPasswordModal({
         )}
 
         {step === "code" && (
-          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+          <div className="mt-4 p-3 bg-white-50 rounded-lg border ">
             <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-              <div className="text-xs text-amber-800">
-                <p className="font-medium mb-1">Lưu ý bảo mật</p>
+              <div className="text-xs text-black-800">
+                <p className="font-bold mb-1">Lưu ý bảo mật</p>
                 <p>
                   Không chia sẻ mã xác thực này với bất kỳ ai. Mã sẽ hết hạn sau
                   5 phút.

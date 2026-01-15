@@ -46,6 +46,16 @@ import {
   handleUpdateLesson,
 } from "@/services/lessonService";
 import { handleUpdateQuizQuestion } from "@/services/quizService";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ICategory {
   categoryId: string;
@@ -127,6 +137,9 @@ export default function CreateEditCoursePage({
   const [currentChapterId, setCurrentChapterId] = useState<string | null>(null);
   const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
   const [courseId, setCourseId] = useState<string | null>(null);
+  const [parentId, setParentId] = useState<string | null>(null);
+  const [submissionNote, setSubmissionNote] = useState("");
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
   const [formData, setFormData] = useState<CreateCourseDto>({
     title: "",
     description: "",
@@ -208,8 +221,7 @@ export default function CreateEditCoursePage({
       });
       setChapters([...chapters, newChapter]);
       setCurrentChapterId(newChapter.id);
-    } catch (error) {
-      console.error("Lỗi khi tạo chapter:", error);
+    } catch {
       toast.error("Lỗi: Không thể tạo chương mới.", {
         id: loadingToastId,
       });
@@ -222,8 +234,7 @@ export default function CreateEditCoursePage({
     try {
       await handleUpdateChapter(id, title, order);
       toast.success("Cập nhật chương thành công!");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Lỗi: Không thể cập nhật chương.");
     }
   };
@@ -258,8 +269,7 @@ export default function CreateEditCoursePage({
       toast.success(`Đã xóa chương "${chapterToDelete.title}" thành công!`, {
         id: loadingToastId,
       });
-    } catch (error) {
-      console.error("Lỗi khi xóa chapter:", error);
+    } catch {
       toast.error("Lỗi: Không thể xóa chương. Vui lòng thử lại.", {
         id: loadingToastId,
       });
@@ -303,8 +313,7 @@ export default function CreateEditCoursePage({
       toast.success(`Tạo bài học "${createdLesson.title}" thành công!`, {
         id: loadingToastId,
       });
-    } catch (error) {
-      console.error("Lỗi khi tạo bài học:", error);
+    } catch {
       toast.error("Lỗi: Không thể tạo bài học. Vui lòng thử lại.", {
         id: loadingToastId,
       });
@@ -365,9 +374,8 @@ export default function CreateEditCoursePage({
       toast.success(`Đã xóa bài học "${deletedLessonTitle}" thành công!`, {
         id: loadingToastId,
       });
-    } catch (error) {
-      console.error("Lỗi khi xóa bài học:", error);
-      setChapters(originalChapters); // Rollback
+    } catch {
+      setChapters(originalChapters);
       toast.error(
         "Lỗi: Không thể xóa bài học trên server. Đã khôi phục trạng thái.",
         {
@@ -412,8 +420,7 @@ export default function CreateEditCoursePage({
       toast.success(`Cập nhật bài học "${updatedLesson.title}"!`, {
         id: loadingToastId,
       });
-    } catch (error) {
-      console.error("Lỗi khi cập nhật bài học:", error);
+    } catch {
       toast.error("Lỗi: Không thể lưu thay đổi. Vui lòng thử lại.", {
         id: loadingToastId,
       });
@@ -482,9 +489,7 @@ export default function CreateEditCoursePage({
       }
       if (!courseId) {
         initialCourseCreationToastId = toast.loading("Đang lưu khóa học...");
-
         const created = await handleCreateCourse(cleanFormData(formData));
-
         if (!created) {
           toast.error("Không thể tạo khóa học. Vui lòng thử lại!", {
             id: initialCourseCreationToastId,
@@ -503,34 +508,48 @@ export default function CreateEditCoursePage({
           id: initialCourseCreationToastId,
         });
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       if (initialCourseCreationToastId) {
         toast.dismiss(initialCourseCreationToastId);
       }
       toast.error("Đã xảy ra lỗi khi lưu nháp. Vui lòng thử lại!");
     }
   };
-  const handlePublish = async () => {
-    let initialCourseCreationToastId: string | null = null;
-    if (!courseId) {
-      return;
+
+  const handlePublish = async (parentId?: string | null) => {
+    if (!courseId) return;
+    if (parentId) {
+      setIsPublishDialogOpen(true);
+    } else {
+      await executePublish();
     }
+  };
+
+  const executePublish = async (note?: string) => {
+    let initialCourseCreationToastId: string | null = null;
     try {
       initialCourseCreationToastId = toast.loading(
         "Đang gửi duyệt khóa học..."
       );
-      const form = { id: courseId, ...formData, status: "pending" };
+
+      const form = {
+        id: courseId,
+        ...formData,
+        status: "pending",
+        submissionNote: note || "",
+        rejectionReason: "",
+      };
+
       await handleUpdateCourse(cleanFormData(form));
+
       toast.success("Khóa học đã được gửi duyệt!", {
         id: initialCourseCreationToastId,
       });
-    } catch (error) {
-      console.error(error);
-      if (initialCourseCreationToastId) {
+      setIsPublishDialogOpen(false);
+    } catch {
+      if (initialCourseCreationToastId)
         toast.dismiss(initialCourseCreationToastId);
-      }
-      toast.error("Đã xảy ra lỗi khi lưu nháp. Vui lòng thử lại!");
+      toast.error("Đã xảy ra lỗi. Vui lòng thử lại!");
     }
   };
 
@@ -544,6 +563,9 @@ export default function CreateEditCoursePage({
 
         if (isEditMode && id) {
           const res = await handleGetTeacherCourseEdit(id);
+          if (res.parentId) {
+            setParentId(res.parentId);
+          }
           const foundCategory = catData.find(
             (c) => c.categoryName === res.category
           );
@@ -559,8 +581,9 @@ export default function CreateEditCoursePage({
             learnings: res.learnings || [],
             category: foundCategory?.categoryId || "",
             level: res.level || "",
-            originalPrice: res.originalPrice ?? "",
-            price: res.price ?? "",
+            originalPrice:
+              res.originalPrice !== null ? String(res.originalPrice) : "",
+            price: res.price !== null ? String(res.price) : "",
             hasDiscount: Boolean(res.discount),
             discountExpiresAt: formattedDate || "",
             image: res.image || "",
@@ -652,7 +675,7 @@ export default function CreateEditCoursePage({
           <div className="flex gap-2 ">
             <Button
               className="cursor-pointer"
-              onClick={handlePublish}
+              onClick={() => handlePublish(parentId)}
               disabled={!canPublish()}
             >
               Gửi Duyệt
@@ -1253,6 +1276,43 @@ export default function CreateEditCoursePage({
           </ul>
         </div>
       </div>
+      <AlertDialog
+        open={isPublishDialogOpen}
+        onOpenChange={setIsPublishDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Nội dung cập nhật là gì?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Mô tả ngắn gọn các thay đổi bạn đã thực hiện (ví dụ: sửa giá, thêm
+              bài học mới) để Admin duyệt nhanh hơn.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="my-4">
+            <textarea
+              className="w-full p-2 border rounded-md text-sm"
+              rows={4}
+              placeholder="Ví dụ: Tôi đã cập nhật lại giá và thêm 2 chương mới về React Hook..."
+              value={submissionNote}
+              onChange={(e) => setSubmissionNote(e.target.value)}
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => executePublish(submissionNote)}
+              disabled={!submissionNote.trim()} // Bắt buộc nhập mới cho nhấn
+              className="bg-primary text-white cursor-pointer"
+            >
+              Gửi yêu cầu duyệt
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 }

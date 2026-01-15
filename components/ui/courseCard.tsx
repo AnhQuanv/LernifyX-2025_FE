@@ -27,6 +27,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             alt={course.title}
             width={400}
             height={250}
+            priority
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
@@ -69,7 +70,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
               <div className="flex items-center space-x-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
                 <span className="text-sm font-semibold text-gray-700">
-                  {course.rating} ({course.ratingCount} đánh giá)
+                  {course.rating} ({course.ratingCount})
                 </span>
               </div>
             )}
@@ -79,7 +80,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {course.title}
           </h3>
 
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 font-medium - text-sm">
             Giảng viên: {course.instructor}
           </p>
 
@@ -97,7 +98,9 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
 
           <div className="h-15">
-            {course.discount != null && course.discountExpiresAt ? (
+            {course.discount != null &&
+            course.discountExpiresAt &&
+            new Date(course.discountExpiresAt) > new Date() ? (
               <DiscountCountdown
                 discount={course.discount}
                 discountExpiresAt={course.discountExpiresAt}

@@ -1,3 +1,4 @@
+import { Course } from "@/types/course/course";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 interface PriceableItem {
@@ -62,9 +63,9 @@ export function cleanFormData(obj: any): any {
   if (Array.isArray(obj)) {
     const cleanedArray = obj
       .map((item) => cleanFormData(item))
-      .filter((item) => item !== undefined && item !== null);
+      .filter((item) => item !== undefined);
 
-    return cleanedArray.length > 0 ? cleanedArray : undefined;
+    return cleanedArray.length > 0 ? cleanedArray : [];
   }
 
   if (typeof obj === "object" && obj !== null) {
@@ -76,22 +77,24 @@ export function cleanFormData(obj: any): any {
 
       if (
         cleanedValue !== undefined &&
-        cleanedValue !== null &&
         cleanedValue !== "" &&
         !(Array.isArray(cleanedValue) && cleanedValue.length === 0) &&
         !(
           typeof cleanedValue === "object" &&
+          cleanedValue !== null &&
           Object.keys(cleanedValue).length === 0
         )
       ) {
         cleanedObj[key] = cleanedValue;
+      } else if (cleanedValue === null) {
+        cleanedObj[key] = null;
       }
     });
 
     return Object.keys(cleanedObj).length > 0 ? cleanedObj : undefined;
   }
 
-  if (obj === "") return undefined;
+  if (obj === "") return null;
 
   return obj;
 }
@@ -115,4 +118,151 @@ export const extractPlaybackId = (url: string | null | undefined) => {
   const parts = url.split("/");
   const lastPart = parts[parts.length - 1];
   return lastPart ? lastPart.replace(".m3u8", "") : null;
+};
+
+export const getPaginationRange = (currentPage: number, totalPages: number) => {
+  const delta = 2;
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (
+      i === 1 ||
+      i === totalPages ||
+      (i >= currentPage - delta && i <= currentPage + delta)
+    ) {
+      range.push(i);
+    }
+  }
+
+  // eslint-disable-next-line prefer-const
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push("...");
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+
+  return rangeWithDots;
+};
+
+// export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
+//   if (course.status === "published") {
+//     if (course.childCourseStatus === "pending") {
+//       return {
+//         label: "Đã xuất bản (Chờ duyệt sửa đổi)",
+//         color: "border-black text-black",
+//       };
+//     }
+
+//     if (course.childCourseStatus === "rejected") {
+//       return {
+//         label: "Đã xuất bản (Bản sửa bị từ chối)",
+//         color: "border-black text-black",
+//       };
+//     }
+
+//     if (!isAdmin && (course.childCourseStatus === "draft" || course.hasDraft)) {
+//       return {
+//         label: "Đã xuất bản (Có bản nháp)",
+//         color: "border-black text-black",
+//       };
+//     }
+
+//     return {
+//       label: "Đã xuất bản",
+//       color: "border-black text-black",
+//     };
+//   }
+
+//   const statusMap = {
+//     draft: {
+//       label: "Nháp",
+//       color: "border-black text-black",
+//     },
+//     pending: {
+//       label: "Chờ duyệt",
+//       color: "border-black text-black",
+//     },
+//     rejected: {
+//       label: "Bị từ chối",
+//       color: "border-black text-black",
+//     },
+//     archived: {
+//       label: "Bị gỡ xuống",
+//       color: "border-black text-black",
+//     },
+//   };
+
+//   return (
+//     statusMap[course.status as keyof typeof statusMap] || {
+//       label: course.status,
+//       color: "border-black text-black",
+//     }
+//   );
+// };
+
+export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
+  if (course.status === "published") {
+    if (course.childCourseStatus === "pending") {
+      return {
+        label: "Đã xuất bản (Chờ duyệt sửa đổi)",
+        color: "border-black text-black",
+      };
+    }
+    if (course.childCourseStatus === "rejected") {
+      return {
+        label: "Đã xuất bản (Bản sửa bị từ chối)",
+        color: "border-black text-black",
+      };
+    }
+    if (!isAdmin && (course.childCourseStatus === "draft" || course.hasDraft)) {
+      return {
+        label: "Đã xuất bản (Có bản nháp)",
+        color: "border-black text-black",
+      };
+    }
+    return { label: "Đã xuất bản", color: "border-black text-black" };
+  }
+
+  if (course.status === "archived") {
+    if (course.childCourseStatus === "pending") {
+      return {
+        label: "Bị gỡ xuống (Chờ duyệt sửa đổi)",
+        color: "border-black text-black", // Gợi ý đổi màu để dễ phân biệt
+      };
+    }
+    if (course.childCourseStatus === "rejected") {
+      return {
+        label: "Bị gỡ xuống (Bản sửa bị từ chối)",
+        color: "border-black text-black",
+      };
+    }
+    if (!isAdmin && (course.childCourseStatus === "draft" || course.hasDraft)) {
+      return {
+        label: "Bị gỡ xuống (Có bản nháp)",
+        color: "border-black text-black",
+      };
+    }
+    return { label: "Bị gỡ xuống", color: "border-black text-black" };
+  }
+
+  const statusMap = {
+    draft: { label: "Nháp", color: "border-black text-black" },
+    pending: { label: "Chờ duyệt", color: "border-black text-black" },
+    rejected: { label: "Bị từ chối", color: "border-black text-black" },
+  };
+
+  return (
+    statusMap[course.status as keyof typeof statusMap] || {
+      label: course.status,
+      color: "border-black text-black",
+    }
+  );
 };

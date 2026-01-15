@@ -18,8 +18,6 @@ import {
   User,
   Book,
   LogOut,
-  HelpCircle,
-  Globe,
   History,
   ChevronDown,
   Settings,

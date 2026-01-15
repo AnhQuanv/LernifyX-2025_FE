@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, X, Shield, CheckCircle2 } from "lucide-react";
+import { AlertCircle, X, CheckCircle2 } from "lucide-react";
 import { verifyEmail } from "@/services/authService";
 
 interface EmailVerificationModalProps {
@@ -193,14 +193,14 @@ export function EmailVerificationModal({
 
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+          {/* <div className="mx-auto w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
             {step === "verify" && (
               <Shield className="h-8 w-8 text-indigo-600" />
             )}
             {step === "success" && (
               <CheckCircle2 className="h-8 w-8 text-green-600" />
             )}
-          </div>
+          </div> */}
           <h2 className="text-2xl font-bold text-gray-900 mb-2 ">
             {step === "verify" && "Xác thực email"}
             {step === "success" && "Xác thực thành công!"}
@@ -325,9 +325,8 @@ export function EmailVerificationModal({
         {step === "verify" && (
           <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex items-start gap-2">
-              <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-xs text-blue-800">
-                <p className="font-medium mb-1">Bảo mật tài khoản</p>
+              <div className="text-xs text-black-800">
+                <p className="font-bold mb-1">Bảo mật tài khoản</p>
                 <p>
                   Việc xác thực email giúp bảo vệ tài khoản của bạn khỏi truy
                   cập trái phép. Không chia sẻ mã này với bất kỳ ai.

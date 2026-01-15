@@ -14,6 +14,7 @@ import { getAllCategories } from "@/redux/thunk/categoryThunk";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { CreateUserPreferenceDto } from "@/types/api/auth";
 import { handlecreatePreference } from "@/services/authService";
+import toast from "react-hot-toast";
 
 const LEVELS = [
   { value: "Cơ Bản", label: "Cơ Bản - Người bắt đầu" },
@@ -141,8 +142,10 @@ const SurveyForm = () => {
       await handlecreatePreference(dto);
 
       router.push("/homepage");
-    } catch (error) {
-      console.error("Error creating user preference:", error);
+    } catch {
+      toast.error(
+        "Lỗi khi tạo tùy chọn (hoặc sở thích) người dùng.Vui lòng thử lại!"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -164,7 +167,7 @@ const SurveyForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-950 via-purple-900 to-indigo-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-violet-950 via-purple-900 to-indigo-950 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-2xl">
         <div className="p-8">
           {/* Progress Bar */}
@@ -179,7 +182,7 @@ const SurveyForm = () => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-violet-600 to-purple-600 h-2 rounded-full transition-all duration-300"
+                className="bg-linear-to-r from-violet-600 to-purple-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
@@ -210,8 +213,7 @@ const SurveyForm = () => {
                             : "border-gray-200 hover:border-gray-300 bg-white"
                         }`}
                       >
-                        <div className="text-3xl mb-2">📚</div>{" "}
-                        <div className="text-sm font-semibold text-gray-800">
+                        <div className="text-sm font-semibold text-gray-800 cursor-pointer">
                           {category.categoryName}
                         </div>
                       </button>
@@ -229,12 +231,12 @@ const SurveyForm = () => {
                 <p className="text-gray-600 mb-6">
                   Chọn 1 hoặc nhiều mức độ phù hợp với bạn
                 </p>
-                <div className="space-y-4">
+                <div className="space-y-4 ">
                   {LEVELS.map((level) => (
                     <button
                       key={level.value}
                       onClick={() => handleLevelToggle(level.value)}
-                      className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left flex items-center ${
+                      className={`w-full p-4 rounded-lg border-2 transition-all cursor-pointer duration-200 text-left flex items-center ${
                         preferences.desiredLevels.includes(level.value)
                           ? "border-violet-600 bg-violet-50"
                           : "border-gray-200 hover:border-gray-300 bg-white"
@@ -273,7 +275,7 @@ const SurveyForm = () => {
                     <button
                       key={goal.id}
                       onClick={() => handleGoalToggle(goal.label)}
-                      className={`w-full p-4 rounded-lg border-2 transition-all duration-200 text-left flex items-center ${
+                      className={`cursor-pointer w-full p-4 rounded-lg border-2 transition-all duration-200 text-left flex items-center ${
                         preferences.learningGoals.includes(goal.label)
                           ? "border-violet-600 bg-violet-50"
                           : "border-gray-200 hover:border-gray-300 bg-white"
@@ -315,7 +317,7 @@ const SurveyForm = () => {
                   rows={6}
                 />
                 <p className="text-sm text-gray-500 mt-3">
-                  💡 Mẹo: Thêm nhiều kỹ năng để nhận được gợi ý khóa học phù hợp
+                  Mẹo: Thêm nhiều kỹ năng để nhận được gợi ý khóa học phù hợp
                   hơn
                 </p>
               </div>
@@ -328,7 +330,7 @@ const SurveyForm = () => {
               onClick={handlePrev}
               variant="outline"
               disabled={step === 0 || isLoading}
-              className="gap-2 bg-transparent"
+              className="gap-2 bg-transparent cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
               Quay Lại
@@ -338,7 +340,7 @@ const SurveyForm = () => {
               <Button
                 onClick={handleNext}
                 disabled={!isStepValid() || isLoading}
-                className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 gap-2"
+                className="bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 gap-2 cursor-pointer"
               >
                 Tiếp Tục
                 <ChevronRight className="w-4 h-4" />
@@ -347,7 +349,7 @@ const SurveyForm = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={!isStepValid() || isLoading}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 gap-2"
+                className="bg-linear-to-r cursor-pointer gap-2"
               >
                 {isLoading ? "Đang lưu..." : "Hoàn Thành"}
               </Button>

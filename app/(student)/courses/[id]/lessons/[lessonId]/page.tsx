@@ -32,7 +32,12 @@ import {
   updateNoteToLesson,
 } from "@/redux/thunk/lessonProgressThunk";
 import toast from "react-hot-toast";
-import { extractPlaybackId, formatDurationVi } from "@/lib/utils";
+import {
+  extractPlaybackId,
+  formatDurationVi,
+  getInitials,
+  getPaginationRange,
+} from "@/lib/utils";
 import MuxPlayer from "@mux/mux-player-react";
 
 export default function LessonPage() {
@@ -215,25 +220,6 @@ export default function LessonPage() {
 
   const lastUpdateRef = useRef(0);
 
-  // const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-  //   const currentTime = Math.floor(e.currentTarget.currentTime);
-
-  //   if (!isProgressReady || !lesson?.progress?.id) return;
-
-  //   const now = Date.now();
-  //   if (now - lastUpdateRef.current < 5000) {
-  //     return;
-  //   }
-
-  //   lastUpdateRef.current = now;
-  //   dispatch(
-  //     updateLessonProgress({
-  //       progressId: lesson.progress.id,
-  //       lastPosition: currentTime,
-  //     })
-  //   );
-  // };
-
   const isCompletingRef = useRef(false);
 
   const handleTimeUpdate = async (
@@ -245,7 +231,6 @@ export default function LessonPage() {
 
     if (!isProgressReady || !lesson?.progress?.id) return;
 
-    // 1. Logic lưu vị trí đang xem (5 giây một lần)
     const now = Date.now();
     if (now - lastUpdateRef.current > 5000) {
       lastUpdateRef.current = now;
@@ -298,7 +283,7 @@ export default function LessonPage() {
   };
 
   const playbackId = useMemo(
-    () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined, // Đổi null thành undefined
+    () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined,
     [lesson?.videoAsset?.originalUrl]
   );
 
@@ -515,7 +500,7 @@ export default function LessonPage() {
                 }}
                 onEnded={handleCompleteLesson}
                 onLoadedMetadata={(e) => {
-                  const player = e.target as HTMLVideoElement; // Ép kiểu ở đây
+                  const player = e.target as HTMLVideoElement;
                   const lastPosition = lesson?.progress?.lastPosition;
                   if (player && lastPosition !== undefined) {
                     player.currentTime = lastPosition;
@@ -614,23 +599,46 @@ export default function LessonPage() {
                             className="border-b border-gray-200 pb-6 last:border-0"
                           >
                             <div className="flex gap-4 mb-3">
-                              <Image
-                                src={
-                                  c.user.avatarUrl ||
-                                  "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                                }
-                                alt={c.user.fullName}
-                                width={100}
-                                height={100}
-                                className="w-12 h-12 rounded-full object-cover"
-                              />
+                              <div className="w-12 h-12 rounded-full overflow-hidden relative">
+                                {c.user.avatarUrl ? (
+                                  <Image
+                                    src={c.user.avatarUrl}
+                                    alt={c.user.fullName || "User"}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
+                                    {getInitials(c.user.fullName || "User")}
+                                  </div>
+                                )}
+                              </div>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between mb-1">
                                   <h4 className="font-semibold text-gray-900">
                                     {c.user.fullName}
+                                    {c.user.roleName && (
+                                      <span className="ml-1 text-gray-500 font-normal">
+                                        (
+                                        {c.user.roleName.toLowerCase() ===
+                                        "student"
+                                          ? "Học viên"
+                                          : c.user.roleName.toLowerCase() ===
+                                              "teacher" ||
+                                            c.user.roleName.toLowerCase() ===
+                                              "instructor"
+                                          ? "Giảng viên"
+                                          : c.user.roleName === "admin"
+                                          ? "Quản trị viên"
+                                          : c.user.roleName}
+                                        )
+                                      </span>
+                                    )}
                                   </h4>
                                   <span className="text-sm text-gray-500">
-                                    {new Date(c.createdAt).toLocaleString()}
+                                    {new Date(c.createdAt).toLocaleDateString(
+                                      "vi-VN"
+                                    )}
                                   </span>
                                 </div>
                                 <p className="text-gray-700">{c.content}</p>
@@ -651,25 +659,49 @@ export default function LessonPage() {
                                   <div className="ml-12 mt-2 space-y-2">
                                     {c.replies.map((r) => (
                                       <div key={r.id} className="flex gap-2">
-                                        <Image
-                                          src={
-                                            r.user.avatarUrl ||
-                                            "https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg"
-                                          }
-                                          alt={r.user.fullName}
-                                          width={100}
-                                          height={100}
-                                          className="w-12 h-12 rounded-full object-cover"
-                                        />
+                                        <div className="w-12 h-12 rounded-full overflow-hidden relative">
+                                          {r.user.avatarUrl ? (
+                                            <Image
+                                              src={r.user.avatarUrl}
+                                              alt={r.user.fullName || "User"}
+                                              fill
+                                              className="object-cover"
+                                            />
+                                          ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
+                                              {getInitials(
+                                                c.user.fullName || "User"
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
                                         <div className="flex-1">
                                           <div className="flex items-center justify-between">
                                             <h5 className="font-semibold text-gray-900 text-sm">
                                               {r.user.fullName}
+                                              {r.user.roleName && (
+                                                <span className="ml-1 text-gray-500 font-normal">
+                                                  (
+                                                  {r.user.roleName.toLowerCase() ===
+                                                  "student"
+                                                    ? "Học viên"
+                                                    : r.user.roleName.toLowerCase() ===
+                                                        "teacher" ||
+                                                      r.user.roleName.toLowerCase() ===
+                                                        "teacher"
+                                                    ? "Giảng viên"
+                                                    : r.user.roleName ===
+                                                      "admin"
+                                                    ? "Quản trị viên"
+                                                    : r.user.roleName}
+                                                  )
+                                                </span>
+                                              )}
                                             </h5>
                                             <span className="text-xs text-gray-500">
                                               {new Date(
                                                 r.createdAt
-                                              ).toLocaleString()}
+                                              ).toLocaleDateString("vi-VN")}
                                             </span>
                                           </div>
                                           <p className="text-gray-700 text-sm">
@@ -721,22 +753,36 @@ export default function LessonPage() {
                             </button>
 
                             <div className="flex gap-1">
-                              {Array.from(
-                                { length: pagination.totalPages },
-                                (_, i) => i + 1
-                              ).map((page) => (
-                                <button
-                                  key={page}
-                                  onClick={() => setCurrentPage(page)}
-                                  className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer ${
-                                    currentPage === page
-                                      ? "bg-violet-600 text-white shadow-lg hover:scale-105 hover:shadow-xl"
-                                      : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:scale-105 hover:shadow-md"
-                                  }`}
-                                >
-                                  {page}
-                                </button>
-                              ))}
+                              {getPaginationRange(
+                                pagination.page,
+                                pagination.totalPages
+                              ).map((page, index) => {
+                                if (page === "...") {
+                                  return (
+                                    <span
+                                      key={`dots-${index}`}
+                                      className="w-10 h-10 flex items-center justify-center text-gray-400"
+                                    >
+                                      ...
+                                    </span>
+                                  );
+                                }
+
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() => setCurrentPage(Number(page))}
+                                    className={`w-10 h-10 rounded-lg font-semibold transition-all cursor-pointer 
+                                          ${
+                                            pagination.page === page
+                                              ? "bg-violet-600 text-white shadow-lg"
+                                              : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                                          }`}
+                                  >
+                                    {page}
+                                  </button>
+                                );
+                              })}
                             </div>
 
                             <button
