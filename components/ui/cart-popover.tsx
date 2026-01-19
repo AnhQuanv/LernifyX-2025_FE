@@ -14,7 +14,7 @@ export const CartPopover = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
+    (state: RootState) => state.auth.isAuthenticated,
   );
 
   const items = useSelector((state: RootState) => state.cart.allCourses);
@@ -46,7 +46,7 @@ export const CartPopover = () => {
     <div className="w-80 bg-white rounded-b-lg shadow-lg">
       <div className="px-4 pt-3 pb-2">
         <h3 className="font-semibold text-lg text-gray-900">
-          Shopping Cart ({items.length})
+          Giỏ hàng ({items.length})
         </h3>
       </div>
 
@@ -72,7 +72,7 @@ export const CartPopover = () => {
           className="w-full h-11 bg-violet-700 hover:bg-violet-800 text-white font-semibold cursor-pointer"
           onClick={() => router.push("/cart")}
         >
-          Checkout
+          Xem tất cả giỏ hàng
         </Button>
       </div>
     </div>
