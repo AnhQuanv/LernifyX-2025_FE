@@ -49,6 +49,7 @@ import {
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import {
   formatDurationVi,
+  getLevelBadgeColor,
   getPaginationRange,
   getStatusBadge,
 } from "@/lib/utils";
@@ -73,19 +74,6 @@ import {
 import { useDebounce } from "@/hooks/useDebounce";
 
 const ITEMS_PER_PAGE = 6;
-
-const getLevelBadgeColor = (level: Course["level"]) => {
-  switch (level) {
-    case "Cơ Bản":
-      return "bg-violet-500 hover:bg-violet-600";
-    case "Trung Cấp":
-      return "bg-violet-500 hover:bg-violet-600";
-    case "Nâng Cao":
-      return "bg-violet-500 hover:bg-violet-600";
-    default:
-      return "bg-violet-500 hover:bg-violet-600";
-  }
-};
 
 const CourseCard = ({
   course,

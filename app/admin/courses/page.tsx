@@ -67,6 +67,7 @@ import {
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import {
   formatDurationVi,
+  getLevelBadgeColor,
   getPaginationRange,
   getStatusBadge,
 } from "@/lib/utils";
@@ -77,19 +78,6 @@ import {
 } from "@/components/ui/popover";
 
 const ITEMS_PER_PAGE = 6;
-
-const getLevelBadgeColor = (level: Course["level"]) => {
-  switch (level) {
-    case "Cơ Bản":
-      return "bg-blue-500 hover:bg-blue-600";
-    case "Trung Cấp":
-      return "bg-yellow-500 hover:bg-yellow-600";
-    case "Nâng Cao":
-      return "bg-red-500 hover:bg-red-600";
-    default:
-      return "bg-gray-500 hover:bg-gray-600";
-  }
-};
 
 interface CourseCardProps {
   course: Course;
@@ -193,7 +181,7 @@ const CourseCard = ({
           {course.level && (
             <Badge
               className={`absolute top-2 left-2 text-white z-10 ${getLevelBadgeColor(
-                displayLevel
+                displayLevel,
               )}`}
             >
               {displayLevel}
@@ -870,14 +858,14 @@ export default function CoursesPage() {
                     >
                       {page}
                     </button>
-                  )
+                  ),
                 )}
               </div>
 
               <button
                 onClick={() =>
                   setCurrentPage(
-                    Math.min(pagination.totalPages, pagination.page + 1)
+                    Math.min(pagination.totalPages, pagination.page + 1),
                   )
                 }
                 disabled={pagination.page === pagination.totalPages}

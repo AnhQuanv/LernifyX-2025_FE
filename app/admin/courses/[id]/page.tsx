@@ -26,7 +26,7 @@ import {
 import Image from "next/image";
 import DiscountCountdown from "@/components/ui/discountCountDown";
 import { useEffect, useState } from "react";
-import { formatDurationVi } from "@/lib/utils";
+import { formatDurationVi, getLevelBadgeColor } from "@/lib/utils";
 import {
   Chapter,
   CourseDetail,
@@ -92,7 +92,7 @@ export default function CourseDetailPage() {
           "Đã xảy ra lỗi khi tải khóa học của bạn. Vui lòng thử lại!",
           {
             duration: 4000,
-          }
+          },
         );
       }
     };
@@ -156,10 +156,13 @@ export default function CourseDetailPage() {
           <div className="md:w-2/3 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Badge>{courseDisplayData.level}</Badge>
-                <Badge variant="outline">
-                  {courseDisplayData.category}
-                </Badge>{" "}
+                <Badge
+                  variant="outline"
+                  className={`text-white ${getLevelBadgeColor(courseDisplayData.level)}`}
+                >
+                  {courseDisplayData.level}
+                </Badge>
+                <Badge variant="outline">{courseDisplayData.category}</Badge>{" "}
                 {/* Đảm bảo category có categoryName */}
                 {courseDisplayData.status && (
                   <Badge
@@ -350,7 +353,7 @@ export default function CourseDetailPage() {
                     {(courseDisplayData.requirements ?? []).map(
                       (item, index) => (
                         <li key={index}>{item}</li>
-                      )
+                      ),
                     )}
                   </ul>
                 </div>
@@ -426,7 +429,7 @@ export default function CourseDetailPage() {
                         <div className="flex gap-1">
                           {Array.from(
                             { length: paginationS.totalPages },
-                            (_, i) => i + 1
+                            (_, i) => i + 1,
                           ).map((page) => (
                             <button
                               key={page}
@@ -447,8 +450,8 @@ export default function CourseDetailPage() {
                             setCurrentPageS(
                               Math.min(
                                 paginationS.totalPages,
-                                paginationS.page + 1
-                              )
+                                paginationS.page + 1,
+                              ),
                             )
                           }
                           disabled={currentPageS === paginationS.totalPages}
@@ -533,7 +536,7 @@ export default function CourseDetailPage() {
                       <div className="flex gap-1">
                         {Array.from(
                           { length: paginationC.totalPages },
-                          (_, i) => i + 1
+                          (_, i) => i + 1,
                         ).map((page) => (
                           <button
                             key={page}
@@ -554,8 +557,8 @@ export default function CourseDetailPage() {
                           setCurrentPageC(
                             Math.min(
                               paginationC.totalPages,
-                              paginationC.page + 1
-                            )
+                              paginationC.page + 1,
+                            ),
                           )
                         }
                         disabled={currentPageC === paginationC.totalPages}
@@ -593,7 +596,7 @@ const CourseCurriculum = ({
     setOpenChapterIds((prevIds) =>
       prevIds.includes(chapterId)
         ? prevIds.filter((id) => id !== chapterId)
-        : [...prevIds, chapterId]
+        : [...prevIds, chapterId],
     );
   };
 

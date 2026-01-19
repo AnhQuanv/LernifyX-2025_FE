@@ -174,62 +174,6 @@ export const getPaginationRange = (currentPage: number, totalPages: number) => {
   return rangeWithDots;
 };
 
-// export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
-//   if (course.status === "published") {
-//     if (course.childCourseStatus === "pending") {
-//       return {
-//         label: "Đã xuất bản (Chờ duyệt sửa đổi)",
-//         color: "border-black text-black",
-//       };
-//     }
-
-//     if (course.childCourseStatus === "rejected") {
-//       return {
-//         label: "Đã xuất bản (Bản sửa bị từ chối)",
-//         color: "border-black text-black",
-//       };
-//     }
-
-//     if (!isAdmin && (course.childCourseStatus === "draft" || course.hasDraft)) {
-//       return {
-//         label: "Đã xuất bản (Có bản nháp)",
-//         color: "border-black text-black",
-//       };
-//     }
-
-//     return {
-//       label: "Đã xuất bản",
-//       color: "border-black text-black",
-//     };
-//   }
-
-//   const statusMap = {
-//     draft: {
-//       label: "Nháp",
-//       color: "border-black text-black",
-//     },
-//     pending: {
-//       label: "Chờ duyệt",
-//       color: "border-black text-black",
-//     },
-//     rejected: {
-//       label: "Bị từ chối",
-//       color: "border-black text-black",
-//     },
-//     archived: {
-//       label: "Bị gỡ xuống",
-//       color: "border-black text-black",
-//     },
-//   };
-
-//   return (
-//     statusMap[course.status as keyof typeof statusMap] || {
-//       label: course.status,
-//       color: "border-black text-black",
-//     }
-//   );
-// };
-
 export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
   if (course.status === "published") {
     if (course.childCourseStatus === "pending") {
@@ -257,7 +201,7 @@ export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
     if (course.childCourseStatus === "pending") {
       return {
         label: "Bị gỡ xuống (Chờ duyệt sửa đổi)",
-        color: "border-black text-black", // Gợi ý đổi màu để dễ phân biệt
+        color: "border-black text-black",
       };
     }
     if (course.childCourseStatus === "rejected") {
@@ -287,4 +231,17 @@ export const getStatusBadge = (course: Course, isAdmin: boolean = false) => {
       color: "border-black text-black",
     }
   );
+};
+
+export const getLevelBadgeColor = (level: Course["level"]) => {
+  switch (level) {
+    case "Cơ Bản":
+      return "bg-violet-500 hover:bg-violet-600";
+    case "Trung Cấp":
+      return "bg-violet-500 hover:bg-violet-600";
+    case "Nâng Cao":
+      return "bg-violet-500 hover:bg-violet-600";
+    default:
+      return "bg-violet-500 hover:bg-violet-600";
+  }
 };
