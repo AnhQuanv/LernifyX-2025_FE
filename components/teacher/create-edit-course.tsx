@@ -1121,6 +1121,7 @@ export default function CreateEditCoursePage({
                                             lesson.videoAsset || null
                                           }
                                           lessonId={lesson.id}
+                                          courseId={courseId}
                                           onUploadComplete={(data) =>
                                             updateLesson(
                                               currentChapter.id,
@@ -1286,7 +1287,7 @@ export default function CreateEditCoursePage({
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => executePublish(submissionNote)}
-              disabled={!submissionNote.trim()} // Bắt buộc nhập mới cho nhấn
+              disabled={!submissionNote.trim()}
               className="bg-primary text-white cursor-pointer"
             >
               Gửi yêu cầu duyệt

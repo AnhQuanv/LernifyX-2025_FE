@@ -97,6 +97,7 @@ export const handleUpLoadImage = async (
 export const handleUpLoadVideo = (
   file: File,
   lessonId: string,
+  courseId: string,
   onProgress: (percent: number, stats?: { speed: string; eta: string }) => void,
   existingUrl?: string,
 ) => {
@@ -155,6 +156,7 @@ export const handleUpLoadVideo = (
         const res = await axiosClient.post("mux/upload-url", {
           taskId,
           lessonId,
+          courseId,
         });
         muxUploadUrl = res.data.data.uploadUrl;
 
