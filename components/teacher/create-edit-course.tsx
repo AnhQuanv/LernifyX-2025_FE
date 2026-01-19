@@ -129,7 +129,7 @@ export default function CreateEditCoursePage({
 }) {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, status: categoryStatus } = useSelector(
-    (state: RootState) => state.category
+    (state: RootState) => state.category,
   );
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"basic" | "chapters">("basic");
@@ -167,11 +167,11 @@ export default function CreateEditCoursePage({
 
     return Boolean(
       (title && title.trim() !== "") ||
-        (description && description.trim() !== "") ||
-        (requirements && requirements.length > 0) ||
-        (learnings && learnings.length > 0) ||
-        (originalPrice && originalPrice.trim() !== "") ||
-        (price && price.trim() !== "")
+      (description && description.trim() !== "") ||
+      (requirements && requirements.length > 0) ||
+      (learnings && learnings.length > 0) ||
+      (originalPrice && originalPrice.trim() !== "") ||
+      (price && price.trim() !== ""),
     );
   };
 
@@ -185,7 +185,7 @@ export default function CreateEditCoursePage({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -256,7 +256,7 @@ export default function CreateEditCoursePage({
     }
 
     const loadingToastId = toast.loading(
-      `Đang xóa chương "${chapterToDelete.title}"...`
+      `Đang xóa chương "${chapterToDelete.title}"...`,
     );
 
     try {
@@ -297,7 +297,7 @@ export default function CreateEditCoursePage({
         "",
         0,
         undefined,
-        newOrder
+        newOrder,
       );
 
       setChapters(
@@ -307,8 +307,8 @@ export default function CreateEditCoursePage({
                 ...ch,
                 lessons: [...ch.lessons, createdLesson],
               }
-            : ch
-        )
+            : ch,
+        ),
       );
       toast.success(`Tạo bài học "${createdLesson.title}" thành công!`, {
         id: loadingToastId,
@@ -323,7 +323,7 @@ export default function CreateEditCoursePage({
   const updateLesson = (
     chapterId: string,
     lessonId: string,
-    updates: Partial<Lesson>
+    updates: Partial<Lesson>,
   ) => {
     setChapters(
       chapters.map((ch) =>
@@ -331,11 +331,11 @@ export default function CreateEditCoursePage({
           ? {
               ...ch,
               lessons: ch.lessons.map((l) =>
-                l.id === lessonId ? { ...l, ...updates } : l
+                l.id === lessonId ? { ...l, ...updates } : l,
               ),
             }
-          : ch
-      )
+          : ch,
+      ),
     );
   };
 
@@ -361,11 +361,11 @@ export default function CreateEditCoursePage({
           };
         }
         return ch;
-      })
+      }),
     );
 
     const loadingToastId = toast.loading(
-      `Đang xóa bài học "${deletedLessonTitle}"...`
+      `Đang xóa bài học "${deletedLessonTitle}"...`,
     );
 
     try {
@@ -380,7 +380,7 @@ export default function CreateEditCoursePage({
         "Lỗi: Không thể xóa bài học trên server. Đã khôi phục trạng thái.",
         {
           id: loadingToastId,
-        }
+        },
       );
     }
   };
@@ -388,7 +388,7 @@ export default function CreateEditCoursePage({
   const handleSaveLesson = async (
     chapterId: string,
     lessonId: string,
-    updates: Partial<Lesson>
+    updates: Partial<Lesson>,
   ) => {
     let updatedLesson: Lesson | undefined;
     setChapters(
@@ -404,19 +404,19 @@ export default function CreateEditCoursePage({
                 return l;
               }),
             }
-          : ch
-      )
+          : ch,
+      ),
     );
     if (!updatedLesson) {
       toast.error("Không tìm thấy bài học để cập nhật.");
       return;
     }
     const loadingToastId = toast.loading(
-      `Đang lưu "${updatedLesson.title}"...`
+      `Đang lưu "${updatedLesson.title}"...`,
     );
     try {
-      const { id, title, content, duration, order } = updatedLesson;
-      await handleUpdateLesson(id, title, content, duration, order);
+      const { id, title, duration, order } = updatedLesson;
+      await handleUpdateLesson(id, title, duration, order);
       toast.success(`Cập nhật bài học "${updatedLesson.title}"!`, {
         id: loadingToastId,
       });
@@ -430,7 +430,7 @@ export default function CreateEditCoursePage({
   const handleSaveQuiz = async (
     questions: QuizQuestion[],
     chapterId: string,
-    lessonId: string
+    lessonId: string,
   ) => {
     const quizArray = Array.isArray(questions) ? questions : [questions];
 
@@ -483,7 +483,7 @@ export default function CreateEditCoursePage({
     try {
       if (!validateBasicInfo()) {
         toast.error(
-          "Bạn phải nhập ít nhất 1 thông tin cơ bản trước khi lưu nháp!"
+          "Bạn phải nhập ít nhất 1 thông tin cơ bản trước khi lưu nháp!",
         );
         return;
       }
@@ -529,7 +529,7 @@ export default function CreateEditCoursePage({
     let initialCourseCreationToastId: string | null = null;
     try {
       initialCourseCreationToastId = toast.loading(
-        "Đang gửi duyệt khóa học..."
+        "Đang gửi duyệt khóa học...",
       );
 
       const form = {
@@ -557,9 +557,8 @@ export default function CreateEditCoursePage({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const catData: ICategory[] = await dispatch(
-          getAllCategories()
-        ).unwrap();
+        const catData: ICategory[] =
+          await dispatch(getAllCategories()).unwrap();
 
         if (isEditMode && id) {
           const res = await handleGetTeacherCourseEdit(id);
@@ -567,7 +566,7 @@ export default function CreateEditCoursePage({
             setParentId(res.parentId);
           }
           const foundCategory = catData.find(
-            (c) => c.categoryName === res.category
+            (c) => c.categoryName === res.category,
           );
 
           const formattedDate = res.discountExpiresAt
@@ -592,7 +591,7 @@ export default function CreateEditCoursePage({
           const sortedChapters: Chapter[] = res.chapters
             ? res.chapters
                 .sort(
-                  (a: Chapter, b: Chapter) => (a.order || 0) - (b.order || 0)
+                  (a: Chapter, b: Chapter) => (a.order || 0) - (b.order || 0),
                 )
                 .map((chapter: Chapter) => ({
                   ...chapter,
@@ -600,14 +599,14 @@ export default function CreateEditCoursePage({
                     ? chapter.lessons
                         .sort(
                           (a: Lesson, b: Lesson) =>
-                            (a.order || 0) - (b.order || 0)
+                            (a.order || 0) - (b.order || 0),
                         )
                         .map((lesson: Lesson) => ({
                           ...lesson,
                           quiz: lesson.quiz
                             ? lesson.quiz.sort(
                                 (a: QuizQuestion, b: QuizQuestion) =>
-                                  (a.order || 0) - (b.order || 0)
+                                  (a.order || 0) - (b.order || 0),
                               )
                             : [],
                         }))
@@ -978,7 +977,7 @@ export default function CreateEditCoursePage({
                                 onChange={(e) =>
                                   updateChapter(
                                     currentChapter.id,
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 placeholder="Nhập tên chương"
@@ -1038,7 +1037,7 @@ export default function CreateEditCoursePage({
                                       setExpandedLessonId(
                                         expandedLessonId === lesson.id
                                           ? null
-                                          : lesson.id
+                                          : lesson.id,
                                       )
                                     }
                                   >
@@ -1073,31 +1072,13 @@ export default function CreateEditCoursePage({
                                               updateLesson(
                                                 currentChapter.id,
                                                 lesson.id,
-                                                { title: e.target.value }
+                                                { title: e.target.value },
                                               )
                                             }
                                             placeholder="Nhập tiêu đề bài học"
                                           />
                                         </div>
-                                        <div>
-                                          <Label
-                                            htmlFor={`lesson-title-${lesson.id}`}
-                                          >
-                                            Nội Dung Bài Học
-                                          </Label>
-                                          <Input
-                                            id={`lesson-content-${lesson.id}`}
-                                            value={lesson.content}
-                                            onChange={(e) =>
-                                              updateLesson(
-                                                currentChapter.id,
-                                                lesson.id,
-                                                { content: e.target.value }
-                                              )
-                                            }
-                                            placeholder="Nhập nội dung bài học"
-                                          />
-                                        </div>
+
                                         <div>
                                           <Label
                                             htmlFor={`lesson-duration-${lesson.id}`}
@@ -1112,7 +1093,7 @@ export default function CreateEditCoursePage({
                                               lesson.duration === 0
                                                 ? "0"
                                                 : formatDurationVi(
-                                                    lesson.duration
+                                                    lesson.duration,
                                                   )
                                             }
                                             onChange={(e) =>
@@ -1121,9 +1102,9 @@ export default function CreateEditCoursePage({
                                                 lesson.id,
                                                 {
                                                   duration: Number.parseInt(
-                                                    e.target.value
+                                                    e.target.value,
                                                   ),
-                                                }
+                                                },
                                               )
                                             }
                                             placeholder="0"
@@ -1147,7 +1128,7 @@ export default function CreateEditCoursePage({
                                               {
                                                 videoAsset: data,
                                                 duration: data.duration,
-                                              }
+                                              },
                                             )
                                           }
                                           onDelete={() =>
@@ -1157,7 +1138,7 @@ export default function CreateEditCoursePage({
                                               {
                                                 videoAsset: null,
                                                 duration: 0,
-                                              }
+                                              },
                                             )
                                           }
                                         />
@@ -1174,7 +1155,7 @@ export default function CreateEditCoursePage({
                                               updateLesson(
                                                 currentChapter.id,
                                                 lesson.id,
-                                                { hasQuiz: e.target.checked }
+                                                { hasQuiz: e.target.checked },
                                               )
                                             }
                                             className="w-4 h-4"
@@ -1201,7 +1182,7 @@ export default function CreateEditCoursePage({
                                               handleSaveQuiz(
                                                 questions,
                                                 currentChapter.id,
-                                                lesson.id
+                                                lesson.id,
                                               )
                                             }
                                           />
@@ -1216,7 +1197,7 @@ export default function CreateEditCoursePage({
                                           onClick={() =>
                                             deleteLesson(
                                               currentChapter.id,
-                                              lesson.id
+                                              lesson.id,
                                             )
                                           }
                                         >
@@ -1229,7 +1210,7 @@ export default function CreateEditCoursePage({
                                             handleSaveLesson(
                                               currentChapter.id,
                                               lesson.id,
-                                              lesson
+                                              lesson,
                                             )
                                           }
                                           size="sm"

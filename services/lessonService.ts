@@ -7,7 +7,7 @@ export const handleCreateLesson = async (
   content?: string,
   duration?: number,
   videoUrl?: string,
-  order?: number
+  order?: number,
 ) => {
   const res = await axiosClient.post("lesson/create", {
     chapterId,
@@ -24,14 +24,12 @@ export const handleCreateLesson = async (
 export const handleUpdateLesson = async (
   id: string,
   title?: string,
-  content?: string,
   duration?: number,
-  order?: number
+  order?: number,
 ) => {
   const res = await axiosClient.put("lesson/update", {
     id,
     title,
-    content,
     duration,
     order,
   });
