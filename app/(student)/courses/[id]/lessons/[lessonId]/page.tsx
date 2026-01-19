@@ -68,12 +68,12 @@ export default function LessonPage() {
   }>({});
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [commentTab, setCommentTab] = useState<"comments" | "quiz" | "notes">(
-    "comments"
+    "comments",
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [comment, setComment] = useState("");
   const [openReplies, setOpenReplies] = useState<{ [key: string]: boolean }>(
-    {}
+    {},
   );
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isProgressReady, setIsProgressReady] = useState(false);
@@ -133,7 +133,7 @@ export default function LessonPage() {
         addNoteToLesson({
           progressId: lesson.progress.id,
           text: newNoteContent,
-        })
+        }),
       ).unwrap();
       setNewNoteContent("");
       toast.success("Thêm ghi chú thành công!");
@@ -167,7 +167,7 @@ export default function LessonPage() {
         updateNoteToLesson({
           noteId: editingNoteId,
           text: editingContent,
-        })
+        }),
       ).unwrap();
       setEditingNoteId(null);
       setEditingContent("");
@@ -214,7 +214,7 @@ export default function LessonPage() {
     setExpandedSections((prev) =>
       prev.includes(chapterId)
         ? prev.filter((id) => id !== chapterId)
-        : [...prev, chapterId]
+        : [...prev, chapterId],
     );
   };
 
@@ -223,7 +223,7 @@ export default function LessonPage() {
   const isCompletingRef = useRef(false);
 
   const handleTimeUpdate = async (
-    e: React.SyntheticEvent<HTMLVideoElement>
+    e: React.SyntheticEvent<HTMLVideoElement>,
   ) => {
     const video = e.currentTarget;
     const currentTime = Math.floor(video.currentTime);
@@ -238,7 +238,7 @@ export default function LessonPage() {
         updateLessonProgress({
           progressId: lesson.progress.id,
           lastPosition: currentTime,
-        })
+        }),
       );
     }
 
@@ -266,9 +266,9 @@ export default function LessonPage() {
           progressId: lesson.progress.id,
           completed: true,
           lastPosition: Math.floor(
-            videoRef.current?.duration || lesson.duration || 0
+            videoRef.current?.duration || lesson.duration || 0,
           ),
-        })
+        }),
       ).unwrap();
 
       if (courseId) {
@@ -284,7 +284,7 @@ export default function LessonPage() {
 
   const playbackId = useMemo(
     () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined,
-    [lesson?.videoAsset?.originalUrl]
+    [lesson?.videoAsset?.originalUrl],
   );
 
   useEffect(() => {
@@ -298,7 +298,7 @@ export default function LessonPage() {
           lessonId: lessonId,
           page: currentPage,
           limit: 6,
-        })
+        }),
       );
     }
   }, [courseId, lessonId, dispatch, currentPage]);
@@ -417,7 +417,7 @@ export default function LessonPage() {
                           .map((les, lessonIndex) => {
                             const isLocked = isLessonLocked(
                               chapterIndex,
-                              lessonIndex
+                              lessonIndex,
                             );
                             const completed = les.progress?.completed;
 
@@ -545,7 +545,7 @@ export default function LessonPage() {
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      📝 Bài tập
+                      Bài tập
                     </button>
                   )}
                   <button
@@ -624,20 +624,20 @@ export default function LessonPage() {
                                         "student"
                                           ? "Học viên"
                                           : c.user.roleName.toLowerCase() ===
-                                              "teacher" ||
-                                            c.user.roleName.toLowerCase() ===
-                                              "instructor"
-                                          ? "Giảng viên"
-                                          : c.user.roleName === "admin"
-                                          ? "Quản trị viên"
-                                          : c.user.roleName}
+                                                "teacher" ||
+                                              c.user.roleName.toLowerCase() ===
+                                                "instructor"
+                                            ? "Giảng viên"
+                                            : c.user.roleName === "admin"
+                                              ? "Quản trị viên"
+                                              : c.user.roleName}
                                         )
                                       </span>
                                     )}
                                   </h4>
                                   <span className="text-sm text-gray-500">
                                     {new Date(c.createdAt).toLocaleDateString(
-                                      "vi-VN"
+                                      "vi-VN",
                                     )}
                                   </span>
                                 </div>
@@ -670,7 +670,7 @@ export default function LessonPage() {
                                           ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
                                               {getInitials(
-                                                c.user.fullName || "User"
+                                                c.user.fullName || "User",
                                               )}
                                             </div>
                                           )}
@@ -686,21 +686,21 @@ export default function LessonPage() {
                                                   "student"
                                                     ? "Học viên"
                                                     : r.user.roleName.toLowerCase() ===
-                                                        "teacher" ||
-                                                      r.user.roleName.toLowerCase() ===
-                                                        "teacher"
-                                                    ? "Giảng viên"
-                                                    : r.user.roleName ===
-                                                      "admin"
-                                                    ? "Quản trị viên"
-                                                    : r.user.roleName}
+                                                          "teacher" ||
+                                                        r.user.roleName.toLowerCase() ===
+                                                          "teacher"
+                                                      ? "Giảng viên"
+                                                      : r.user.roleName ===
+                                                          "admin"
+                                                        ? "Quản trị viên"
+                                                        : r.user.roleName}
                                                   )
                                                 </span>
                                               )}
                                             </h5>
                                             <span className="text-xs text-gray-500">
                                               {new Date(
-                                                r.createdAt
+                                                r.createdAt,
                                               ).toLocaleDateString("vi-VN")}
                                             </span>
                                           </div>
@@ -755,7 +755,7 @@ export default function LessonPage() {
                             <div className="flex gap-1">
                               {getPaginationRange(
                                 pagination.page,
-                                pagination.totalPages
+                                pagination.totalPages,
                               ).map((page, index) => {
                                 if (page === "...") {
                                   return (
@@ -790,8 +790,8 @@ export default function LessonPage() {
                                 setCurrentPage(
                                   Math.min(
                                     pagination.totalPages,
-                                    currentPage + 1
-                                  )
+                                    currentPage + 1,
+                                  ),
                                 )
                               }
                               disabled={currentPage === pagination.totalPages}
@@ -856,26 +856,17 @@ export default function LessonPage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 border-blue-200">
-                        <div className="mb-4">
-                          <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
-                        </div>
-                        <h4 className="text-2xl font-bold text-blue-900 mb-2">
-                          Hoàn thành !
-                        </h4>
-                        <p className="text-blue-700 text-lg font-bold mb-2">
+                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 ">
+                        <p className="text-black-700 text-lg font-bold mb-2">
                           Điểm của bạn: {getQuizScore()}%
                         </p>
-                        <p className="text-blue-600">
+                        <p className="text-black-600">
                           Bạn trả lời đúng {getCorrectCount()} trên{" "}
                           {lesson?.quiz?.length} câu hỏi
                         </p>
                       </div>
 
                       <div className="space-y-6">
-                        <h4 className="text-lg font-bold text-gray-900">
-                          Xem lại câu trả lời
-                        </h4>
                         {lesson?.quiz?.map((question, idx) => {
                           const userAnswer = quizAnswers[question.id];
                           const isCorrect =
@@ -883,11 +874,7 @@ export default function LessonPage() {
                           return (
                             <div
                               key={question.id}
-                              className={`border-2 rounded-lg p-6 ${
-                                isCorrect
-                                  ? "border-green-300 bg-green-50"
-                                  : "border-red-300 bg-red-50"
-                              }`}
+                              className={`border-2 rounded-lg p-6 `}
                             >
                               <div className="flex items-start gap-3 mb-4">
                                 {isCorrect ? (
@@ -896,13 +883,7 @@ export default function LessonPage() {
                                   <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-1" />
                                 )}
                                 <div className="flex-1">
-                                  <h5
-                                    className={`font-semibold mb-2 ${
-                                      isCorrect
-                                        ? "text-green-900"
-                                        : "text-red-900"
-                                    }`}
-                                  >
+                                  <h5 className={`font-semibold mb-2 `}>
                                     {idx + 1}. {question.question}
                                   </h5>
                                   <p
@@ -927,10 +908,10 @@ export default function LessonPage() {
                                       key={optIdx}
                                       className={`flex items-center gap-2 p-2 rounded ${
                                         iscorrectOptionId
-                                          ? "bg-green-200 text-green-900"
+                                          ? " text-green-900"
                                           : isUserAnswer && !isCorrect
-                                          ? "bg-red-200 text-red-900"
-                                          : "text-gray-700"
+                                            ? " text-red-900"
+                                            : "text-gray-700"
                                       }`}
                                     >
                                       <span className="font-bold">
