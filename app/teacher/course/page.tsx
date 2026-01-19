@@ -143,6 +143,11 @@ const CourseCard = ({
       ? currentDraft.title
       : course.title;
 
+  const displayImage =
+    course.status === "published" && currentDraft
+      ? currentDraft.image
+      : course.image;
+
   const displayDescription =
     course.status === "published" && currentDraft
       ? currentDraft.description
@@ -178,14 +183,14 @@ const CourseCard = ({
       <Card className="flex flex-col h-full hover:shadow-lg transition-shadow overflow-hidden">
         {/* Ảnh và Badge */}
         <div className="relative w-full h-40 bg-gray-200 shrink-0">
-          {course.image ? (
+          {displayImage ? (
             <Image
-              src={course.image}
-              alt={course.title}
+              src={displayImage}
+              alt={displayTitle}
               fill
               priority
               sizes="(max-width: 768px) 100vw, 400px"
-              className="object-cover"
+              className="object-contain"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100">

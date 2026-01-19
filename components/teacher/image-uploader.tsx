@@ -142,14 +142,14 @@ export function ImageUploader({
 
         {displayImageUrl && (
           <div className="space-y-4">
-            <div className="relative w-full h-52 overflow-hidden rounded-2xl group">
+            <div className="relative w-full aspect-video overflow-hidden rounded-2xl group border bg-slate-100">
               <Image
                 src={displayImageUrl}
                 alt="Preview"
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, 400px"
-                className="object-cover"
+                className="object-contain"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                 <Button variant="secondary" size="sm" onClick={handleRemove}>
@@ -162,7 +162,9 @@ export function ImageUploader({
               <CheckCircle2 className="h-5 w-5 text-green-600" />
               <div>
                 <p className="font-semibold text-green-900">
-                  {uploadedImage ? "Tải lên thành công" : "Hình ảnh đã lưu"}
+                  {uploadedImage
+                    ? "Tải lên thành công (cần bấm lưu nháp mới lưu hình ảnh cho khóa học)"
+                    : "Hình ảnh đã lưu"}
                 </p>
               </div>
             </div>
