@@ -35,7 +35,7 @@ const CoursesPage = () => {
 
   const dispatch = useDispatch<AppDispatch>();
   const { categories, status: categoryStatus } = useSelector(
-    (state: RootState) => state.category
+    (state: RootState) => state.category,
   );
   const {
     filteredCourses,
@@ -138,7 +138,6 @@ const CoursesPage = () => {
       {/* Category Filter */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
           Danh mục
         </h3>
         <div className="space-y-2">
@@ -179,7 +178,6 @@ const CoursesPage = () => {
       {/* Level Filter */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
           Trình độ
         </h3>
         <div className="space-y-2">
@@ -193,7 +191,7 @@ const CoursesPage = () => {
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
               }`}
             >
-              {level}
+              {level === "All" ? "Tất cả" : level}
             </button>
           ))}
         </div>
@@ -202,7 +200,6 @@ const CoursesPage = () => {
       {/* Rating Filter */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
           Đánh giá
         </h3>
         <div className="space-y-2">
@@ -225,7 +222,6 @@ const CoursesPage = () => {
       {/* Sort Filter */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <div className="w-1 h-6 bg-violet-600 rounded-full"></div>
           Sắp xếp
         </h3>
         <div className="space-y-2">
@@ -355,7 +351,7 @@ const CoursesPage = () => {
                   <div className="flex gap-1">
                     {getPaginationRange(
                       pagination.page,
-                      pagination.totalPages
+                      pagination.totalPages,
                     ).map((page, index) => {
                       if (page === "...") {
                         return (
@@ -388,7 +384,7 @@ const CoursesPage = () => {
                   <button
                     onClick={() =>
                       setCurrentPage(
-                        Math.min(pagination.totalPages, pagination.page + 1)
+                        Math.min(pagination.totalPages, pagination.page + 1),
                       )
                     }
                     disabled={pagination.page === pagination.totalPages}
