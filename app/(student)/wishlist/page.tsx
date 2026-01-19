@@ -12,7 +12,7 @@ export default function WishlistPage() {
   const router = useRouter();
   const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
   const wishlistItems = useSelector(
-    (state: RootState) => state.wishlist.allCourses
+    (state: RootState) => state.wishlist.allCourses,
   );
   const cartItems = useSelector((state: RootState) => state.cart.allCourses);
 
@@ -101,7 +101,7 @@ export default function WishlistPage() {
                     <span>Giá trung bình:</span>
                     <span className="font-semibold text-gray-800">
                       {roundVND(
-                        totalValue / wishlistItems.length
+                        totalValue / wishlistItems.length,
                       ).toLocaleString()}
                       ₫
                     </span>

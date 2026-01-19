@@ -26,7 +26,7 @@ const Homepage = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { categories, status: categoryStatus } = useSelector(
-    (state: RootState) => state.category
+    (state: RootState) => state.category,
   );
   const {
     homeCourse: allCourses,
@@ -57,7 +57,7 @@ const Homepage = () => {
         (course) =>
           course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           course.instructor.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          course.category.toLowerCase().includes(searchQuery.toLowerCase())
+          course.category.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : [];
 
@@ -75,7 +75,8 @@ const Homepage = () => {
 
     if (nextState && recommendationCourse.length === 0) {
       setIsRecommending(true);
-      await dispatch(getCourseRecommendation());
+      const res = await dispatch(getCourseRecommendation());
+      console.log("Dữ liệu từ API về Frontend:", res.payload);
       setIsRecommending(false);
     }
   };
@@ -220,10 +221,10 @@ const Homepage = () => {
                                 {course.price !== null
                                   ? `${course.price.toLocaleString("vi-VN")}₫`
                                   : course.originalPrice !== null
-                                  ? `${course.originalPrice.toLocaleString(
-                                      "vi-VN"
-                                    )}₫`
-                                  : "Miễn phí"}
+                                    ? `${course.originalPrice.toLocaleString(
+                                        "vi-VN",
+                                      )}₫`
+                                    : "Miễn phí"}
                               </div>
 
                               {course.price !== null &&
@@ -231,7 +232,7 @@ const Homepage = () => {
                                 course.price < course.originalPrice && (
                                   <div className="text-xs text-gray-400 line-through">
                                     {course.originalPrice.toLocaleString(
-                                      "vi-VN"
+                                      "vi-VN",
                                     )}
                                     ₫
                                   </div>
@@ -364,7 +365,7 @@ const Homepage = () => {
                       {allCourses
                         .slice(
                           slideIndex * coursesPerPage,
-                          (slideIndex + 1) * coursesPerPage
+                          (slideIndex + 1) * coursesPerPage,
                         )
                         .map((course) => (
                           <CourseCard
@@ -411,8 +412,8 @@ const Homepage = () => {
               {isRecommending
                 ? "Đang phân tích gợi ý..."
                 : showRecommendation
-                ? "Ẩn bớt gợi ý"
-                : "Xem gợi ý dành riêng cho bạn"}
+                  ? "Ẩn bớt gợi ý"
+                  : "Xem gợi ý dành riêng cho bạn"}
               {!isRecommending &&
                 (showRecommendation ? (
                   <ChevronUp className="w-5 h-5" />
@@ -441,7 +442,7 @@ const Homepage = () => {
                 <button
                   onClick={() =>
                     setCurrentSlideRecommendation((prev) =>
-                      prev > 0 ? prev - 1 : maxSlidesRecommend
+                      prev > 0 ? prev - 1 : maxSlidesRecommend,
                     )
                   }
                   className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
@@ -451,7 +452,7 @@ const Homepage = () => {
                 <button
                   onClick={() =>
                     setCurrentSlideRecommendation((prev) =>
-                      prev < maxSlidesRecommend ? prev + 1 : 0
+                      prev < maxSlidesRecommend ? prev + 1 : 0,
                     )
                   }
                   className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-all duration-300 shadow-xl z-10 group"
@@ -469,7 +470,7 @@ const Homepage = () => {
                   >
                     {Array.from({
                       length: Math.ceil(
-                        recommendationCourse.length / coursesPerPage
+                        recommendationCourse.length / coursesPerPage,
                       ),
                     }).map((_, slideIndex) => (
                       <div key={slideIndex} className="w-full shrink-0">
@@ -477,7 +478,7 @@ const Homepage = () => {
                           {recommendationCourse
                             .slice(
                               slideIndex * coursesPerPage,
-                              (slideIndex + 1) * coursesPerPage
+                              (slideIndex + 1) * coursesPerPage,
                             )
                             .map((course) => (
                               <CourseCard
@@ -506,7 +507,7 @@ const Homepage = () => {
                           : "bg-gray-300 hover:bg-gray-400 w-3"
                       }`}
                     />
-                  )
+                  ),
                 )}
               </div>
             </div>

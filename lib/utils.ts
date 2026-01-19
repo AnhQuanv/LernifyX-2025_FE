@@ -3,6 +3,9 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 interface PriceableItem {
   price: number | null;
+  originalPrice?: number | null;
+  discount?: number | null;
+  discountExpiresAt?: string | null;
 }
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,12 +20,31 @@ export const getInitials = (name?: string) => {
 };
 
 export const getCartTotal = (items: PriceableItem[]): number => {
+  const now = new Date();
+
   return items.reduce((sum, item) => {
-    const price = item.price ?? 0;
-    return sum + price;
+    let finalPrice = 0;
+
+    // Kiểm tra điều kiện giảm giá:
+    // 1. Có giá trị discount > 0
+    // 2. Có discountExpiresAt và thời gian hiện tại chưa vượt quá hạn
+    const hasValidDiscount =
+      item.discount &&
+      item.discount > 0 &&
+      item.discountExpiresAt &&
+      new Date(item.discountExpiresAt) > now;
+
+    if (hasValidDiscount) {
+      // Dùng giá đã giảm (price)
+      finalPrice = item.price ?? 0;
+    } else {
+      // Dùng giá gốc (originalPrice), nếu không có thì fallback về price hoặc 0
+      finalPrice = item.originalPrice ?? item.price ?? 0;
+    }
+
+    return sum + finalPrice;
   }, 0);
 };
-
 export const roundVND = (value: number) => {
   const remainder = value % 1000;
   if (remainder >= 500) {

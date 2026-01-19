@@ -54,7 +54,7 @@ export const handleGetMyLearningCourses = async ({
 
 export const handleGetLessonDetail = async (
   courseId: string,
-  lessonId: string
+  lessonId: string,
 ) => {
   const res = await axiosClient.get(`course/${courseId}/lesson/${lessonId}`, {
     params: { courseId, lessonId },
@@ -64,7 +64,7 @@ export const handleGetLessonDetail = async (
 
 export const handleGetLessonDetailForTeacher = async (
   courseId: string,
-  lessonId: string
+  lessonId: string,
 ) => {
   const res = await axiosClient.get(`course/${courseId}/lessons/${lessonId}`, {
     params: { courseId, lessonId },
@@ -79,7 +79,7 @@ export const handleGetCourseRecommendation = async () => {
 
 export const handleUpLoadImage = async (
   file: File,
-  onProgress: ProgressCallback
+  onProgress: ProgressCallback,
 ) => {
   const formData = new FormData();
   formData.append("file", file);
@@ -98,7 +98,7 @@ export const handleUpLoadVideo = (
   file: File,
   lessonId: string,
   onProgress: (percent: number, stats?: { speed: string; eta: string }) => void,
-  existingUrl?: string
+  existingUrl?: string,
 ) => {
   return new Promise(async (resolve, reject) => {
     const taskId =
@@ -210,7 +210,7 @@ export const handleUpLoadVideo = (
 
           localStorage.setItem(
             `upload_progress_${lessonId}`,
-            Math.round(percent).toString()
+            Math.round(percent).toString(),
           );
         }
       });
@@ -225,7 +225,7 @@ export const handleUpLoadVideo = (
           localStorage.removeItem(`upload_taskid_${lessonId}`);
         }
         reject(
-          new Error(`UpChunk Error: ${err.detail.message || "Unknown error"}`)
+          new Error(`UpChunk Error: ${err.detail.message || "Unknown error"}`),
         );
         cleanup();
       });
@@ -376,7 +376,7 @@ export const handleCreateCourseDraft = async (courseId: string) => {
     {},
     {
       params: { courseId },
-    }
+    },
   );
   return res.data.data;
 };

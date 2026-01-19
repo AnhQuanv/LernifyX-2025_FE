@@ -15,7 +15,7 @@ export const getFilterCourses = createAsyncThunk(
   "courses/getFilterCourses",
   async (
     { params }: { params?: filterCourseParams } = {},
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await handleGetFilteredCourses({ params });
@@ -27,7 +27,7 @@ export const getFilterCourses = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const getHomeCourses = createAsyncThunk(
@@ -43,7 +43,7 @@ export const getHomeCourses = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const getCourseRecommendation = createAsyncThunk(
@@ -51,6 +51,7 @@ export const getCourseRecommendation = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await handleGetCourseRecommendation();
+      console.log(res);
       return res;
     } catch (err: unknown) {
       const error = err as AxiosError<ApiError>;
@@ -59,7 +60,7 @@ export const getCourseRecommendation = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const getDetailCourse = createAsyncThunk(
@@ -76,14 +77,14 @@ export const getDetailCourse = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const getLessonDetail = createAsyncThunk(
   "courses/getLessonDetail",
   async (
     params: { courseId: string; lessonId: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await handleGetLessonDetail(params.courseId, params.lessonId);
@@ -96,19 +97,19 @@ export const getLessonDetail = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const getLessonDetailForTeacher = createAsyncThunk(
   "courses/getLessonDetail",
   async (
     params: { courseId: string; lessonId: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await handleGetLessonDetailForTeacher(
         params.courseId,
-        params.lessonId
+        params.lessonId,
       );
       return res;
     } catch (err: unknown) {
@@ -119,5 +120,5 @@ export const getLessonDetailForTeacher = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
