@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Video,
 } from "lucide-react";
 import Image from "next/image";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -33,6 +34,7 @@ import {
 import { UserAvatar } from "@/components/ui/avatar-cop";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { handlePostComment } from "@/services/commentService";
+import { Badge } from "@/components/ui/badge";
 
 export default function LessonPage() {
   const params = useParams<{ id: string }>();
@@ -40,10 +42,10 @@ export default function LessonPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { selectedCourse: course, status: courseStatus } = useSelector(
-    (state: RootState) => state.course
+    (state: RootState) => state.course,
   );
   const { comments, pagination } = useSelector(
-    (state: RootState) => state.comment
+    (state: RootState) => state.comment,
   );
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
@@ -59,7 +61,7 @@ export default function LessonPage() {
 
   const toggleSection = (index: number) => {
     setExpandedSections((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
   };
   const isLessonLocked = (chapterIndex: number, lessonIndex: number) => {
@@ -134,7 +136,7 @@ export default function LessonPage() {
           courseId: courseId,
           page: currentPage,
           limit: 6,
-        })
+        }),
       );
     }
   }, [courseId, dispatch, currentPage]);
@@ -336,9 +338,6 @@ export default function LessonPage() {
                                   }`}
                                 >
                                   <div className="flex items-center gap-3 flex-1">
-                                    <span className="text-sm font-medium text-gray-500 w-6">
-                                      {lessonIndex + 1}
-                                    </span>
                                     {!isLocked && isCompleted && (
                                       <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />
                                     )}
@@ -353,25 +352,34 @@ export default function LessonPage() {
                                     >
                                       {lesson.title}
                                     </span>
-
-                                    {/* Quiz Indicator */}
-                                    {lesson.hasQuiz && (
-                                      <span className="ml-2 inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">
-                                        📝 Quiz
-                                      </span>
-                                    )}
                                   </div>
 
                                   {/* Thời lượng */}
-                                  <span
-                                    className={`text-xs whitespace-nowrap ml-4 ${
-                                      isLocked
-                                        ? "text-gray-400"
-                                        : "text-gray-500"
-                                    }`}
-                                  >
-                                    {formatDurationVi(lesson.duration)}
-                                  </span>
+                                  <div className="text-right flex items-center justify-end gap-2">
+                                    {lesson.canViewVideo && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="flex items-center gap-1"
+                                      >
+                                        <Video className="h-3 w-3" />
+                                      </Badge>
+                                    )}
+
+                                    {lesson.hasQuiz && (
+                                      <Badge variant="secondary">Quiz</Badge>
+                                    )}
+
+                                    <span
+                                      className={`text-xs whitespace-nowrap flex items-center ${
+                                        isLocked
+                                          ? "text-gray-400"
+                                          : "text-gray-500"
+                                      }`}
+                                    >
+                                      <Clock className="h-3 w-3 mr-1" />
+                                      {formatDurationVi(lesson.duration)}
+                                    </span>
+                                  </div>
                                 </div>
                               );
                             })}
@@ -517,7 +525,7 @@ export default function LessonPage() {
                     <div className="flex gap-1">
                       {getPaginationRange(
                         pagination.page,
-                        pagination.totalPages
+                        pagination.totalPages,
                       ).map((page, index) => {
                         if (page === "...") {
                           return (
@@ -549,7 +557,7 @@ export default function LessonPage() {
                     <button
                       onClick={() =>
                         setCurrentPage(
-                          Math.min(pagination.totalPages, pagination.page + 1)
+                          Math.min(pagination.totalPages, pagination.page + 1),
                         )
                       }
                       disabled={currentPage === pagination.totalPages}

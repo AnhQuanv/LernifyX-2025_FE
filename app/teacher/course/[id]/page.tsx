@@ -402,12 +402,30 @@ export default function CourseDetailPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-foreground">
-                              {item.progressPercentage.toFixed(2)}%
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Hoàn thành
-                            </p>
+                            <div className="flex flex-col">
+                              <p className="font-semibold text-foreground">
+                                {item?.progressPercentage >= 100 ? (
+                                  <span className="text-green-600 flex items-center gap-1">
+                                    100%
+                                  </span>
+                                ) : (
+                                  <span>
+                                    {(item?.progressPercentage ?? 0).toFixed(2)}
+                                    %
+                                  </span>
+                                )}
+                              </p>
+
+                              <p className="text-sm text-muted-foreground">
+                                {item?.progressPercentage >= 100 ? (
+                                  <span className="text-green-600 font-medium">
+                                    Hoàn thành
+                                  </span>
+                                ) : (
+                                  "Đang học"
+                                )}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ))
