@@ -43,6 +43,9 @@ export interface UpdateProfileDto {
   address?: string;
   avatar?: string;
   adminPassword?: string;
+  bio?: string;
+  description?: string;
+  isDisabled?: boolean;
 }
 
 export interface UpdatePasswordDto {

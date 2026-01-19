@@ -18,4 +18,5 @@ export interface User {
 
 export interface UserWithProgress extends IUser {
   course: Course[];
+  isDisabled?: boolean;
 }

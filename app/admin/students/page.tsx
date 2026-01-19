@@ -6,25 +6,26 @@ import { Button } from "@/components/ui/button";
 import {
   Search,
   Plus,
-  Trash2,
   Edit2,
   Eye,
   Loader,
   ChevronRight,
   ChevronLeft,
+  Ban,
+  CheckCircle,
 } from "lucide-react";
 import { AddStudentModal } from "@/components/admin/add-account-modal";
 import { DeleteModal } from "@/components/admin/delete-modal";
 import { UserWithProgress } from "@/types/user/user";
 import { Course } from "@/types/course/course";
 import { ViewCoursesModal } from "@/components/admin/view-courses-modal";
-import {
-  handleDeleteUser,
-  handleGetStudentsCourseProgress,
-} from "@/services/authService";
+import { handleGetStudentsCourseProgress } from "@/services/authService";
 import toast from "react-hot-toast";
 import { getPaginationRange } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { updateProfile } from "@/redux/thunk/authThunk";
 
 export default function StudentContent() {
   const [students, setStudents] = useState<UserWithProgress[]>([]);
@@ -35,7 +36,7 @@ export default function StudentContent() {
   const [selectedStudent, setSelectedStudent] =
     useState<UserWithProgress | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserWithProgress | null>(
-    null
+    null,
   );
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +51,7 @@ export default function StudentContent() {
   });
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [modalType, setModalType] = useState<"add" | "update">("add");
+  const dispatch = useDispatch<AppDispatch>();
 
   const fetchData = useCallback(async () => {
     try {
@@ -78,14 +80,28 @@ export default function StudentContent() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
+    const newDisabledStatus = !deleteTarget.isDisabled;
     try {
-      await handleDeleteUser(deleteTarget.userId);
-      toast.success(`Đã xóa tài khoản thành công`);
-      setStudents(students.filter((s) => s.userId !== deleteTarget.userId));
+      await dispatch(
+        updateProfile({
+          userId: deleteTarget.userId,
+          isDisabled: newDisabledStatus,
+        }),
+      ).unwrap();
+      toast.success(
+        `${newDisabledStatus ? "Vô hiệu hóa" : "Kích hoạt"} tài khoản thành công`,
+      );
+      setStudents((prevStudents) =>
+        prevStudents.map((s) =>
+          s.userId === deleteTarget.userId
+            ? { ...s, isDisabled: newDisabledStatus }
+            : s,
+        ),
+      );
       setDeleteTarget(null);
       setDeleteModalOpen(false);
     } catch {
-      toast.error("Xóa tài khoản thất bại. Vui lòng thử lại");
+      toast.error("Thao tác thất bại. Vui lòng thử lại");
     }
   };
 
@@ -144,7 +160,7 @@ export default function StudentContent() {
                 key={role.id}
                 onClick={() => {
                   setSelectedRole(role.id);
-                  setCurrentPage(1); // Reset về trang 1 khi đổi tab
+                  setCurrentPage(1);
                 }}
                 className={`px-6 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                   selectedRole === role.id
@@ -195,8 +211,8 @@ export default function StudentContent() {
                     {selectedRole === "student"
                       ? "Học Sinh"
                       : selectedRole === "teacher"
-                      ? "Giảng Viên"
-                      : "Quản Trị Viên"}
+                        ? "Giảng Viên"
+                        : "Quản Trị Viên"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -243,7 +259,7 @@ export default function StudentContent() {
                             <td className="py-3 px-4 text-muted-foreground">
                               {student.createdAt
                                 ? new Date(
-                                    student.createdAt
+                                    student.createdAt,
                                   ).toLocaleDateString("vi-VN")
                                 : "---"}
                             </td>
@@ -275,13 +291,26 @@ export default function StudentContent() {
                                   <Edit2 size={16} />
                                 </button>
                                 <button
-                                  className="p-1 hover:bg-muted rounded text-red-600 cursor-pointer"
+                                  className={`p-1 hover:bg-muted rounded cursor-pointer ${
+                                    student.isDisabled
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
                                   onClick={() => {
                                     setDeleteTarget(student);
                                     setDeleteModalOpen(true);
                                   }}
+                                  title={
+                                    student.isDisabled
+                                      ? "Kích hoạt tài khoản"
+                                      : "Vô hiệu hóa tài khoản"
+                                  }
                                 >
-                                  <Trash2 size={16} />
+                                  {student.isDisabled ? (
+                                    <CheckCircle size={16} />
+                                  ) : (
+                                    <Ban size={16} />
+                                  )}
                                 </button>
                               </div>
                             </td>
@@ -312,7 +341,7 @@ export default function StudentContent() {
                     <div className="flex gap-1">
                       {getPaginationRange(
                         pagination.page,
-                        pagination.totalPages
+                        pagination.totalPages,
                       ).map((page, index) => (
                         <button
                           key={page === "..." ? `dots-${index}` : page}
@@ -335,7 +364,7 @@ export default function StudentContent() {
                     <button
                       onClick={() =>
                         setCurrentPage(
-                          Math.min(pagination.totalPages, pagination.page + 1)
+                          Math.min(pagination.totalPages, pagination.page + 1),
                         )
                       }
                       disabled={pagination.page === pagination.totalPages}
@@ -361,10 +390,16 @@ export default function StudentContent() {
             open={deleteModalOpen}
             onOpenChange={setDeleteModalOpen}
             onConfirm={confirmDelete}
-            title={`Xóa ${
-              selectedRole === "student" ? "Học Sinh" : "Tài Khoản"
-            }`}
-            description="Hành động này không thể hoàn tác."
+            title={
+              deleteTarget?.isDisabled
+                ? "Kích hoạt tài khoản"
+                : "Vô hiệu hóa tài khoản"
+            }
+            description={
+              deleteTarget?.isDisabled
+                ? "Bạn có chắc chắn muốn cho phép người dùng này truy cập lại hệ thống?"
+                : "Bạn có chắc chắn muốn vô hiệu hóa tài khoản của"
+            }
             itemName={deleteTarget?.fullName || ""}
           />
 

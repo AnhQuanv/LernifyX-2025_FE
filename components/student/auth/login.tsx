@@ -72,6 +72,15 @@ export function LoginForm() {
           form.reset();
           form.clearErrors();
         }, 3000);
+      } else if (code === "ACCOUNT_DISABLED") {
+        setError("root", {
+          message:
+            "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ learnifyx@gmail.com để được hỗ trợ.",
+        });
+        setTimeout(() => {
+          form.reset();
+          form.clearErrors();
+        }, 3000);
       } else if (msg?.toLowerCase().includes("email")) {
         setError("email", { message: "Email không tồn tại." });
       } else {

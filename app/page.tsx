@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
@@ -9,18 +9,17 @@ import { Loader } from "lucide-react";
 const RootPage = () => {
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
-  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!auth.user) {
+    if (auth.user === null) {
+      router.replace("/auth/login");
       return;
     }
 
     const { roleName, hasPreferences } = auth.user;
-    setIsRedirecting(true);
+
     if (roleName === "student") {
-      const hasPref = Boolean(hasPreferences);
-      if (hasPref === false) {
+      if (!hasPreferences) {
         router.replace("/survey");
       } else {
         router.replace("/homepage");
@@ -34,8 +33,8 @@ const RootPage = () => {
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-background">
-      <Loader className="w-12 h-12  animate-spin mx-auto mb-4" />
-      <p className="text-black-600">Đang tải dữ liệu...</p>
+      <Loader className="w-12 h-12 animate-spin mb-4 text-primary" />
+      <p className="text-gray-600 font-medium">Đang tải dữ liệu...</p>
     </div>
   );
 };

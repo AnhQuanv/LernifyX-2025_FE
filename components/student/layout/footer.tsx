@@ -1,35 +1,19 @@
 import Link from "next/link";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  Phone,
-} from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 // Tách dữ liệu ra mảng để quản lý key dễ dàng và code gọn hơn
 const FOOTER_LINKS = {
   quickLinks: [
+    { label: "Trang chủ", href: "#" },
     { label: "Tất cả khóa học", href: "#" },
     { label: "Giáo viên của chúng tôi", href: "#" },
-    { label: "Bảng giá", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Liên hệ", href: "#" },
   ],
   categories: [
-    { label: "Phát triển web", href: "#" },
+    { label: "Lập trình web", href: "#" },
     { label: "Khoa học dữ liệu", href: "#" },
     { label: "Phát triển di động", href: "#" },
     { label: "Thiết kế", href: "#" },
     { label: "Kinh doanh", href: "#" },
-  ],
-  socials: [
-    { Icon: Facebook, href: "#" },
-    { Icon: Twitter, href: "#" },
-    { Icon: Instagram, href: "#" },
-    { Icon: Linkedin, href: "#" },
   ],
 };
 
@@ -51,17 +35,6 @@ export default function Footer() {
               Giúp người học trên toàn thế giới tiếp cận giáo dục trực tuyến
               chất lượng cao và cơ hội phát triển nghề nghiệp bền vững.
             </p>
-            <div className="flex space-x-3">
-              {FOOTER_LINKS.socials.map((social, index) => (
-                <Link
-                  key={`social-${index}`}
-                  href={social.href}
-                  className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-all hover:scale-110"
-                >
-                  <social.Icon className="h-5 w-5" />
-                </Link>
-              ))}
-            </div>
           </div>
 
           {/* Cột 2: Quick Links */}
@@ -117,7 +90,7 @@ export default function Footer() {
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-3 shrink-0 text-indigo-200" />
                 <a href="#" className="hover:text-white transition-colors">
-                  contact@learnifyx.com
+                  learnifyx@gmail.com
                 </a>
               </li>
               <li className="flex items-center">
@@ -128,11 +101,6 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-        </div>
-
-        {/* Bản quyền */}
-        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-indigo-200">
-          <p>&copy; {new Date().getFullYear()} LearnifyX. Bảo lưu mọi quyền.</p>
         </div>
       </div>
     </footer>

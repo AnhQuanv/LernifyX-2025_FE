@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { RefreshCw, HelpCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { findByPayment } from "@/redux/thunk/paymentThunk";
 import { resetPayment } from "@/redux/features/payment/paymentSlice";
@@ -23,10 +23,6 @@ export default function PaymentResultPage() {
   const tax = totalValue * 0.1;
   const total = totalValue + tax;
   const isSuccess = statusParam === "success";
-
-  const handleRetryPayment = () => {
-    router.push("/checkout");
-  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -173,9 +169,6 @@ export default function PaymentResultPage() {
               <p className="text-lg text-gray-600 mb-2">
                 Xin lỗi, chúng tôi không thể xử lý đơn hàng của bạn
               </p>
-              <p className="text-sm text-gray-500">
-                Vui lòng kiểm tra chi tiết thanh toán và thử lại
-              </p>
             </div>
 
             {/* Error Details Card */}
@@ -196,174 +189,17 @@ export default function PaymentResultPage() {
                   </ul>
                 </div>
               </div>
-
-              {/* Troubleshooting Section */}
-              <div className="mb-8 pb-8 border-b border-gray-200">
-                <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2 mb-4">
-                  <HelpCircle className="w-5 h-5 text-orange-600" />
-                  Những gì bạn có thể thử:
-                </h3>
-                <div className="space-y-3 pl-7">
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-orange-600">
-                        1
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        Kiểm tra lại thông tin thẻ
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Đảm bảo số thẻ, ngày hết hạn và CVV đã được nhập chính
-                        xác
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-orange-600">
-                        2
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        Kiểm tra số dư tài khoản
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Đảm bảo bạn có đủ tiền để thanh toán đơn hàng
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-orange-600">
-                        3
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        Thử phương thức thanh toán khác
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Sử dụng Momo, VNPay, ZaloPay hoặc các phương thức khác
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="shrink-0 w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-orange-600">
-                        4
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        Xóa bộ nhớ cache
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Xóa dữ liệu trình duyệt và thử lại
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Reassurance Section */}
-              <div className="bg-blue-50 rounded-xl border border-blue-200 p-4">
-                <p className="text-sm font-medium text-blue-900">
-                  💳 An toàn & Bảo mật
-                </p>
-                <p className="text-sm text-blue-700 mt-1">
-                  Giao dịch của bạn được bảo vệ bởi các tiêu chuẩn bảo mật cao
-                  nhất. Không có khoản tiền nào đã bị trừ từ tài khoản của bạn.
-                </p>
-              </div>
             </div>
 
             {/* Action Buttons - Failure */}
             <div className="space-y-3">
               <button
-                onClick={handleRetryPayment}
-                className="w-full bg-linear-to-r from-violet-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-violet-700 hover:to-purple-700 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
-              >
-                <RefreshCw className="w-5 h-5" />
-                Thử thanh toán lại
-              </button>
-
-              <button
                 onClick={() => router.push("/cart")}
-                className="w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Quay lại giỏ hàng
               </button>
-            </div>
-
-            {/* Contact Support */}
-            <div className="mt-12 bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-              <h3 className="font-bold text-lg text-gray-800 mb-6 text-center">
-                Cần trợ giúp?
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a
-                  href="mailto:support@learnifyx.com"
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors"
-                >
-                  <p className="text-sm font-medium text-gray-700">
-                    Email hỗ trợ
-                  </p>
-                  <p className="text-sm text-violet-600 font-semibold mt-1">
-                    support@learnifyx.com
-                  </p>
-                </a>
-                <a
-                  href="tel:+84123456789"
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors"
-                >
-                  <p className="text-sm font-medium text-gray-700">
-                    Hotline hỗ trợ
-                  </p>
-                  <p className="text-sm text-violet-600 font-semibold mt-1">
-                    +84 (123) 456-789
-                  </p>
-                </a>
-              </div>
-            </div>
-
-            {/* FAQ Section */}
-            <div className="mt-8 bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-              <h3 className="font-bold text-lg text-gray-800 mb-4">
-                Câu hỏi thường gặp
-              </h3>
-              <div className="space-y-4">
-                <div className="pb-4 border-b border-gray-200">
-                  <p className="font-medium text-gray-700">
-                    Tại sao thanh toán của tôi bị từ chối?
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Có thể là do thông tin thẻ không đúng, số dư không đủ, hoặc
-                    vấn đề bảo mật từ ngân hàng.
-                  </p>
-                </div>
-                <div className="pb-4 border-b border-gray-200">
-                  <p className="font-medium text-gray-700">
-                    Tiền của tôi có bị trừ không?
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Không. Chỉ các giao dịch thành công mới được trừ từ tài
-                    khoản của bạn.
-                  </p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-700">
-                    Tôi nên làm gì tiếp theo?
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Kiểm tra lại thông tin thanh toán và nhấn &quot;Thử thanh
-                    toán lại&quot;, hoặc liên hệ với chúng tôi để được hỗ trợ.
-                  </p>
-                </div>
-              </div>
             </div>
           </>
         )}

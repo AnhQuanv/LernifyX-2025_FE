@@ -38,6 +38,7 @@ export function DeleteModal({
         </DialogHeader>
         <DialogFooter>
           <Button
+            className="cursor-pointer"
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -46,13 +47,13 @@ export function DeleteModal({
           </Button>
           <Button
             type="button"
-            variant="destructive"
+            variant={title.includes("Kích hoạt") ? "default" : "destructive"} // Xanh nếu kích hoạt, đỏ nếu khóa
             onClick={() => {
               onConfirm();
               onOpenChange(false);
             }}
           >
-            Xóa
+            Xác nhận
           </Button>
         </DialogFooter>
       </DialogContent>

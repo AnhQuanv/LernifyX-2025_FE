@@ -84,7 +84,6 @@ export function RegisterForm() {
             Tham gia LearnifyX để bắt đầu hành trình học tập của bạn!
           </p>
 
-          {/* Root Error */}
           {formState.errors.root && (
             <p className="text-red-600 text-center mb-4">
               {formState.errors.root.message}
