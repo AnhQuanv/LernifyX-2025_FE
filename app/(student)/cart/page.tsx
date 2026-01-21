@@ -1,22 +1,28 @@
 "use client";
 
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { getCartTotal } from "@/lib/utils";
 import { CourseHorizontalCard } from "@/components/student/popover/CourseHorizontalCard";
+import { getUserAllCart } from "@/redux/thunk/cartThunk";
+import { getUserAllWishlist } from "@/redux/thunk/wishlistThunk";
 
 export default function CartPage() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const cartItems = useSelector((state: RootState) => state.cart.allCourses);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { handleCartToggle } = useWishlistCart();
   const totalValue = getCartTotal(cartItems);
-
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth,
+  );
+  const cartStatus = useSelector((state: RootState) => state.cart.status);
   const tax = totalValue * 0.1;
   const total = totalValue + tax;
 
@@ -27,6 +33,22 @@ export default function CartPage() {
     router.push("/checkout");
   };
 
+  useEffect(() => {
+    if (isAuthenticated && user?.roleName === "student") {
+      dispatch(getUserAllCart({ page: 1, limit: 100 }));
+      dispatch(getUserAllWishlist({ page: 1, limit: 100 }));
+    }
+  }, [isAuthenticated, user, dispatch]);
+  if (cartStatus === "loading" && cartItems.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-black-600">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header */}

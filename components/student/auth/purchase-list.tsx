@@ -8,12 +8,16 @@ import { Purchase } from "@/types/payment/payment";
 
 interface PurchaseListProps {
   purchases: Purchase[];
+  isAdminView?: boolean;
 }
 
-export default function PurchaseList({ purchases }: PurchaseListProps) {
+export default function PurchaseList({
+  purchases,
+  isAdminView,
+}: PurchaseListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(
-    null
+    null,
   );
 
   const formatDate = (date: Date) => {
@@ -80,7 +84,7 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
               className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
             >
               <div className="flex-1 text-left">
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex flex-wrap items-center gap-4 mb-3">
                   <h3 className="text-lg font-bold text-gray-800">
                     Đơn #{purchase.transactionRef}
                   </h3>
@@ -93,12 +97,30 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
                     </span>
                   </div>
                 </div>
+
+                {isAdminView && purchase.customer && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mb-3 bg-violet-50/50 p-3 rounded-xl border border-violet-100/50">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      Họ tên:
+                      <span className="font-bold">
+                        {purchase.customer.name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      Email:
+                      <span>{purchase.customer.email}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>{formatDate(purchase.createdAt)}</span>
+                  <span>
+                    {formatDate(purchase.paidAt || purchase.createdAt)}
+                  </span>
                   <span className="hidden sm:inline">
                     {purchase.items.length} khóa học
                   </span>
-                  <span className="text-violet-600 font-semibold">
+                  <span className="text-violet-600 font-bold text-base">
                     {purchase.amount.toLocaleString()}₫
                   </span>
                 </div>
@@ -111,7 +133,7 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
                     setSelectedPurchase(purchase);
                   }}
                   className="flex items-center justify-center w-10 h-10 rounded-lg bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors"
-                  title="View details"
+                  title="Xem chi tiết"
                 >
                   <Eye className="w-5 h-5" />
                 </div>
@@ -127,18 +149,16 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
             {isExpanded && (
               <div className="border-t border-gray-100 bg-gray-50 p-6">
                 <h4 className="text-sm font-semibold text-gray-700 mb-4">
-                  Khóa học trong đơn hàng này:
+                  Danh sách sản phẩm:
                 </h4>
-                <div className="space-y-3">
-                  {purchase.items.map((item) => (
+                <div className="grid grid-cols-1 gap-3">
+                  {purchase.items.map((item, index) => (
                     <div
-                      key={item.id}
-                      className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all"
+                      key={index}
+                      className="flex items-center justify-between bg-white p-4 rounded-xl border border-gray-100 shadow-sm"
                     >
-                      {/* Course Info Left */}
                       <div className="flex items-center gap-4">
-                        {/* Course Image */}
-                        <div className="min-w-12 min-h-12 w-12 h-12 relative rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                        <div className="min-w-12 min-h-12 w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
                           <Image
                             src={
                               item.image ||
@@ -150,20 +170,18 @@ export default function PurchaseList({ purchases }: PurchaseListProps) {
                             sizes="48px"
                           />
                         </div>
-
-                        {/* Title + Teacher */}
                         <div>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 line-clamp-1">
                             {item.title}
                           </p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            by {item.instructor}
-                          </p>
+                          {item.instructor && (
+                            <p className="text-xs text-gray-500">
+                              Giảng viên: {item.instructor}
+                            </p>
+                          )}
                         </div>
                       </div>
-
-                      {/* Price */}
-                      <span className="text-lg font-bold text-violet-600">
+                      <span className="text-sm font-bold text-gray-700 whitespace-nowrap">
                         {item.price.toLocaleString()}₫
                       </span>
                     </div>

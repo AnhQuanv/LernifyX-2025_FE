@@ -24,6 +24,9 @@ export interface PurchaseHistoryParams {
   status?: "all" | "success" | "pending" | "failed";
   page?: number;
   limit?: number;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
 }
 
 export interface PurchaseItem {
@@ -45,6 +48,11 @@ export interface Purchase {
   items: PurchaseItem[];
   paidAt?: Date;
   createdAt: Date;
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface Pagination {

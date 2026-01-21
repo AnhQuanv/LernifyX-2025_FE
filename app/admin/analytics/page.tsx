@@ -104,7 +104,7 @@ export default function AnalyticsPage() {
 
     if (filteredCourses.length > 0) {
       const isCurrentCourseValid = filteredCourses.some(
-        (c) => c.id === selectedCourseId
+        (c) => c.id === selectedCourseId,
       );
 
       if (!isCurrentCourseValid) {
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (filteredCourses.length > 0) {
       const isCurrentCourseValid = filteredCourses.some(
-        (c) => c.id === selectedCourseId
+        (c) => c.id === selectedCourseId,
       );
       if (!isCurrentCourseValid) {
         setSelectedCourseId(filteredCourses[0].id);
@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
           courseId,
           start,
           end,
-          teacherId
+          teacherId,
         );
         setCurrentRawData(dataChart || []);
       } catch {
@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
         setIsLoadingChartData(false);
       }
     },
-    []
+    [],
   );
 
   const fetchInitialData = useCallback(async () => {
@@ -173,7 +173,7 @@ export default function AnalyticsPage() {
             firstCourse.id,
             startDate,
             endDate,
-            firstTeacher.id
+            firstTeacher.id,
           );
         }
       }
@@ -240,9 +240,9 @@ export default function AnalyticsPage() {
     () =>
       Math.max(
         ...data.map((item) => Math.max(item.revenue, item.gmv)),
-        1000000
+        1000000,
       ),
-    [data]
+    [data],
   );
   const step = 500000;
   const domainMax = Math.ceil(maxVal / step) * step;
@@ -357,9 +357,9 @@ export default function AnalyticsPage() {
               <div className="relative min-h-112.5 border rounded-xl p-2 bg-card ">
                 {isLoadingChartData ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-card/50 z-10">
-                    <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+                    <Loader className="h-10 w-10 animate-spin " />
                     <p className="text-muted-foreground animate-pulse">
-                      Đang truy xuất dữ liệu...
+                      Đang tải dữ liệu...
                     </p>
                   </div>
                 ) : isAllZero ? (
@@ -422,7 +422,7 @@ export default function AnalyticsPage() {
                                     </div>
                                     <div className="flex justify-between items-center text-xs">
                                       <span className="text-black font-medium">
-                                        Giáo viên nhận:
+                                        Giảng viên nhận:
                                       </span>
                                       <span className="font-bold text-black">
                                         {revenue.toLocaleString("vi-VN")} đ
@@ -435,7 +435,7 @@ export default function AnalyticsPage() {
                                         </span>
                                         <span className="font-bold text-black">
                                           {platformProfit.toLocaleString(
-                                            "vi-VN"
+                                            "vi-VN",
                                           )}{" "}
                                           đ
                                         </span>

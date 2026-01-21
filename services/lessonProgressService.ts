@@ -2,18 +2,20 @@ import axiosClient from "@/lib/axios";
 
 export const handleAddNoteToLesson = async (
   progressId: string,
-  text: string
+  text: string,
+  videoTimestamp: number,
 ) => {
   const res = await axiosClient.post(`lesson-note/create`, {
     progressId,
     text,
+    videoTimestamp,
   });
   return res.data.data;
 };
 
 export const handleUpdateNoteToLesson = async (
   noteId: string,
-  text: string
+  text: string,
 ) => {
   const res = await axiosClient.patch(`lesson-note/update`, {
     noteId,
@@ -39,7 +41,7 @@ export const handleCreateLessonProgress = async (lessonId: string) => {
 export const handleUpdateLessonProgress = async (
   progressId: string,
   completed?: boolean,
-  lastPosition?: number
+  lastPosition?: number,
 ) => {
   const res = await axiosClient.patch(`lesson-progress/update`, {
     progressId,

@@ -23,7 +23,7 @@ export const createLessonProgress = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const updateLessonProgress = createAsyncThunk(
@@ -34,13 +34,13 @@ export const updateLessonProgress = createAsyncThunk(
       completed,
       lastPosition,
     }: { progressId: string; completed?: boolean; lastPosition?: number },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await handleUpdateLessonProgress(
         progressId,
         completed,
-        lastPosition
+        lastPosition,
       );
       return res;
     } catch (err: unknown) {
@@ -52,17 +52,21 @@ export const updateLessonProgress = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const addNoteToLesson = createAsyncThunk(
   "note/addNoteToLesson",
   async (
-    { progressId, text }: { progressId: string; text: string },
-    { rejectWithValue }
+    {
+      progressId,
+      text,
+      videoTimestamp,
+    }: { progressId: string; text: string; videoTimestamp: number },
+    { rejectWithValue },
   ) => {
     try {
-      const res = await handleAddNoteToLesson(progressId, text);
+      const res = await handleAddNoteToLesson(progressId, text, videoTimestamp);
       return res;
     } catch (err: unknown) {
       const error = err as AxiosError<ApiError>;
@@ -71,14 +75,14 @@ export const addNoteToLesson = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const updateNoteToLesson = createAsyncThunk(
   "note/updateNoteToLesson",
   async (
     { noteId, text }: { noteId: string; text: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await handleUpdateNoteToLesson(noteId, text);
@@ -90,7 +94,7 @@ export const updateNoteToLesson = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );
 
 export const deleteNoteToLesson = createAsyncThunk(
@@ -106,5 +110,5 @@ export const deleteNoteToLesson = createAsyncThunk(
         errorCode: error.response?.data?.errorCode,
       });
     }
-  }
+  },
 );

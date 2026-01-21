@@ -128,7 +128,7 @@ export function RevenueChart({ data, isLoading }: RevenueChartProps) {
 
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-black font-medium">
-                          Giáo viên nhận:
+                          Giảng viên nhận:
                         </span>
                         <span className="font-bold text-black">
                           {revenue.toLocaleString("vi-VN")} đ

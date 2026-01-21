@@ -109,7 +109,7 @@ export function TopCategoriesChart({ data }: { data?: CategoryDataItem[] }) {
                     <div className="flex flex-col gap-1.5">
                       <div className="flex justify-between gap-4 text-xs">
                         <span className="text-black font-medium">
-                          Học sinh trả:
+                          Học viên trả:
                         </span>
                         <span className="font-bold text-black">
                           {gmv.toLocaleString("vi-VN")} đ
@@ -118,7 +118,7 @@ export function TopCategoriesChart({ data }: { data?: CategoryDataItem[] }) {
 
                       <div className="flex justify-between gap-4 text-xs">
                         <span className="text-black font-medium">
-                          Giáo viên nhận:
+                          Giảng viên nhận:
                         </span>
                         <span className="font-bold text-black">
                           {Math.round(teacherReceive).toLocaleString("vi-VN")} đ

@@ -55,7 +55,7 @@ const userFormSchema = z
     {
       message: "Mật khẩu xác nhận không khớp",
       path: ["confirm_password"],
-    }
+    },
   );
 
 interface AddStudentModalProps {
@@ -174,7 +174,7 @@ export function AddStudentModal({
       <DialogContent className="sm:max-w-2xl max-h-[95vh] overflow-y-auto rounded-3xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-black">
-            {user ? "Cập nhật tài khoản" : "Tạo tài khoản hệ thống"}
+            {user ? "Cập nhật tài khoản" : "Tạo tài khoản"}
           </DialogTitle>
           <DialogDescription>
             {user
@@ -225,8 +225,8 @@ export function AddStudentModal({
                           {role === "student"
                             ? "Học viên"
                             : role === "teacher"
-                            ? "Giảng viên"
-                            : "Quản trị viên"}
+                              ? "Giảng viên"
+                              : "Quản trị viên"}
                         </span>
                       </label>
                     ))}

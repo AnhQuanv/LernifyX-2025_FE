@@ -40,17 +40,17 @@ export default function AdminDashboard() {
         handleGetMainStatsDashboard(
           timeRange,
           customDate.start,
-          customDate.end
+          customDate.end,
         ),
         handleGetTop10CoursesRevenue(
           timeRange,
           customDate.start,
-          customDate.end
+          customDate.end,
         ),
         handleGetTop10CategoriesRevenue(
           timeRange,
           customDate.start,
-          customDate.end
+          customDate.end,
         ),
       ]);
 

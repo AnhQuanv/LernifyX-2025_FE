@@ -30,10 +30,13 @@ const shortenId = (id: string) => {
 const processCourseData = (data: { name: string; id?: string }[]) => {
   if (!data || data.length === 0) return [];
 
-  const nameCounts: Record<string, number> = data.reduce((acc, item) => {
-    acc[item.name] = (acc[item.name] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const nameCounts: Record<string, number> = data.reduce(
+    (acc, item) => {
+      acc[item.name] = (acc[item.name] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return data.map((item) => {
     const isDuplicate = nameCounts[item.name] > 1;
@@ -75,8 +78,8 @@ const CustomTooltip = ({
               {dataEntry.status === "published"
                 ? "Đã xuất bản"
                 : dataEntry.status === "archived"
-                ? "Đã gỡ xuống"
-                : dataEntry.status}
+                  ? "Đã gỡ xuống"
+                  : dataEntry.status}
             </span>
           </div>
 
@@ -91,7 +94,7 @@ const CustomTooltip = ({
 
           <div className="flex justify-between gap-4 text-xs">
             <span className="text-black text-[11px] font-medium">
-              Giáo viên nhận:
+              Giảng viên nhận:
             </span>
             <span className="font-medium text-black">
               {Math.round(dataEntry.netRevenue || 0).toLocaleString("vi-VN")} đ
@@ -129,7 +132,7 @@ const legendFormatter = (value: string) => {
 export function CoursePerformance({ data }: { data: CourseRevenueDetail[] }) {
   const processedData = processCourseData(data);
   const dynamicColors = generateDynamicColors(
-    processedData ? processedData.length : 0
+    processedData ? processedData.length : 0,
   );
 
   if (!processedData || processedData.length === 0) {

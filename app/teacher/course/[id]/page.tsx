@@ -249,7 +249,7 @@ export default function CourseDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground">Học sinh</p>
+                <p className="text-sm text-muted-foreground">Học viên</p>
                 <p className="text-2xl font-bold text-foreground">
                   {(courseDisplayData.students ?? 0).toLocaleString()}
                 </p>
@@ -308,7 +308,7 @@ export default function CourseDetailPage() {
               value="students"
               disabled={!isPublished}
             >
-              Học Sinh
+              Học Viên
             </TabsTrigger>
             <TabsTrigger
               className="cursor-pointer"
@@ -363,7 +363,7 @@ export default function CourseDetailPage() {
             <TabsContent value="students" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Danh sách học sinh</CardTitle>
+                  <CardTitle>Danh sách học viên</CardTitle>
                   <CardDescription>
                     {(courseDisplayData.students ?? 0).toLocaleString()} học
                     sinh đã đăng ký
@@ -431,7 +431,7 @@ export default function CourseDetailPage() {
                       ))
                     ) : (
                       <p className="text-center text-muted-foreground py-4">
-                        Khóa học này chưa có học sinh nào đăng ký.
+                        Khóa học này chưa có học viên nào đăng ký.
                       </p>
                     )}
                     {paginationS && paginationS.totalPages > 1 && (

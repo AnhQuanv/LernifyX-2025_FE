@@ -6,7 +6,7 @@ const FOOTER_LINKS = {
   quickLinks: [
     { label: "Trang chủ", href: "#" },
     { label: "Tất cả khóa học", href: "#" },
-    { label: "Giáo viên của chúng tôi", href: "#" },
+    { label: "Giảng viên của chúng tôi", href: "#" },
   ],
   categories: [
     { label: "Lập trình web", href: "#" },

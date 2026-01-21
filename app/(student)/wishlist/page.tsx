@@ -1,18 +1,30 @@
 "use client";
 
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
-import { ArrowLeft } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
+import { ArrowLeft, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useWishlistCart } from "@/hooks/commonHooks";
 import { getCartTotal, roundVND } from "@/lib/utils";
 import { CourseHorizontalCard } from "@/components/student/popover/CourseHorizontalCard";
+import { useEffect } from "react";
+import { getUserAllWishlist } from "@/redux/thunk/wishlistThunk";
+import { getUserAllCart } from "@/redux/thunk/cartThunk";
 
 export default function WishlistPage() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+
   const { handleWishlistToggle, handleCartToggle } = useWishlistCart();
   const wishlistItems = useSelector(
     (state: RootState) => state.wishlist.allCourses,
+  );
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  const wishlistStatus = useSelector(
+    (state: RootState) => state.wishlist.status,
   );
   const cartItems = useSelector((state: RootState) => state.cart.allCourses);
 
@@ -20,7 +32,22 @@ export default function WishlistPage() {
   const isInCart = (courseId: string) =>
     cartItems.some((item) => item.id === courseId);
   const allInCart = wishlistItems.every((course) => isInCart(course.id));
-
+  useEffect(() => {
+    if (isAuthenticated && user?.roleName === "student") {
+      dispatch(getUserAllWishlist({ page: 1, limit: 100 }));
+      dispatch(getUserAllCart({ page: 1, limit: 100 }));
+    }
+  }, [isAuthenticated, user, dispatch]);
+  if (wishlistStatus === "loading" && wishlistItems.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin mx-auto mb-4" />
+          <p className="text-black-600">Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
       {/* Header Section */}

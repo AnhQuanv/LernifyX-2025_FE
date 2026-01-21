@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader,
+  PlayCircle,
 } from "lucide-react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -76,6 +77,9 @@ export default function LessonPage() {
     {},
   );
   const videoRef = useRef<HTMLVideoElement>(null);
+  const liveTimeRef = useRef<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playerRef = useRef<any>(null);
   const [isProgressReady, setIsProgressReady] = useState(false);
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
@@ -128,17 +132,35 @@ export default function LessonPage() {
       toast.error("Có lỗi xảy ra, vui lòng thử lại!");
       return;
     }
+    const currentTime = liveTimeRef.current;
+    console.log("currentTime:", currentTime);
+
     try {
       await dispatch(
         addNoteToLesson({
           progressId: lesson.progress.id,
           text: newNoteContent,
+          videoTimestamp: currentTime,
         }),
       ).unwrap();
       setNewNoteContent("");
       toast.success("Thêm ghi chú thành công!");
     } catch {
       toast.error("Thêm ghi chú thất bại, vui lòng thử lại!");
+    }
+  };
+
+  const formatTimestamp = (seconds: number) => {
+    if (!seconds) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
+  const handleJumpToTime = (timestamp: number) => {
+    if (playerRef.current) {
+      playerRef.current.currentTime = timestamp;
+      playerRef.current.play();
     }
   };
 
@@ -226,6 +248,7 @@ export default function LessonPage() {
     e: React.SyntheticEvent<HTMLVideoElement>,
   ) => {
     const video = e.currentTarget;
+    liveTimeRef.current = video.currentTime;
     const currentTime = Math.floor(video.currentTime);
     const duration = video.duration;
 
@@ -455,7 +478,7 @@ export default function LessonPage() {
                                 </div>
                                 {les.hasQuiz && (
                                   <span className="ml-2 inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">
-                                    📝 Quiz
+                                    Quiz
                                   </span>
                                 )}
                                 <span className="text-xs text-gray-500 ml-2 shrink-0 whitespace-nowrap">
@@ -485,6 +508,7 @@ export default function LessonPage() {
             {/* Video Player */}
             <div className="mb-12 rounded-xl overflow-hidden shadow-lg bg-black">
               <MuxPlayer
+                ref={playerRef}
                 className="w-full aspect-video bg-black"
                 playbackId={playbackId}
                 metadata={{
@@ -1019,6 +1043,15 @@ export default function LessonPage() {
                             className="border border-gray-200 rounded-lg p-4 bg-gray-50 hover:bg-white transition-colors"
                           >
                             <div className="flex justify-between items-start">
+                              <button
+                                onClick={() =>
+                                  handleJumpToTime(note.videoTimestamp)
+                                }
+                                className="inline-flex items-center px-2 py-1 mb-2 bg-violet-100 text-violet-700 text-xs font-bold rounded hover:bg-violet-200 transition-colors cursor-pointer"
+                              >
+                                <PlayCircle className="w-3 h-3 mr-1" />
+                                {formatTimestamp(note.videoTimestamp)}
+                              </button>
                               <p className="text-gray-800 flex-1 whitespace-pre-wrap">
                                 {note.text}
                               </p>

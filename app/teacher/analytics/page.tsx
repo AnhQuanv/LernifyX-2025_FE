@@ -98,7 +98,7 @@ export default function AnalyticsPage() {
         setIsLoadingChartData(false);
       }
     },
-    []
+    [],
   );
 
   const fetchInitialData = useCallback(async () => {
@@ -178,9 +178,9 @@ export default function AnalyticsPage() {
     () =>
       Math.max(
         ...data.map((item) => Math.max(item.revenue, item.gmv)),
-        1000000
+        1000000,
       ),
-    [data]
+    [data],
   );
   const step = 500000;
   const domainMax = Math.ceil(maxVal / step) * step;
@@ -327,7 +327,7 @@ export default function AnalyticsPage() {
 
                                     <div className="flex justify-between items-center text-xs">
                                       <span className="text-black font-medium">
-                                        Giáo viên nhận:
+                                        Giảng viên nhận:
                                       </span>
                                       <span className="font-bold text-black">
                                         {revenue.toLocaleString("vi-VN")} đ
@@ -341,7 +341,7 @@ export default function AnalyticsPage() {
                                         </span>
                                         <span className="font-bold text-black">
                                           {platformProfit.toLocaleString(
-                                            "vi-VN"
+                                            "vi-VN",
                                           )}{" "}
                                           đ
                                         </span>

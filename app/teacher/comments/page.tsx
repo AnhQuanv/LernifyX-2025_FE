@@ -66,10 +66,10 @@ export default function CommentsPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Bình Luận của Học Sinh
+            Bình Luận của Học Viên
           </h1>
           <p className="text-muted-foreground mt-2">
-            Quản lý và trả lời bình luận từ học sinh của bạn
+            Quản lý và trả lời bình luận từ học viên của bạn
           </p>
         </div>
 

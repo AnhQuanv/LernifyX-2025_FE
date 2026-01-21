@@ -296,7 +296,7 @@ const CourseCard = ({
 
         <CardContent className="p-4 pt-4 flex flex-col flex-1 justify-between space-y-4">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm border-t pt-4">
-            <StatBox label="Học sinh" value={course.students ?? 0} />
+            <StatBox label="Học viên" value={course.students ?? 0} />
             <StatBox label="Danh mục" value={course.category ?? ""} truncate />
             <StatBox
               label="Đánh giá"
@@ -502,8 +502,8 @@ const CourseCard = ({
           <DialogHeader>
             <DialogTitle className="font-bold">Lý do gỡ khóa học</DialogTitle>
             <DialogDescription>
-              Khóa học sẽ bị ẩn khỏi hệ thống. Những học sinh đã mua khóa học
-              vẫn được học tiếp nhưng không hiển thị để cho học sinh mua. Vui
+              Khóa học sẽ bị ẩn khỏi hệ thống. Những học viên đã mua khóa học
+              vẫn được học tiếp nhưng không hiển thị để cho học viên mua. Vui
               lòng nhập lý do gỡ xuống.
             </DialogDescription>
           </DialogHeader>

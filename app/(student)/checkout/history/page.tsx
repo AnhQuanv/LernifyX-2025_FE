@@ -43,7 +43,7 @@ export default function PurchaseHistoryPage() {
   }, [fetchPurchases]);
 
   const handleStatusFilter = (
-    status: "all" | "success" | "pending" | "failed"
+    status: "all" | "success" | "pending" | "failed",
   ) => {
     setSelectedStatus(status);
     setPage(1);
@@ -66,45 +66,6 @@ export default function PurchaseHistoryPage() {
               <h1 className="text-3xl font-bold">Lịch sử Mua hàng</h1>
             </div>
           </div>
-
-          {/* Stats Bar */}
-          {purchases.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">
-                  Tổng Đơn hàng
-                </p>
-                <p className="text-2xl font-bold text-violet-600">
-                  {purchases.length}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">
-                  Đã Hoàn thành
-                </p>
-                <p className="text-2xl font-bold text-green-600">
-                  {purchases.filter((p) => p.status === "success").length}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">Đang Chờ</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {purchases.filter((p) => p.status === "pending").length}
-                </p>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                <p className="text-gray-500 text-xs font-medium">
-                  Tổng Chi tiêu
-                </p>
-                <p className="text-2xl font-bold text-purple-700">
-                  {purchases
-                    .reduce((sum, p) => sum + p.amount, 0)
-                    .toLocaleString()}
-                  ₫
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -181,7 +142,7 @@ export default function PurchaseHistoryPage() {
 
                       {Array.from(
                         { length: pagination.totalPages },
-                        (_, i) => i + 1
+                        (_, i) => i + 1,
                       ).map((p) => (
                         <button
                           key={p}

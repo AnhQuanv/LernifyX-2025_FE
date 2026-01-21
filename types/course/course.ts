@@ -58,6 +58,7 @@ export interface filterTeacherCourseParams {
 export interface Lesson_Note {
   id: string;
   text: string;
+  videoTimestamp: number;
   createdAt?: string;
   updatedAt?: string;
 }

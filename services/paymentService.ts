@@ -1,9 +1,10 @@
 import axiosClient from "@/lib/axios";
 import { PurchaseHistoryParams } from "@/types/payment/payment";
+import { start } from "repl";
 
 export const handleCreatePayment = async (
   courseId: string[],
-  gateway: string
+  gateway: string,
 ) => {
   const res = await axiosClient.post(`payment`, {
     courseId,
@@ -19,13 +20,29 @@ export const handleFindByPayment = async (paymentId: string) => {
 };
 
 export const handleGetPurchaseHistory = async (
-  params?: PurchaseHistoryParams
+  params?: PurchaseHistoryParams,
 ) => {
   const res = await axiosClient.get("payment", {
     params: {
       status: params?.status || "all",
       page: params?.page || 1,
       limit: params?.limit || 6,
+    },
+  });
+  return res.data.data;
+};
+
+export const handleGetPurchaseHistoryForAdmin = async (
+  params?: PurchaseHistoryParams,
+) => {
+  const res = await axiosClient.get("payment/admin-payment-history", {
+    params: {
+      status: params?.status || "all",
+      page: params?.page || 1,
+      limit: params?.limit || 6,
+      startDate: params?.startDate,
+      endDate: params?.endDate,
+      search: params?.search,
     },
   });
   return res.data.data;
@@ -40,7 +57,7 @@ export const handleGetSpecificPayments = async (
   courseId: string,
   startDate: string,
   endDate: string,
-  teacherId?: string
+  teacherId?: string,
 ) => {
   const params = {
     courseId: courseId,
@@ -64,7 +81,7 @@ export const handleGetMainStatsDashboardTeacher = async () => {
 export const handleGetMainStatsDashboard = async (
   range: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ) => {
   const res = await axiosClient.get("payment/admin-stats-dashboard", {
     params: {
@@ -79,7 +96,7 @@ export const handleGetMainStatsDashboard = async (
 export const handleGetTop10CoursesRevenue = async (
   range: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ) => {
   const res = await axiosClient.get("payment/admin-top-course-dashboard", {
     params: {
@@ -94,7 +111,7 @@ export const handleGetTop10CoursesRevenue = async (
 export const handleGetTop10CategoriesRevenue = async (
   range: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ) => {
   const res = await axiosClient.get("payment/admin-top-category-dashboard", {
     params: {

@@ -40,6 +40,7 @@ export function Sidebar() {
     { icon: Users, label: "Quản lý tài khoản", href: "/admin/students" },
     { icon: BookOpen, label: "Quản lý khóa học", href: "/admin/courses" },
     { icon: BarChart3, label: "Thống Kê", href: "/admin/analytics" },
+    { icon: BarChart3, label: "Lịch sử giao dịch", href: "/admin/history" },
     { icon: User, label: "Chỉnh sửa hồ sơ", href: "/admin/profile" },
     { icon: Settings, label: "Cài Đặt", href: "/admin/setting" },
   ];

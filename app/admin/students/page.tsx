@@ -122,7 +122,7 @@ export default function StudentContent() {
       case "admin":
         return "Quản Lý Quản Trị Viên";
       default:
-        return "Quản Lý Học Sinh";
+        return "Quản Lý Học Viên";
     }
   };
 
@@ -145,14 +145,14 @@ export default function StudentContent() {
                 setModalType("add");
               }}
             >
-              <Plus size={18} /> Thêm Mới
+              <Plus size={18} /> Tạo Tài Khoản
             </Button>
           </div>
 
           {/* 4. Bộ lọc Role (Tabs) */}
           <div className="flex gap-2 p-1 bg-muted w-fit rounded-xl border border-border">
             {[
-              { id: "student", label: "Học sinh" },
+              { id: "student", label: "Học viên" },
               { id: "teacher", label: "Giảng viên" },
               { id: "admin", label: "Admin" },
             ].map((role) => (
@@ -183,7 +183,7 @@ export default function StudentContent() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={`Tìm kiếm ${
-                      selectedRole === "student" ? "học sinh" : "tài khoản"
+                      selectedRole === "student" ? "học viên" : "tài khoản"
                     }...`}
                     className="bg-transparent outline-none text-foreground flex-1"
                   />
@@ -209,7 +209,7 @@ export default function StudentContent() {
                   <CardTitle>
                     Danh Sách{" "}
                     {selectedRole === "student"
-                      ? "Học Sinh"
+                      ? "Học Viên"
                       : selectedRole === "teacher"
                         ? "Giảng Viên"
                         : "Quản Trị Viên"}

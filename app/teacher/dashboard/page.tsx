@@ -50,7 +50,7 @@ export default function TeacherDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isChartLoading, setIsChartLoading] = useState(false);
   const [selectedYear, setSelectedYear] = useState(
-    new Date().getFullYear().toString()
+    new Date().getFullYear().toString(),
   );
   const [isMounted, setIsMounted] = useState(false);
 
@@ -171,7 +171,7 @@ export default function TeacherDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard title="Tổng Khóa Học" value={mainStats.courses} />
-          <StatCard title="Tổng Học Sinh" value={mainStats.students} />
+          <StatCard title="Tổng Học Viên" value={mainStats.students} />
           <StatCard
             title="Tổng Doanh Thu (GMV)"
             value={mainStats.gmv.toLocaleString("vi-VN", {

@@ -1,7 +1,5 @@
 "use client";
 
-import { Filter } from "lucide-react";
-
 interface PurchaseFilterProps {
   selectedStatus: "all" | "success" | "pending" | "failed";
   onStatusChange: (status: "all" | "success" | "pending" | "failed") => void;
