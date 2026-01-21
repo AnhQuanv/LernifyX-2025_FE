@@ -208,6 +208,24 @@ export default function AnalyticsPage() {
   }, [currentRawData]);
 
   const handleUpdateFilter = () => {
+    // 1. Chuyển đổi chuỗi "YYYY-MM-DD" sang đối tượng Date
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // 2. Tính toán số ngày chênh lệch
+    // (1000ms * 60s * 60m * 24h) = số ms trong 1 ngày
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    // 3. Kiểm tra điều kiện (diffDays + 1 phải bằng 7)
+    if (Math.abs(diffDays) + 1 !== 7) {
+      toast.error(
+        "Vui lòng chọn khoảng thời gian chính xác là 1 tuần (7 ngày)!",
+      );
+      return; // Dừng hàm, không gọi API
+    }
+
+    // 4. Nếu hợp lệ thì mới gọi API
     if (selectedTeacherId) {
       fetchChartData(selectedCourseId, startDate, endDate, selectedTeacherId);
       toast.success("Đã cập nhật dữ liệu!");

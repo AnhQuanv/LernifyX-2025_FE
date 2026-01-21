@@ -244,7 +244,7 @@ export default function LessonPage() {
                                 <div className="flex items-center gap-2">
                                   {les.hasQuiz && (
                                     <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">
-                                      📝 Quiz
+                                      Quiz
                                     </span>
                                   )}
                                   <span className="text-xs text-gray-500 shrink-0 whitespace-nowrap">

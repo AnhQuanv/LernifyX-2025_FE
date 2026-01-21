@@ -149,6 +149,17 @@ export default function AnalyticsPage() {
   }, [currentRawData]);
 
   const handleUpdateFilter = () => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    if (Math.abs(diffDays) + 1 !== 7) {
+      toast.error("Vui lòng chọn khoảng thời gian chính xác là 7 ngày!");
+      return;
+    }
+
     fetchChartData(selectedCourseId, startDate, endDate);
   };
 
