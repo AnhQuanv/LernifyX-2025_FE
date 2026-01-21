@@ -341,7 +341,7 @@ export default function LessonPage() {
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                     >
-                      📝 Bài tập
+                      Bài tập
                     </button>
                   )}
                 </div>
@@ -641,26 +641,17 @@ export default function LessonPage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 border-blue-200">
-                        <div className="mb-4">
-                          <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
-                        </div>
-                        <h4 className="text-2xl font-bold text-blue-900 mb-2">
-                          Hoàn thành !
-                        </h4>
-                        <p className="text-blue-700 text-lg font-bold mb-2">
+                      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-lg p-8 text-center border-2 ">
+                        <p className="text-black-700 text-lg font-bold mb-2">
                           Điểm của bạn: {getQuizScore()}%
                         </p>
-                        <p className="text-blue-600">
+                        <p className="text-black-600">
                           Bạn trả lời đúng {getCorrectCount()} trên{" "}
                           {lesson?.quiz?.length} câu hỏi
                         </p>
                       </div>
 
                       <div className="space-y-6">
-                        <h4 className="text-lg font-bold text-gray-900">
-                          Xem lại câu trả lời
-                        </h4>
                         {lesson?.quiz?.map((question, idx) => {
                           const userAnswer = quizAnswers[question.id];
                           const isCorrect =
@@ -668,11 +659,7 @@ export default function LessonPage() {
                           return (
                             <div
                               key={question.id}
-                              className={`border-2 rounded-lg p-6 ${
-                                isCorrect
-                                  ? "border-green-300 bg-green-50"
-                                  : "border-red-300 bg-red-50"
-                              }`}
+                              className={`border-2 rounded-lg p-6 `}
                             >
                               <div className="flex items-start gap-3 mb-4">
                                 {isCorrect ? (
@@ -681,13 +668,7 @@ export default function LessonPage() {
                                   <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-1" />
                                 )}
                                 <div className="flex-1">
-                                  <h5
-                                    className={`font-semibold mb-2 ${
-                                      isCorrect
-                                        ? "text-green-900"
-                                        : "text-red-900"
-                                    }`}
-                                  >
+                                  <h5 className={`font-semibold mb-2 `}>
                                     {idx + 1}. {question.question}
                                   </h5>
                                   <p
@@ -712,9 +693,9 @@ export default function LessonPage() {
                                       key={optIdx}
                                       className={`flex items-center gap-2 p-2 rounded ${
                                         iscorrectOptionId
-                                          ? "bg-green-200 text-green-900"
+                                          ? " text-green-900"
                                           : isUserAnswer && !isCorrect
-                                            ? "bg-red-200 text-red-900"
+                                            ? " text-red-900"
                                             : "text-gray-700"
                                       }`}
                                     >
