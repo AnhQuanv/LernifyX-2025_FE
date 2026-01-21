@@ -228,22 +228,6 @@ export default function CourseDetailPage() {
                 )}
               </div>
             </div>
-
-            {/* ACTION BUTTONS */}
-            <div className="flex gap-2 mt-4">
-              <Link href="/teacher/course">
-                <Button variant="ghost" className="cursor-pointer">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Quay Lại
-                </Button>
-              </Link>
-              <Link href={`/teacher/course/${id}/edit`}>
-                <Button className="cursor-pointer">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Chỉnh Sửa
-                </Button>
-              </Link>
-            </div>
           </div>
         </div>
 

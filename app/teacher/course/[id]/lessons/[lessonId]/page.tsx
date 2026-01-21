@@ -176,17 +176,6 @@ export default function LessonPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm h-20 flex items-center">
-        <div className="container mx-auto px-4 md:px-6 py-4">
-          <Link
-            href={`/teacher/course/${params.id}`}
-            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Quay lại khóa học
-          </Link>
-        </div>
-      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-0 flex-1 overflow-hidden">
         <div className="bg-white border-r border-gray-200 overflow-y-auto hidden lg:flex flex-col">
