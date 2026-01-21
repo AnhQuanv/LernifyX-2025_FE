@@ -93,7 +93,6 @@ export function AddStudentModal({
   });
 
   const selectedRole = form.watch("roleName");
-
   useEffect(() => {
     if (user) {
       form.reset({
@@ -164,7 +163,11 @@ export function AddStudentModal({
 
       onSubmit();
       onOpenChange(false);
-    } catch {
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message;
+      if (msg.toLowerCase().includes("email")) {
+        form.setError("email", { message: "Email này đã được sử dụng" });
+      }
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
     }
   };
