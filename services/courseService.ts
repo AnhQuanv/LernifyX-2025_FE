@@ -347,6 +347,7 @@ export const handleGetTeacherCourseEdit = async (courseId: string) => {
   const res = await axiosClient.get("course/teacher-edit", {
     params: { courseId },
   });
+  console.log("res.data.data: ", res.data.data);
   return res.data.data;
 };
 

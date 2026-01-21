@@ -163,6 +163,7 @@ export function AddStudentModal({
 
       onSubmit();
       onOpenChange(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const msg = err?.response?.data?.message || err.message;
       if (msg.toLowerCase().includes("email")) {

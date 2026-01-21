@@ -22,12 +22,7 @@ import { CommentSkeleton } from "@/components/ui/loading-skeleton";
 import { getCommentsByLesson } from "@/redux/thunk/commentThunk";
 import Image from "next/image";
 import { handlePostComment } from "@/services/commentService";
-import {
-  extractPlaybackId,
-  formatDurationVi,
-  getInitials,
-  getPaginationRange,
-} from "@/lib/utils";
+import { formatDurationVi, getInitials, getPaginationRange } from "@/lib/utils";
 import MuxPlayer from "@mux/mux-player-react";
 
 export default function LessonPage() {
@@ -54,12 +49,12 @@ export default function LessonPage() {
   }>({});
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [commentTab, setCommentTab] = useState<"comments" | "quiz" | "notes">(
-    "comments"
+    "comments",
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [comment, setComment] = useState("");
   const [openReplies, setOpenReplies] = useState<{ [key: string]: boolean }>(
-    {}
+    {},
   );
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
   const dispatch = useDispatch<AppDispatch>();
@@ -140,14 +135,13 @@ export default function LessonPage() {
     setExpandedSections((prev) =>
       prev.includes(chapterId)
         ? prev.filter((id) => id !== chapterId)
-        : [...prev, chapterId]
+        : [...prev, chapterId],
     );
   };
 
-  const playbackId = useMemo(
-    () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined,
-    [lesson?.videoAsset?.originalUrl]
-  );
+  const videoSrc = useMemo(() => {
+    return lesson?.videoAsset?.videoUrl || null;
+  }, [lesson?.videoAsset?.videoUrl]);
 
   useEffect(() => {
     if (courseId && lessonId) {
@@ -160,7 +154,7 @@ export default function LessonPage() {
           lessonId: lessonId,
           page: currentPage,
           limit: 6,
-        })
+        }),
       );
     }
   }, [courseId, lessonId, dispatch, currentPage]);
@@ -293,7 +287,7 @@ export default function LessonPage() {
             <div className="mb-12 rounded-xl overflow-hidden shadow-lg bg-black">
               <MuxPlayer
                 className="w-full aspect-video bg-black"
-                playbackId={playbackId}
+                src={videoSrc}
                 metadata={{
                   player_name: "lms-video-player",
                   video_id: lesson?.id,
@@ -416,20 +410,20 @@ export default function LessonPage() {
                                         "student"
                                           ? "Học viên"
                                           : c.user.roleName.toLowerCase() ===
-                                              "teacher" ||
-                                            c.user.roleName.toLowerCase() ===
-                                              "instructor"
-                                          ? "Giảng viên"
-                                          : c.user.roleName === "admin"
-                                          ? "Quản trị viên"
-                                          : c.user.roleName}
+                                                "teacher" ||
+                                              c.user.roleName.toLowerCase() ===
+                                                "instructor"
+                                            ? "Giảng viên"
+                                            : c.user.roleName === "admin"
+                                              ? "Quản trị viên"
+                                              : c.user.roleName}
                                         )
                                       </span>
                                     )}
                                   </h4>
                                   <span className="text-sm text-gray-500">
                                     {new Date(c.createdAt).toLocaleDateString(
-                                      "vi-VN"
+                                      "vi-VN",
                                     )}
                                   </span>
                                 </div>
@@ -461,7 +455,7 @@ export default function LessonPage() {
                                           ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-600 to-purple-600 text-white font-semibold text-sm">
                                               {getInitials(
-                                                c.user.fullName || "User"
+                                                c.user.fullName || "User",
                                               )}
                                             </div>
                                           )}
@@ -477,21 +471,21 @@ export default function LessonPage() {
                                                   "student"
                                                     ? "Học viên"
                                                     : r.user.roleName.toLowerCase() ===
-                                                        "teacher" ||
-                                                      r.user.roleName.toLowerCase() ===
-                                                        "teacher"
-                                                    ? "Giảng viên"
-                                                    : r.user.roleName ===
-                                                      "admin"
-                                                    ? "Quản trị viên"
-                                                    : r.user.roleName}
+                                                          "teacher" ||
+                                                        r.user.roleName.toLowerCase() ===
+                                                          "teacher"
+                                                      ? "Giảng viên"
+                                                      : r.user.roleName ===
+                                                          "admin"
+                                                        ? "Quản trị viên"
+                                                        : r.user.roleName}
                                                   )
                                                 </span>
                                               )}
                                             </h5>
                                             <span className="text-xs text-gray-500">
                                               {new Date(
-                                                r.createdAt
+                                                r.createdAt,
                                               ).toLocaleDateString("vi-VN")}
                                             </span>
                                           </div>
@@ -546,7 +540,7 @@ export default function LessonPage() {
                             <div className="flex gap-1">
                               {getPaginationRange(
                                 pagination.page,
-                                pagination.totalPages
+                                pagination.totalPages,
                               ).map((page, index) => {
                                 if (page === "...") {
                                   return (
@@ -581,8 +575,8 @@ export default function LessonPage() {
                                 setCurrentPage(
                                   Math.min(
                                     pagination.totalPages,
-                                    currentPage + 1
-                                  )
+                                    currentPage + 1,
+                                  ),
                                 )
                               }
                               disabled={currentPage === pagination.totalPages}
@@ -720,8 +714,8 @@ export default function LessonPage() {
                                         iscorrectOptionId
                                           ? "bg-green-200 text-green-900"
                                           : isUserAnswer && !isCorrect
-                                          ? "bg-red-200 text-red-900"
-                                          : "text-gray-700"
+                                            ? "bg-red-200 text-red-900"
+                                            : "text-gray-700"
                                       }`}
                                     >
                                       <span className="font-bold">

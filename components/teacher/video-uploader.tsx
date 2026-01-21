@@ -2,14 +2,14 @@
 
 import type React from "react";
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Upload, Play, Loader2, Trash2, AlertCircle } from "lucide-react";
+import { Upload, Play, Loader2, Trash2 } from "lucide-react";
 import {
   handleDeleteVideoId,
   handleUpLoadVideo,
 } from "@/services/courseService";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { extractPlaybackId, formatDurationVi } from "@/lib/utils";
+import { formatDurationVi } from "@/lib/utils";
 import { VideoAsset } from "@/types/course/course";
 import MuxPlayer from "@mux/mux-player-react";
 import {
@@ -55,10 +55,13 @@ export function VideoUploader({
   const [isChangeFileConfirmOpen, setIsChangeFileConfirmOpen] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  const playbackId = useMemo(
-    () => extractPlaybackId(currentVideoData?.originalUrl),
-    [currentVideoData?.originalUrl],
-  );
+  // const playbackId = useMemo(
+  //   () => extractPlaybackId(currentVideoData?.videoUrl),
+  //   [currentVideoData?.videoUrl],
+  // );
+  const videoSrc = useMemo(() => {
+    return currentVideoData?.videoUrl || null;
+  }, [currentVideoData?.videoUrl]);
 
   useEffect(() => {
     const url = localStorage.getItem(`upload_url_${lessonId}`);
@@ -107,7 +110,7 @@ export function VideoUploader({
         },
         savedUrl || undefined,
       );
-
+      console.log("Upload response: ", response);
       onUploadComplete(response as VideoAsset);
       toast.success("Tải video thành công!", { id: tid });
       clearUploadStorage();
@@ -158,7 +161,7 @@ export function VideoUploader({
     <>
       <div className="w-full space-y-4">
         {/* CASE 1: ĐÃ CÓ VIDEO */}
-        {playbackId && !uploading && (
+        {videoSrc && !uploading && (
           <div className="overflow-hidden border border-emerald-100 rounded-xl bg-white shadow-sm">
             <div className="flex items-center justify-between p-3 bg-emerald-50/50">
               <span className="flex items-center gap-2 text-xs font-bold text-emerald-700 uppercase tracking-wider">
@@ -176,10 +179,10 @@ export function VideoUploader({
                 <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Xóa video
               </Button>
             </div>
-
             <MuxPlayer
               className="w-full aspect-video"
-              playbackId={playbackId}
+              // playbackId={playbackId}
+              src={videoSrc}
               metadata={{
                 player_name: "lms-video-player",
                 video_id: lessonId,
@@ -192,7 +195,7 @@ export function VideoUploader({
         )}
 
         {/* CASE 2: ĐANG UPLOAD HOẶC TRỐNG */}
-        {(!playbackId || uploading || isPaused) && (
+        {(!videoSrc || uploading || isPaused) && (
           <div className="relative group">
             <label
               className={`

@@ -33,12 +33,7 @@ import {
   updateNoteToLesson,
 } from "@/redux/thunk/lessonProgressThunk";
 import toast from "react-hot-toast";
-import {
-  extractPlaybackId,
-  formatDurationVi,
-  getInitials,
-  getPaginationRange,
-} from "@/lib/utils";
+import { formatDurationVi, getInitials, getPaginationRange } from "@/lib/utils";
 import MuxPlayer from "@mux/mux-player-react";
 
 export default function LessonPage() {
@@ -305,10 +300,9 @@ export default function LessonPage() {
     }
   };
 
-  const playbackId = useMemo(
-    () => extractPlaybackId(lesson?.videoAsset?.originalUrl) || undefined,
-    [lesson?.videoAsset?.originalUrl],
-  );
+  const videoSrc = useMemo(() => {
+    return lesson?.videoAsset?.videoUrl || null;
+  }, [lesson?.videoAsset?.videoUrl]);
 
   useEffect(() => {
     if (courseId && lessonId) {
@@ -510,7 +504,7 @@ export default function LessonPage() {
               <MuxPlayer
                 ref={playerRef}
                 className="w-full aspect-video bg-black"
-                playbackId={playbackId}
+                src={videoSrc}
                 metadata={{
                   player_name: "lms-video-player",
                   video_id: lesson?.id,

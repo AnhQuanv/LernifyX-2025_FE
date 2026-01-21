@@ -87,7 +87,7 @@ export interface QuizQuestion {
 
 export interface VideoAsset {
   id: string;
-  originalUrl: string;
+  videoUrl: string;
   duration: number;
   widthOriginal: number;
   heightOriginal: number;
