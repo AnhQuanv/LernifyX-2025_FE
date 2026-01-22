@@ -169,11 +169,11 @@ export default function AdminDashboard() {
           />
           <StatCard
             title="Tổng Doanh Thu"
-            value={formatCurrency(mainStats.gmv)}
+            value={formatCurrency(mainStats.gmv * 1.1)}
           />
           <StatCard
             title="Lợi Nhuận Thực"
-            value={formatCurrency(mainStats.net)}
+            value={formatCurrency(mainStats.net * 1.1)}
           />
         </div>
 
