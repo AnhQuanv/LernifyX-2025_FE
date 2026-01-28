@@ -1044,7 +1044,6 @@ export default function CreateEditCoursePage({
                                     <div className="flex items-center gap-3">
                                       <Play className="h-4 w-4 text-primary" />
                                       <span className="font-semibold text-foreground">
-                                        Bài {idx + 1}:{" "}
                                         {lesson.title || "Bài học mới"}
                                       </span>
                                     </div>

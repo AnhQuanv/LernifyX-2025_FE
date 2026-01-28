@@ -236,8 +236,8 @@ export default function LessonPage() {
   };
 
   const lastUpdateRef = useRef(0);
-
   const isCompletingRef = useRef(false);
+  const maxTimeReached = useRef<number>(lesson?.progress?.lastPosition || 0);
 
   const handleTimeUpdate = async (
     e: React.SyntheticEvent<HTMLVideoElement>,
@@ -246,9 +246,12 @@ export default function LessonPage() {
     liveTimeRef.current = video.currentTime;
     const currentTime = Math.floor(video.currentTime);
     const duration = video.duration;
-
-    if (!isProgressReady || !lesson?.progress?.id) return;
-
+    if (!isProgressReady || !lesson?.progress?.id || currentTime === 0) return;
+    if (currentTime > maxTimeReached.current) {
+      if (currentTime - maxTimeReached.current <= 30) {
+        maxTimeReached.current = currentTime;
+      }
+    }
     const now = Date.now();
     if (now - lastUpdateRef.current > 5000) {
       lastUpdateRef.current = now;
@@ -270,6 +273,20 @@ export default function LessonPage() {
       if (progressPercent >= 90) {
         isCompletingRef.current = true;
         await handleCompleteLesson();
+      }
+    }
+  };
+
+  const handleSeeking = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const targetTime = video.currentTime;
+
+    if (targetTime > maxTimeReached.current + 30) {
+      video.currentTime = maxTimeReached.current;
+      toast.error("Bạn không được tua quá nhiều!");
+    } else {
+      if (targetTime > maxTimeReached.current) {
+        maxTimeReached.current = targetTime;
       }
     }
   };
@@ -321,6 +338,7 @@ export default function LessonPage() {
   }, [courseId, lessonId, dispatch, currentPage]);
 
   useEffect(() => {
+    console.log("lesson: ", lesson);
     if (lesson && !lesson.progress) {
       dispatch(createLessonProgress({ lessonId: lesson.id }));
     }
@@ -516,10 +534,15 @@ export default function LessonPage() {
                 onTimeUpdate={(e: any) => {
                   handleTimeUpdate(e);
                 }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                onSeeking={(e: any) => {
+                  handleSeeking(e);
+                }}
                 onEnded={handleCompleteLesson}
                 onLoadedMetadata={(e) => {
                   const player = e.target as HTMLVideoElement;
                   const lastPosition = lesson?.progress?.lastPosition;
+                  console.log("lastPosition on load:", lastPosition);
                   if (player && lastPosition !== undefined) {
                     player.currentTime = lastPosition;
                   }
